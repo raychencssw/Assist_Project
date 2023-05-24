@@ -1,0 +1,20 @@
+.surrounded{
+    border: 2px solid white;
+    border-radius: 16px;
+}
+
+.home-div{
+    text-align: center;
+    width: 80px;
+}
+
+.events-div{
+    text-align: center;
+    width: 80px;
+
+}
+
+.rankings-div{
+    text-align: center;
+    width: 80px;
+}

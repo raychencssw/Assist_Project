@@ -1,0 +1,13 @@
+<form [formGroup]="postForm" ngNativeValidate (ngSubmit)="onSubmit()">
+    <div class="row">
+        <div class="col col-lg-12">
+            <textarea id="postText" class="form-control" formControlName="posttext" rows="4" cols="12" placeholder = "Type Something..." required=""></textarea>
+        </div>
+    </div>
+    <div class="row text-end mt-2 pb-4">
+        <div class="col col-lg-12 col-sm-12 form-group mb-3">
+            <button class="btn btn-danger" type="submit" [routerLink]="">SUBMIT</button>
+        </div>
+    </div>
+</form>
+<app-posts></app-posts>
