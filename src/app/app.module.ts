@@ -26,7 +26,8 @@ const appRoutes: Routes =[
     EventsComponent,
     RankingsComponent,
     HomeComponent,
-    PostsComponent
+    PostsComponent,
+    
   ],
   imports: [
     BrowserModule,
@@ -34,7 +35,8 @@ const appRoutes: Routes =[
     RouterModule.forRoot(appRoutes),
     ReactiveFormsModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    
   ],
   providers: [],
   bootstrap: [AppComponent]
