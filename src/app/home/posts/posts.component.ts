@@ -13,8 +13,8 @@ export class PostsComponent implements OnInit{
   
   }
   ngOnInit(): void {
-    this.postservice.postsResponse.subscribe(postList=>{
-      this.posts = postList
+    this.postservice.postsResponse.subscribe(postResponse=>{
+      this.posts = postResponse.posts
     })
     this.postservice.loadPosts()
   }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from "rxjs";
-
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
@@ -8,14 +9,22 @@ export class PostServiceService {
   posts: any = []
   postsResponse = new Subject<any>()
 
-  constructor() { }
+  constructor(private http: HttpClient, private router: Router) { }
 
   addtoPosts(post: any){
-    this.posts.push(post)
+    console.log(post)
+    const jsonPost = {post: post}
+    return this.http.post(`http://localhost:3080/posts/submit`, jsonPost).subscribe(()=>{
+      this.loadPosts()
+      this.router.navigate(['/'])
+
+    })
   }
 
   loadPosts(){
     console.log("here")
-    this.postsResponse.next(this.posts)
+    this.http.get(`http://localhost:3080/home`).subscribe((response)=>{
+      this.postsResponse.next(response)
+    })
   }
 }
