@@ -1,1 +1,63 @@
-<p>events works!</p>
+<div class="container-xl event-page-bottom">
+    <!-- nav bar -->
+    <mat-tab-group class="custom-tab-group"> <!-- how do I adjust the spacing between tabs? -->
+
+        <!-- events in a week -->
+        <mat-tab label="Week"> 
+            <div class="events-wrap">
+                <table>
+                    <tbody>
+                        <tr *ngFor="let event of weeklyEvents">
+                            <div class="assist-blue">{{event.Date}}</div>
+                                <div>
+                                <td class="text-secondary" style="width:50px;">{{event.Time}}</td>
+                                <td class="vertical"></td>
+                                <td class="text-secondary" style="padding-left:10px;">{{event.Name}}<br>
+                                    {{event.Location}}
+                                </td>
+                            </div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </mat-tab>
+
+        <!-- events in a month -->
+        <mat-tab label="Month"> 
+            <div class="events-wrap">
+                <table>
+                    <tbody>
+                        <tr *ngFor="let event of monthlyEvents">
+                            <div class="assist-blue">{{event.Date}}</div>
+                                <div>
+                                <td class="text-secondary" style="width:50px;">{{event.Time}}</td>
+                                <td class="vertical"></td>
+                                <td class="text-secondary" style="padding-left:10px;">{{event.Name}}<br>
+                                    {{event.Location}}
+                                </td>
+                            </div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+
+    <!-- Create Event button -->
+    <div class="fs-5 text-center create-event" onClick="createEvent()">Create Event</div>
+
+
+    <div class="info-wrap">
+        <p class="fs-5 fw-bold text-center assist-blue">Need More Points?</p>
+        <p class="fs-6 text-center text-secondary">We are here to help.</p>
+        <p class="fs-6 fw-bold assist-blue"><i class="fa-solid fa-check" style="color: #ee8150; width:20px;"></i>1 point = 1 hour</p>
+        <p class="fs-6 fw-bold assist-blue">Get double points for bringing family and friends!</p>
+        <p class="fs-6 fw-bold assist-blue">Get triple points for creating and event</p>
+        <div class="instruct">
+
+        </div>
+    </div>
+
+</div>  <!-- <div class="container-xl event-page-bottom"> -->
+

@@ -11,6 +11,8 @@ import { ProfileComponent } from './profile/profile.component';
 import { EventdetailsComponent } from './eventdetails/eventdetails.component';
 import { EventcreateComponent } from './eventcreate/eventcreate.component';
 import { QrscannerComponent } from './qrscanner/qrscanner.component';
+import { MatTabsModule } from '@angular/material/tabs'; //ng add @angular/material
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';   
 
 @NgModule({
   declarations: [
@@ -26,7 +28,9 @@ import { QrscannerComponent } from './qrscanner/qrscanner.component';
   imports: [
     BrowserModule,
     NgbModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatTabsModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

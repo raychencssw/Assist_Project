@@ -1,0 +1,78 @@
+.assist-blue{
+    color: rgb(55,88,227);
+}
+
+.assist-oragne{
+    color:rgb(238,129,80);
+}
+
+.mdc-tab__content{
+    color: white;
+    background-color: rgb(82,57,199);
+    width: 100px;  
+}
+
+/* why this CSS has no effect? */
+.custom-tab-group{
+    justify-content: center;
+}
+
+
+.event-page-bottom{
+    background-color:rgb(246,248,254);
+    height:100%;
+    width:100%;
+    border-radius:20px;
+    padding:0;
+}
+
+.events-wrap{
+    margin:auto;
+    border-radius:15px;
+    background-color:rgb(250,250,250);
+}
+
+
+.vertical{
+    margin:5px;
+    width: 1px;
+    background-color: rgb(95,95,95);
+}
+
+.create-event{
+    background-color:rgb(238,129,80);
+    color:white;
+    border-radius:25px;
+    width:95%;
+    margin:10px auto 10px;
+}
+
+.info-wrap{
+    border-top-left-radius:20px;
+    border-top-right-radius:20px;
+    background-color: rgb(250,250,250);
+}
+
+.instruct{
+    
+}
+
+
+/* for large screen */
+@media only screen and (min-width: 1200px) {
+
+    .events-wrap{
+        max-width: 800px;
+    }
+
+}
+
+
+/* for small screen */
+@media only screen and (max-width: 576px) {
+
+    .events-wrap{
+        width: 90%;
+    }
+
+}
