@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import {FormsModule} from '@angular/forms'
 import {HttpClientModule} from '@angular/common/http';
+import { MatTabsModule } from '@angular/material/tabs';
 
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -12,11 +13,17 @@ import { EventsComponent } from './events/events.component';
 import { RankingsComponent } from './rankings/rankings.component';
 import { HomeComponent } from './home/home.component';
 import { PostsComponent } from './home/posts/posts.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { SignupComponent } from './signup/signup.component';
+import { LoginComponent } from './login/login.component';
 
 const appRoutes: Routes =[
   {path: '', component: HomeComponent},
   {path: 'events', component: EventsComponent },
-  {path: 'rankings', component: RankingsComponent}
+  {path: 'rankings', component: RankingsComponent},
+  {path: 'signup', component: SignupComponent},
+  {path: 'login', component: LoginComponent},
+  
 ]
 
 @NgModule({
@@ -27,6 +34,8 @@ const appRoutes: Routes =[
     RankingsComponent,
     HomeComponent,
     PostsComponent,
+    SignupComponent,
+    LoginComponent,
     
   ],
   imports: [
@@ -36,6 +45,8 @@ const appRoutes: Routes =[
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
+    NoopAnimationsModule,
+    MatTabsModule
     
   ],
   providers: [],
