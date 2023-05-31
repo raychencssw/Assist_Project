@@ -1,0 +1,17 @@
+.profile-img {
+    float: left;
+    margin: 1rem;
+    width: 150px;
+    height: 150px;
+
+}
+
+.user-info {
+    display: inline-block;
+    margin: 1rem;
+}
+
+h1 {
+    color: rgb(55, 88, 227);
+
+}

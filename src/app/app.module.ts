@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { Routes, RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import {FormsModule} from '@angular/forms'
-import {HttpClientModule} from '@angular/common/http';
+import { FormsModule } from '@angular/forms'
+import { HttpClientModule } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { AppComponent } from './app.component';
@@ -16,14 +16,16 @@ import { PostsComponent } from './home/posts/posts.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
+import { ProfileComponent } from './profile/profile.component';
 
-const appRoutes: Routes =[
-  {path: '', component: HomeComponent},
-  {path: 'events', component: EventsComponent },
-  {path: 'rankings', component: RankingsComponent},
-  {path: 'signup', component: SignupComponent},
-  {path: 'login', component: LoginComponent},
-  
+const appRoutes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'events', component: EventsComponent },
+  { path: 'rankings', component: RankingsComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'profile/:id', component: ProfileComponent }
+
 ]
 
 @NgModule({
@@ -36,7 +38,7 @@ const appRoutes: Routes =[
     PostsComponent,
     SignupComponent,
     LoginComponent,
-    
+
   ],
   imports: [
     BrowserModule,
@@ -47,7 +49,8 @@ const appRoutes: Routes =[
     HttpClientModule,
     NoopAnimationsModule,
     MatTabsModule
-    
+
+
   ],
   providers: [],
   bootstrap: [AppComponent]

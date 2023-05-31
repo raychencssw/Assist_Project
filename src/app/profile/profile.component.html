@@ -1,1 +1,16 @@
-<p>profile works!</p>
+<div ng-controller="userProfileCtrl">
+    <div class="user-profile container">
+        <img src="{{'assets/user.png'||profilepicture}}" class="profile-img" alt="Profile picture">
+        <h1>Username: {{username}}</h1>
+
+        <div class="user-info">
+            <p id="name">Name: {{name}}</p>
+            <p id="email">Email: {{email}}</p>
+            <p id="role">Role: {{role}}</p>
+            <p id="points">Points: {{points}}</p>
+            <p id="school">School: {{school}}</p>
+            <p id="events">Events Attended: {{eventsAttended}}</p>
+        </div>
+
+    </div>
+</div>

@@ -10,7 +10,7 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    email:  {
+    email: {
         type: String,
         required: true
     },
@@ -25,7 +25,7 @@ const userSchema = new Schema({
     profilepicture: {
         type: String
     },
-    role:{
+    role: {
         type: Number,
         required: true
     },
@@ -50,4 +50,4 @@ const userSchema = new Schema({
         type: Number
     }
 })
-module.exports= mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema);
