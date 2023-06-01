@@ -8,11 +8,11 @@ import { QrscannerComponent } from './qrscanner/qrscanner.component';
 import { EventsComponent } from './events/events.component';
 
 const routes: Routes = [
-  { path: 'qrscanner', component: QrscannerComponent },
-  { path: 'eventdetails', component: EventdetailsComponent },
-  { path: 'eventcreate', component: EventcreateComponent },
-  { path: 'profile/:id', component: ProfileComponent },
-  { path: 'events', component: EventsComponent }
+  { path: 'qrscanner', component: QrscannerComponent},
+  { path: 'eventdetails', component: EventdetailsComponent},
+  { path: 'eventcreate', component: EventcreateComponent},
+  { path: 'profile', component: ProfileComponent},
+  { path: 'events', component: EventsComponent}
 ]
 
 
