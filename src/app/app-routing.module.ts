@@ -6,7 +6,7 @@ import { EventcreateComponent } from './eventcreate/eventcreate.component';
 import { EventdetailsComponent } from './eventdetails/eventdetails.component';
 import { QrscannerComponent } from './qrscanner/qrscanner.component';
 import { EventsComponent } from './events/events.component';
-
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 const routes: Routes = [
   { path: 'qrscanner', component: QrscannerComponent },
   { path: 'eventdetails', component: EventdetailsComponent },

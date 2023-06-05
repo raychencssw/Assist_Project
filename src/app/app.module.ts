@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms'
 import { HttpClientModule } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
-
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HeaderComponent } from './header/header.component';
@@ -17,6 +17,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
+import { ProfileeditComponent } from './profileedit/profileedit.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -24,8 +25,8 @@ const appRoutes: Routes = [
   { path: 'rankings', component: RankingsComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'profile/:id', component: ProfileComponent }
-
+  { path: 'profile/:id', component: ProfileComponent },
+  { path: 'profileedit', component: ProfileeditComponent }
 ]
 
 @NgModule({
@@ -38,7 +39,8 @@ const appRoutes: Routes = [
     PostsComponent,
     SignupComponent,
     LoginComponent,
-
+    ProfileeditComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

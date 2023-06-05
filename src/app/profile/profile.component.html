@@ -1,16 +1,52 @@
-<div ng-controller="userProfileCtrl">
-    <div class="user-profile container">
-        <img src="{{'assets/user.png'||profilepicture}}" class="profile-img" alt="Profile picture">
-        <h1>Username: {{username}}</h1>
-
-        <div class="user-info">
-            <p id="name">Name: {{name}}</p>
-            <p id="email">Email: {{email}}</p>
-            <p id="role">Role: {{role}}</p>
-            <p id="points">Points: {{points}}</p>
-            <p id="school">School: {{school}}</p>
-            <p id="events">Events Attended: {{eventsAttended}}</p>
+<div class="card">
+    <div class="user-profile container" id="profile">
+        <div class="imgcontainer">
+            <img src="{{'assets/user.png'||profilepicture}}" class="profile-img" alt="Profile picture">
         </div>
 
+        <div class="card-body" name="information">
+            <h5 class="card-title">Username: {{username}}</h5>
+            <p class="card-text" id="name">Name: {{name}}</p>
+            <p class="card-text" id="email">Email: {{email}}</p>
+            <p class="card-text" id="role">Role: {{role}}</p>
+            <p class="card-text" id="points">Points: {{points}}</p>
+            <p class="card-text" id="school">School: {{school}}</p>
+            <p class="card-text" id="events">Events Attended: {{eventsAttended}}</p>
+        </div>
+        <button (click)="editUserInfo(content)" type="button" class="btn btn-primary">Update</button>
     </div>
 </div>
+<ng-template #content let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Edit My Profile</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+
+        <form #myForm="ngForm" class="form-control" (ngSubmit)="onSubmit(myForm)" name="f">
+
+            <label for="username">User Name: </label>
+            <input type="text" class="form-control" id="username" [value]="username" name="username" ngModel
+                #username="ngModel">
+            <br>
+            <label for="name">Last Name:</label>
+            <input type="text" class="form-control" value="lastname" id="lastname" name="lastname" ngModel
+                #lastname="ngModel">
+            <br>
+            <label for="name">First Name:</label>
+            <input type="text" class="form-control" id="firstname" name="firstname" ngModel #firstname="ngModel">
+            <br>
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" ngModel #email="ngModel">
+            <br>
+            <label for="school">School:</label>
+            <input class="form-control" id="school" name="school" ngModel #school="ngModel">
+
+            <br>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+    </div>
+</ng-template>

@@ -75,12 +75,51 @@ app.post('/createevent', (req, res) => {
 app.get('/profile/:userid', (req, res) => {
     // Retrieve user with the specified ID from the data source
     const userid = req.params.userid;
+
     const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
     getUser.then(function (result) {
         res.json(result)
         console.log('user_info', result);
     })
 })
+
+app.get('/profile/:userid', (req, res) => {
+    // Retrieve user with the specified ID from the data source
+    const userid = req.params.userid;
+
+    const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
+    getUser.then(function (result) {
+        res.json(result)
+        console.log('user_info', result);
+    })
+})
+
+app.post('/profileedit/:userid', (req, res) => {
+    const updatedData = req.body;
+    const userid = req.params.userid;
+    const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
+
+    if (useridfound) {
+        console.log("updated data?", updatedData.username)
+        const id_filter = { id: Number(userid) };
+        const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
+        const update = { $set: updateData };
+        const getUser = db.collection('users').updateOne(id_filter, update).then(
+            console.log("Successfully updated")
+        ).catch(error => {
+            console.error(error);
+            res.status(500).json({ error: 'An error occurred while updating the document' });
+        });
+
+    } else {
+        console.error('User not found');
+    }
+
+
+
+})
+
+
 
 app.get('/rankings', (req, res) => {
     res.send("THIS IS RANKINGS")
