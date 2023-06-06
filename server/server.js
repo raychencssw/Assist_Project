@@ -5,6 +5,7 @@ const path = require('path')
 const mongoose = require('mongoose')
 const User = require('./models/user')
 // const ngeohash = require('ngeohash')
+const Event = require("./models/event");
 
 const posts = []
 
@@ -67,9 +68,40 @@ app.get('/eventdetails/:eventid', (req, res)=>{
 })
 
 
-app.post('/createevent', (req, res)=>{
-    res.send("THIS IS NEW EVENT POST")
+app.post('/createevent', async (req, res)=>{
+    //can't access DB, need debug
+    console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
+    console.log("req.body.Name: " + req.body.Name); //Great event
+
+    //extract every property from req.body and store them to the variable defined inside const{ }
+    //these variables can later be used directly
+    const {
+        name,
+        date,
+        time,
+        location,
+        description,
+    }  = req.body;
+
+    //Check if username already exists
+    const existingUser = await Event.findOne({ name });
+    if (existingUser) {
+        return res.status(409).json({ message: "Eventname already exists" });
+    }
+
+    const newEvent = new Event({
+        name,
+        date,
+        time,
+        location,
+        description,
+    });
+    console.log("newEvent: " + newEvent);
+    await newEvent.save();
+    console.log("a new Event is sent to backend successfully!");
+    res.status(201).json({ message: "Event created" });
 })
+
 
 app.get('/profle/:userid', (req, res)=>{
     res.send("HERE IS MY PROFILE")
