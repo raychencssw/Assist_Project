@@ -99,9 +99,6 @@ app.get("/eventdetails/:eventid", (req, res) => {
   res.send("HERE WE HAVE EVENT DETAILS");
 });
 
-app.post("/createevent", (req, res) => {
-  res.send("THIS IS NEW EVENT POST");
-});
 
 app.post('/createevent', async (req, res)=>{
     //can't access DB, need debug
@@ -109,7 +106,8 @@ app.post('/createevent', async (req, res)=>{
     console.log("req.body.Name: " + req.body.Name); //Great event
 
     //extract every property from req.body and store them to the variable defined inside const{ }
-    //these variables can later be used directly
+    //these variables can later be used directly. Warning: these variables have to be exactly the same
+    //as in the eventForm, or it'll become undefined.
     const {
         name,
         date,
@@ -117,6 +115,12 @@ app.post('/createevent', async (req, res)=>{
         location,
         description,
     }  = req.body;
+
+    console.log("name: " + name);
+    console.log("date: " + date);
+    console.log("time: " + time);
+    console.log("location: " + location);
+    console.log("description: " + description);
 
     //Check if username already exists
     const existingUser = await Event.findOne({ name });

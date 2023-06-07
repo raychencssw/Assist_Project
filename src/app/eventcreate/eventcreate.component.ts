@@ -10,11 +10,11 @@ import { CreateEventServiceService } from '../create-event-service.service';
 export class EventcreateComponent {
 
   public eventForm: any = {
-    Name: '',
-    Date: '',
-    Time: '',
-    Location: '',
-    Description: ''
+    name: '',
+    date: '',
+    time: '',
+    location: '',
+    description: ''
   };
 
 
