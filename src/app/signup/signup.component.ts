@@ -9,8 +9,9 @@ import { HttpClient } from '@angular/common/http';
 export class SignupComponent {
 
   user = {
-    username: '',
     email: '',
+    username: '',
+    password: '',
     firstname: '',
     lastname: '',
     school: '',

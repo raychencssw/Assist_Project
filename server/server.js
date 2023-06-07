@@ -4,9 +4,12 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const mongoose = require("mongoose");
 const User = require("./models/user");
-//const passport = require("passport");
-//const initializePassport = require("./passport-config");
-//initializePassport(passport);
+const passport = require("passport");
+const bcrypt = require("bcrypt");
+const initializePassport = require("./passport-config");
+initializePassport(passport);
+//const flash = require("express-flash");
+const session = require("express-session");
 // const ngeohash = require('ngeohash')
 
 const posts = [];
@@ -17,6 +20,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors({ origin: true, credentials: true }));
+app.use(
+  session({
+    secret: "random secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 let db_url =
   "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
@@ -60,9 +72,16 @@ app.post("/signup", async (req, res) => {
     } = req.body;
 
     //Check if username already exists
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
       return res.status(409).json({ message: "Username already exists" });
+    }
+
+    //Check if email already exists
+    //Check if username already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email already exists" });
     }
 
     const newUser = new User({
@@ -73,18 +92,23 @@ app.post("/signup", async (req, res) => {
       profilepicture,
       role,
     });
+    newUser.password = newUser.generateHash(req.body.password);
     await newUser.save();
     console.log("user saved");
-    res.status(201).json({ message: "User created" });
+    res.redirect("/login");
   } catch (error) {
     console.error("Error signing up: ", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.redirect("/signup");
   }
 });
 
-app.post("/login", async (req, res) => {
-  res.send("Login successful");
-});
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/login",
+  })
+);
 
 app.get("/home", (req, res) => {
   res.send({ posts: posts });
@@ -109,6 +133,20 @@ app.get("/profle/:userid", (req, res) => {
 app.get("/rankings", (req, res) => {
   res.send("THIS IS RANKINGS");
 });
+
+function checkAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/login ");
+}
+
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect("/");
+  }
+  next();
+}
 
 const port = process.env.PORT || 3080;
 
