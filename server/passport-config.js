@@ -7,6 +7,7 @@ function initialize(passport) {
     //Check if user exists
     const user = await User.findOne({ email });
     if (user == null) {
+      console.log("Email does not exist");
       return done(null, false);
     }
 

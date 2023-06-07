@@ -9,9 +9,10 @@ import { HttpClient} from '@angular/common/http';
 export class LoginComponent {
   // Define the request body
   user = {
-    username: '',
+    email: '',
     password: ''
   };
+
 
   constructor(private http: HttpClient) { }
 
