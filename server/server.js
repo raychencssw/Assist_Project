@@ -6,37 +6,56 @@ const mongoose = require('mongoose');
 const User = require('./models/user');
 const Post = require('./models/post')
 const multer = require('multer');
+const passport = require("passport");
+const bcrypt = require("bcrypt");
+const initializePassport = require("./passport-config");
+//const flash = require("express-flash");
+const session = require("express-session");
+// const ngeohash = require('ngeohash')
 // const ngeohash = require('ngeohash');
 const {storage}= require('../cloudinary')
 const {cloudinary} = require('../cloudinary');
+const db = mongoose.connection;
 
 // creating variables
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 let randomId = '';
 let posts = []
 
-const db = mongoose.connection;
+
 const upload = multer({ storage: storage })
+initializePassport(passport);
+
+
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors({ origin: true, credentials: true }))
+app.use(cors({ origin: true, credentials: true }));
+app.use(
+  session({
+    secret: "random secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
-let db_url = 'mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority'
+let db_url = "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
 
+mongoose
+  .connect(db_url, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("CONNECTION OPEN");
+  })
+  .catch((e) => {
+    console.log("Error!");
+    console.log(e);
+  });
 
-    // DATABASE CONNECTION
-mongoose.connect(db_url, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log("CONNECTION OPEN")
-    })
-    .catch((e) => {
-        console.log("Error!");
-        console.log(e);
-    })
 
 
 
@@ -112,24 +131,69 @@ app.post('/posts/submit', upload.single('photo'), async(req, res) => {
 //     res.send(user)
 // })
 
-app.post('/signup', (req, res) => {
-    // Jack should work here. Receive the userdata and store it in the "User" collection.
-})
+app.post("/signup", async (req, res) => {
+  // Jack should work here. Receive the userdata and store it in the "User" collection.
 
-app.post('/login', (req, res) => {
-    // receive the data here and check if the user exists if it does return a random response. As of now nothing more than this.
-})
+  try {
+    const {
+      username,
+      email,
+      firstname,
+      lastname,
+      profilepicture,
+      role,
+      school,
+    } = req.body;
 
+    //Check if username already exists
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
 
-app.get('/qrscan', (req, res) => {
-    res.send("HERE WE WILL HAVE QR SCANNER")
-})
+    //Check if email already exists
+    //Check if username already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
 
+    const newUser = new User({
+      username,
+      email,
+      firstname,
+      lastname,
+      profilepicture,
+      role,
+    });
+    newUser.password = newUser.generateHash(req.body.password);
+    await newUser.save();
+    console.log("user saved");
+    res.redirect("/login");
+  } catch (error) {
+    console.error("Error signing up: ", error);
+    res.redirect("/signup");
+  }
+});
+
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/login",
+  })
+);
+
+app.get("/home", (req, res) => {
+  res.send({ posts: posts });
+});
 
 app.get('/eventdetails/:eventid', (req, res) => {
     res.send("HERE WE HAVE EVENT DETAILS")
 })
-
+app.get("/qrscan", (req, res) => {
+  res.send("HERE WE WILL HAVE QR SCANNER");
+});
 
 app.post('/createevent', (req, res) => {
     res.send("THIS IS NEW EVENT POST")
@@ -150,12 +214,33 @@ app.get('/rankings', (req, res) => {
     res.send("THIS IS RANKINGS")
 })
 
+
+
+function checkAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/login ");
+}
+
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect("/");
+  }
+  next();
+}
+
+
+
+
+
+
 app.use((req, res)=>{
-    res.status(404).send('404 PAGE NOT FOUND')
+  res.status(404).send('404 PAGE NOT FOUND')
 })
 
 const port = process.env.PORT || 3080;
 
 app.listen(port, () => {
-    console.log(`Server started at ${port}`);
-})
+  console.log(`Server started at ${port}`);
+});
