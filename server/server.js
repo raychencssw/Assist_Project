@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const path = require('path')
 const mongoose = require('mongoose');
 const User = require('./models/user');
+const Event = require("./models/event");
 const Post = require('./models/post')
 const multer = require('multer');
 const passport = require("passport");
@@ -24,6 +25,7 @@ let posts = []
 
 const upload = multer({ storage: storage })
 initializePassport(passport);
+
 
 
 
@@ -187,16 +189,11 @@ app.get("/home", (req, res) => {
   res.send({ posts: posts });
 });
 
-app.get('/eventdetails/:eventid', (req, res) => {
-    res.send("HERE WE HAVE EVENT DETAILS")
-})
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
-app.post('/createevent', (req, res) => {
-    res.send("THIS IS NEW EVENT POST")
-})
+
 
 
 app.get('/profile/:userid', (req, res) => {
@@ -209,10 +206,55 @@ app.get('/profile/:userid', (req, res) => {
     })
 })
 
-app.get('/rankings', (req, res) => {
-    res.send("THIS IS RANKINGS")
+app.get("/eventdetails/:eventid", (req, res) => {
+  res.send("HERE WE HAVE EVENT DETAILS");
+});
+
+
+app.post('/createevent', async (req, res)=>{
+    //can't access DB, need debug
+    console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
+    console.log("req.body.Name: " + req.body.Name); //Great event
+
+    //extract every property from req.body and store them to the variable defined inside const{ }
+    //these variables can later be used directly. Warning: these variables have to be exactly the same
+    //as in the eventForm, or it'll become undefined.
+    const {
+        name,
+        date,
+        time,
+        location,
+        description,
+    }  = req.body;
+
+    console.log("name: " + name);
+    console.log("date: " + date);
+    console.log("time: " + time);
+    console.log("location: " + location);
+    console.log("description: " + description);
+
+    //Check if username already exists
+    const existingUser = await Event.findOne({ name });
+    if (existingUser) {
+        return res.status(409).json({ message: "Eventname already exists" });
+    }
+
+    const newEvent = new Event({
+        name,
+        date,
+        time,
+        location,
+        description,
+    });
+    console.log("newEvent: " + newEvent);
+    await newEvent.save();
+    console.log("a new Event is sent to backend successfully!");
+    res.status(201).json({ message: "Event created" });
 })
 
+app.get("/rankings", (req, res) => {
+  res.send("THIS IS RANKINGS");
+});
 
 
 function checkAuthenticated(req, res, next) {
@@ -231,12 +273,10 @@ function checkNotAuthenticated(req, res, next) {
 
 
 
-
-
-
 app.use((req, res)=>{
   res.status(404).send('404 PAGE NOT FOUND')
 })
+
 
 const port = process.env.PORT || 3080;
 
