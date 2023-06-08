@@ -19,7 +19,7 @@ import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 
 const appRoutes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: 'home', component: HomeComponent },
   { path: 'events', component: EventsComponent },
   { path: 'rankings', component: RankingsComponent },
   { path: 'signup', component: SignupComponent },

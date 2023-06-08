@@ -12,7 +12,6 @@ const initializePassport = require("./passport-config");
 //const flash = require("express-flash");
 const session = require("express-session");
 // const ngeohash = require('ngeohash')
-// const ngeohash = require('ngeohash');
 const {storage}= require('../cloudinary')
 const {cloudinary} = require('../cloudinary');
 const db = mongoose.connection;
