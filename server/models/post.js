@@ -3,24 +3,20 @@ const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
     id: {
-        type: Number,
+        type: String,
         required: true
     },
     author: {
-        Type: Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'User'
     },
     date: {
-        type: Date,
+        type: String,
         required: true
     },
     time: {
         type: String,
         required: true
-    },
-    title: {
-        type: String,
-        require: true
     },
     description: {
         type: String,
@@ -39,4 +35,4 @@ const postSchema = new Schema({
     }
 })
 
-module.exports= mongoose.model('Post', userSchema);
+module.exports= mongoose.model('Post', postSchema);
