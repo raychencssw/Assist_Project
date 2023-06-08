@@ -16,8 +16,7 @@ const eventSchema = new Schema({
         required: true
     },
     date:{
-        //type: Date,
-        type:String,
+        type: Date,
         required: true
     },
     time: {
@@ -27,15 +26,15 @@ const eventSchema = new Schema({
     location:{
         street: {
             type: String,
-            //required: true
+            required: true
         },
         city:{
             type: String,
-            //required: true
+            required: true
         },
         state:{
             type: String,
-            //required: true
+            required: true
         },
     },
     coordinates:{

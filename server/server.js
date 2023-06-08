@@ -8,7 +8,7 @@ const User = require("./models/user");
 //const initializePassport = require("./passport-config");
 //initializePassport(passport);
 // const ngeohash = require('ngeohash')
-const Event = require("./models/event");
+const Event = require("./models/event");  // instanitiate a model, in other words, document
 
 const posts = [];
 
@@ -101,28 +101,25 @@ app.get("/eventdetails/:eventid", (req, res) => {
 
 
 app.post('/createevent', async (req, res)=>{
-    //can't access DB, need debug
-    console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
-    console.log("req.body.Name: " + req.body.Name); //Great event
+
+    //console.log("req.body: " + JSON.stringify(req.body)); //{"name":"Great event","date":"Great Day","time":"Great Time","location":"Great Locale","description":"Have fun"}
 
     //extract every property from req.body and store them to the variable defined inside const{ }
-    //these variables can later be used directly. Warning: these variables have to be exactly the same
-    //as in the eventForm, or it'll become undefined.
+    //these variables can later be used directly. Warning: these variables have to be exactly 
+    //the same as in the eventForm, or it'll become undefined.
     const {
         name,
         date,
         time,
-        location,
+        location:{
+            street,
+            city,
+            state,
+        },
         description,
     }  = req.body;
 
-    console.log("name: " + name);
-    console.log("date: " + date);
-    console.log("time: " + time);
-    console.log("location: " + location);
-    console.log("description: " + description);
-
-    //Check if username already exists
+    //Check if username already exists, need check later
     const existingUser = await Event.findOne({ name });
     if (existingUser) {
         return res.status(409).json({ message: "Eventname already exists" });
@@ -132,7 +129,11 @@ app.post('/createevent', async (req, res)=>{
         name,
         date,
         time,
-        location,
+        location:{
+            street,
+            city,
+            state,
+        },
         description,
     });
     console.log("newEvent: " + newEvent);
@@ -140,6 +141,12 @@ app.post('/createevent', async (req, res)=>{
     console.log("a new Event is sent to backend successfully!");
     res.status(201).json({ message: "Event created" });
 })
+
+app.get("/events", async (req, res) => {
+    const events = await Event.find();
+    console.log("events: " + events);
+    res.send(events);
+});
 
 app.get("/rankings", (req, res) => {
   res.send("THIS IS RANKINGS");

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { CreateEventServiceService } from '../create-event-service.service';
+import { EventServiceService } from '../event-service.service';
 
 @Component({
   selector: 'app-eventcreate',
@@ -13,18 +13,25 @@ export class EventcreateComponent {
     name: '',
     date: '',
     time: '',
-    location: '',
+    location:{
+      street: '',
+      city: '',
+      state: '',
+    },
     description: ''
   };
 
 
   //A reference to the currently opened (active) modal.
 	constructor(public activeModal: NgbActiveModal, 
-              private eventService: CreateEventServiceService) {};
+              private eventService: EventServiceService) {};
+
 
   submit(){
     console.log("submit button clicked!");
-    //console.log("this.eventForm.Event: " + this.eventForm.Event);
     this.eventService.addtoEvents(this.eventForm)
+    // Close the modal
+    this.activeModal.close();
   }
+
 }

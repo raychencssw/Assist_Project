@@ -4,6 +4,7 @@ import { weeklyEvents } from '../fake-data'
 import { monthlyEvents } from '../fake-data'
 import { EventcreateComponent } from '../eventcreate/eventcreate.component';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { EventServiceService } from '../event-service.service';
 
 @Component({
   selector: 'app-events',
@@ -12,21 +13,21 @@ import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 })
 export class EventsComponent implements OnInit{
 
+  events: any = [];
   weeklyEvents: Event[] = [];
   monthlyEvents: Event[] = [];
-  // public Event:{ Date: string; Time: string; Name: string; Location: string }  = {
-  //   Date: '',
-  //   Time: '',
-  //   Name: '',
-  //   Location: ''
-  //   // how to access each event detail? 
-  // }
 
   //A service for opening modal windows.
   //pass NgbModal as an argument
-  constructor(private modalService: NgbModal){};
+  constructor(private modalService: NgbModal,
+              private eventService: EventServiceService){};
 
   ngOnInit():void{
+    //loadEvent() returns Observable, so subscribe here
+    this.eventService.loadEvent().subscribe((events) => {
+      this.events = events;
+      console.log("this.events: " + JSON.stringify(this.events));
+    });
     this.weeklyEvents = weeklyEvents;
     this.monthlyEvents = monthlyEvents;
   }
