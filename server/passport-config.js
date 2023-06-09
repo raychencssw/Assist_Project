@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 //configuration for passport
 function initialize(passport) {
   const authenticateUser = async (email, password, done) => {
+    console.log("Start authentication process");
     //Check if user exists
     const user = await User.findOne({ email });
     if (user == null) {

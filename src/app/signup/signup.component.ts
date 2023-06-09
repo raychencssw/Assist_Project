@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
@@ -19,7 +20,7 @@ export class SignupComponent {
     profilePicture: ''
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   onSubmit() {
     const url = 'http://localhost:3080/signup';
@@ -27,6 +28,7 @@ export class SignupComponent {
       .subscribe(
         (response) => {
           console.log(response); // Handle the response from the server
+          this.router.navigate(['/login'])
         },
         (error) => {
           console.error(error); // Handle any error that occurs during the request
