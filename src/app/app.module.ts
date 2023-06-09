@@ -16,15 +16,18 @@ import { PostsComponent } from './home/posts/posts.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
+import { ProfileComponent } from './profile/profile.component';
+import { EventcreateComponent } from './eventcreate/eventcreate.component';
 
-const appRoutes: Routes =[
-  {path: '', component: HomeComponent},
-  {path: 'events', component: EventsComponent },
-  {path: 'rankings', component: RankingsComponent},
-  {path: 'signup', component: SignupComponent},
-  {path: 'login', component: LoginComponent},
-  
+const appRoutes: Routes = [
+  { path: 'home', component: HomeComponent },
+  { path: 'events', component: EventsComponent },
+  { path: 'rankings', component: RankingsComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'profile/:id', component: ProfileComponent }
 ]
+
 
 @NgModule({
   declarations: [
@@ -36,7 +39,7 @@ const appRoutes: Routes =[
     PostsComponent,
     SignupComponent,
     LoginComponent,
-    
+    EventcreateComponent,
   ],
   imports: [
     BrowserModule,

@@ -38,14 +38,14 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Post",
   },
-  likedposts: {
+  likedposts: [{
     type: Schema.Types.ObjectId,
     ref: "Post",
-  },
-  eventsAttended: {
+  }],
+  eventsAttended: [{
     type: Schema.Types.ObjectId,
     ref: "Event",
-  },
+  }],
 
   points: {
     type: Number,
