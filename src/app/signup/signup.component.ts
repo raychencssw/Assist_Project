@@ -32,6 +32,7 @@ export class SignupComponent {
         },
         (error) => {
           console.error(error); // Handle any error that occurs during the request
+          this.router.navigate(['/signup'])
         }
       );
   }

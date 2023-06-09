@@ -171,13 +171,17 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/login",
-  })
-);
+// app.post(
+//   "/login",
+//   passport.authenticate("local", {
+//     successRedirect: "/",
+//     failureRedirect: "/login",
+//   })
+// );
+
+app.post("/login", passport.authenticate("local"), function (req, res) {
+  res.json(req.user);
+});
 
 app.get("/home", (req, res) => {
   res.send({ posts: posts });
