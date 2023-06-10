@@ -18,6 +18,11 @@ import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
 import { EventcreateComponent } from './eventcreate/eventcreate.component';
 
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatNativeDateModule } from '@angular/material/core';
+
 const appRoutes: Routes =[
   {path: '', component: HomeComponent},
   {path: 'events', component: EventsComponent },
@@ -47,7 +52,11 @@ const appRoutes: Routes =[
     FormsModule,
     HttpClientModule,
     NoopAnimationsModule,
-    MatTabsModule
+    MatTabsModule,
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatDatepickerModule, 
+    MatNativeDateModule,
     
   ],
   providers: [],

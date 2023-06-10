@@ -10,6 +10,7 @@ const User = require("./models/user");
 // const ngeohash = require('ngeohash')
 const Event = require("./models/event");  // instanitiate a model, in other words, document
 
+
 const posts = [];
 
 const app = express();
@@ -143,6 +144,7 @@ app.post('/createevent', async (req, res)=>{
 })
 
 app.get("/events", async (req, res) => {
+    //await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
     const events = await Event.find();
     console.log("events: " + events);
     res.send(events);
