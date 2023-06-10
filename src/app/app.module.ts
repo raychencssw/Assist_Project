@@ -17,7 +17,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
-import { ProfileeditComponent } from './profileedit/profileedit.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -26,7 +25,6 @@ const appRoutes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
   { path: 'profile/:id', component: ProfileComponent },
-  { path: 'profileedit', component: ProfileeditComponent }
 ]
 
 @NgModule({
@@ -39,7 +37,6 @@ const appRoutes: Routes = [
     PostsComponent,
     SignupComponent,
     LoginComponent,
-    ProfileeditComponent,
     ProfileComponent
   ],
   imports: [

@@ -1,20 +1,20 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
+const Joi = require('express-joi')
 const eventSchema = new Schema({
     id: {
         type: Number,
         required: true
     },
-    name:{
+    name: {
         type: Number,
         required: true
     },
-    description:{
+    description: {
         type: String,
         required: true
     },
-    date:{
+    date: {
         type: Date,
         required: true
     },
@@ -22,21 +22,21 @@ const eventSchema = new Schema({
         type: String,
         required: true
     },
-    location:{
+    location: {
         street: {
             type: String,
             required: true
         },
-        city:{
+        city: {
             type: String,
             required: true
         },
-        state:{
+        state: {
             type: String,
             required: true
         },
     },
-    coordinates:{
+    coordinates: {
         latitude: {
             type: Number,
             required: true
@@ -56,4 +56,4 @@ const eventSchema = new Schema({
     }
 })
 
-module.exports= mongoose.model('Event', userSchema);
+module.exports = mongoose.model('Event', userSchema);
