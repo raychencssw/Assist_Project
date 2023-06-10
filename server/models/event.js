@@ -4,10 +4,11 @@ const Joi = require('express-joi')
 const eventSchema = new Schema({
     id: {
         type: Number,
-        required: true
+        //required: true
     },
     name: {
-        type: Number,
+        //type: Number,
+        type: String,
         required: true
     },
     description: {
@@ -15,7 +16,8 @@ const eventSchema = new Schema({
         required: true
     },
     date: {
-        type: Date,
+        //type: Date,
+        type: String,
         required: true
     },
     time: {
@@ -25,30 +27,30 @@ const eventSchema = new Schema({
     location: {
         street: {
             type: String,
-            required: true
+            //required: true
         },
         city: {
             type: String,
-            required: true
+            //required: true
         },
         state: {
             type: String,
-            required: true
+            //required: true
         },
     },
     coordinates: {
         latitude: {
             type: Number,
-            required: true
+            //required: true
         },
         longitude: {
             type: Number,
-            required: true
+            //required: true
         }
     },
     isApproved: {
         type: Boolean,
-        required: true
+        //required: true
     },
     attendants: {
         type: Schema.Types.ObjectId,
@@ -56,4 +58,4 @@ const eventSchema = new Schema({
     }
 })
 
-module.exports = mongoose.model('Event', userSchema);
+module.exports = mongoose.model('Event', eventSchema);

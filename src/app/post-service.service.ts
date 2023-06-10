@@ -11,10 +11,8 @@ export class PostServiceService {
 
   constructor(private http: HttpClient, private router: Router) { }
 
-  addtoPosts(post: any){
-    console.log(post)
-    const jsonPost = {post: post}
-    return this.http.post(`http://localhost:3080/posts/submit`, jsonPost).subscribe(()=>{
+  addtoPosts(formData: any){
+    return this.http.post(`http://localhost:3080/posts/submit`, formData).subscribe(()=>{
       this.loadPosts()
       this.router.navigate(['/'])
 

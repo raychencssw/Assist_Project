@@ -6,15 +6,17 @@
     color:rgb(238,129,80);
 }
 
+
 .mdc-tab__content{
     color: white;
     background-color: rgb(82,57,199);
     width: 100px;  
 }
 
-/* why this CSS has no effect? */
-.custom-tab-group{
-    justify-content: center;
+.custom-
+{
+    width:500px;
+    margin:auto;
 }
 
 
@@ -28,8 +30,9 @@
 
 .events-wrap{
     margin:auto;
-    border-radius:15px;
+    border-radius:20px;
     background-color:rgb(250,250,250);
+    padding:5px;
 }
 
 
@@ -45,15 +48,34 @@
     border-radius:25px;
     width:95%;
     margin:10px auto 10px;
+    padding:10px;
 }
 
 .info-wrap{
     border-top-left-radius:20px;
     border-top-right-radius:20px;
     background-color: rgb(250,250,250);
+    margin:auto;
 }
 
+.points-content{
+    display:inline-block;
+}
 
+.instruct{
+    background-color: rgb(55,88,227);
+    padding:10px;
+}
+
+.instruct-content{
+    color:white;
+    display:inline-block;
+}
+
+.instruct-sub-content{
+    color:white;
+    padding-left:20px;
+}
 
 
 /* for large screen */
@@ -63,14 +85,82 @@
         max-width: 800px;
     }
 
+   .event-page-bottom{
+        width:800px
+    } 
+
+    .create-event{
+        width:500px;
+    }
+
+    .info-wrap{
+        width:800px;
+    }
+
+    .points-wrap{
+        padding:15px; 
+        width:400px; 
+        margin:auto;
+    }
+
+    .points-content{
+        font-size:14px !important;
+    }
+
+    .tips-wrap{
+        width:700px; 
+        margin:auto;
+    }
+
+    .instruct-content{
+        padding-left:5px;
+    }
 }
 
 
 /* for small screen */
 @media only screen and (max-width: 576px) {
 
+    .event-page-bottom{
+        width:100%;
+    } 
+
     .events-wrap{
         width: 90%;
+    }
+
+    .create-event{
+        width:95%;
+    }
+
+    .info-wrap{
+        width:100%;
+    }
+
+    .points-wrap{
+        padding:15px; 
+        width:85%; 
+        margin:auto;
+    }
+
+    .points-content{
+        font-size:11px !important;
+    }
+
+
+    .tips-wrap{
+        width:90%; 
+        margin:auto;
+    }
+
+    .instruct-content{
+        padding-left:5px;
+        font-size:13px !important;
+    }
+
+    .instruct-sub-content{
+        padding-left:5px;
+        font-size:12px !important;
     }
 
 }
