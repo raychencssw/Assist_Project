@@ -2,6 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
 import { MatDatepicker } from '@angular/material/datepicker';
+import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
+
 
 @Component({
   selector: 'app-eventcreate',
@@ -12,10 +14,11 @@ export class EventcreateComponent {
 
   // @ViewChild('picker') picker!: MatDatepicker<any>;
 
-  public eventForm: any = {
+
+  public eventForm = {
     name: '',
     date: '',
-    time: '',
+    time: { hour: 13, minute: 30 },
     location:{
       street: '',
       city: '',

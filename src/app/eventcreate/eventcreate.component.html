@@ -20,8 +20,12 @@
             </mat-form-field>
         </div>
 
+        <!-- <label class="form-label mb-0 mt-3 fw-bold">Time</label>
+        <input id="time" type="text" name="Time" class="form-control" [(ngModel)]="eventForm.time"> -->
+        
         <label class="form-label mb-0 mt-3 fw-bold">Time</label>
-        <input id="time" type="text" name="Time" class="form-control" [(ngModel)]="eventForm.time">
+        <ngb-timepicker [(ngModel)]="eventForm.time" name="time"></ngb-timepicker>
+        <div>{{eventForm.time}}</div>
 
         <label class="form-label mb-0 mt-3 fw-bold">Location</label><br>
         <label class="form-label mb-0 mt-1">Street Address</label>
