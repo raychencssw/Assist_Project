@@ -5,6 +5,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import {FormsModule} from '@angular/forms'
 import {HttpClientModule} from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import {MatListModule} from '@angular/material/list';
 
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -18,6 +20,10 @@ import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 import { EventcreateComponent } from './eventcreate/eventcreate.component';
+import { FormComponent } from './home/form/form.component';
+import { FollowingComponent } from './home/following/following.component';
+import { FollowListenDirective } from './directives/follow-listen.directive';
+import { NgForm } from '@angular/forms';
 
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -25,7 +31,7 @@ const appRoutes: Routes = [
   { path: 'rankings', component: RankingsComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'profile/:id', component: ProfileComponent }
+  { path: 'profile', component: ProfileComponent }
 ]
 
 
@@ -40,6 +46,9 @@ const appRoutes: Routes = [
     SignupComponent,
     LoginComponent,
     EventcreateComponent,
+    FormComponent,
+    FollowingComponent,
+    FollowListenDirective,
   ],
   imports: [
     BrowserModule,
@@ -49,7 +58,9 @@ const appRoutes: Routes = [
     FormsModule,
     HttpClientModule,
     NoopAnimationsModule,
-    MatTabsModule
+    MatTabsModule,
+    InfiniteScrollModule,
+    MatListModule
     
   ],
   providers: [],

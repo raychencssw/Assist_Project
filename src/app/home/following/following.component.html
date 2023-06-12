@@ -1,0 +1,18 @@
+<div class="sidebar">
+    <!-- <mat-list role="list">
+        <mat-list-item role="listitem" *ngFor="let f of follow">
+            <span></span>
+            {{f.username}}
+        </mat-list-item>
+    </mat-list> -->
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let f of follow">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                    {{f.firstname}} {{f.lastname}}
+                </div>
+                <p class="{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">@{{f.username}}</p>
+            </div>
+        </li>
+    </ul>
+</div>

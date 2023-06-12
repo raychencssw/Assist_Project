@@ -62,8 +62,10 @@ mongoose
 
     // ROUTES
 
-app.get('/home', async(req, res) => {
-    const allPosts = await Post.find({}).populate('author', 'username') //.populate('author', 'firstname')
+app.get('/home/:page', async(req, res) => {
+    page = req.params.page
+    const limit = 5
+    const allPosts = await Post.find({}).populate('author', 'username').skip((page-1) * limit).limit(limit)
     const postObjects = allPosts.map(post => {
         return {
           id: post.id,
@@ -81,26 +83,8 @@ app.get('/home', async(req, res) => {
 })
 
 app.post('/posts/submit', upload.single('photo'), async(req, res) => {
-    // const data = req.body.post
-    // posts.push(data)
-    // console.log(posts)
-    console.log(req.body, req.file)
     // this needs to be changed after authentication
-    foundUser = await User.findOne({id: 1})
-
-    // getting todays date and time
-    const today = new Date()
-    const options = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }
-    const formattedDate = today.toLocaleDateString('en-US', options);
-    let hours = today.getHours();
-    let minutes = today.getMinutes();
-    minutes = String(minutes).padStart(2, '0');
-    const formattedTime = `${hours}:${minutes}`;
-    console.log(formattedDate, formattedTime)
+    foundUser = await User.findOne({id: 1});
 
     // generating id
     for (let i = 0; i < 10; i++) {
@@ -111,8 +95,6 @@ app.post('/posts/submit', upload.single('photo'), async(req, res) => {
     const post = new Post({
         id: randomId,
         author: foundUser,
-        date: formattedDate,
-        time: formattedTime,
         description: req.body.description,
         location: req.body.location,
         likes: 0,
@@ -126,10 +108,20 @@ app.post('/posts/submit', upload.single('photo'), async(req, res) => {
 
 })
 
-// app.get('/signup', async (req, res)=>{
-//     const user = new User({id: 1, username: 'test', email: 'test@test.com', firstname: 'testFirst', lastname: 'testLast', role: 1, points: 14})
-//     await user.save()
-//     res.send(user)
+// app.get('/test', async (req, res)=>{
+//     // const user = new User({id: 1, username: 'test', email: 'test@test.com', firstname: 'testFirst', lastname: 'testLast', role: 1, points: 14})
+//     // await user.save()
+//     // res.send(user)
+//     foundUser = await User.findOne({id: 1});
+//     allUsers = await User.find({})
+
+//     for(i = 0; i < allUsers.length; i++){
+//       if(allUsers[i].id != 1){
+//         foundUser.following.push(allUsers[i])
+//       }
+//     }
+//   console.log(foundUser)
+//   await foundUser.save()
 // })
 
 app.post("/signup", async (req, res) => {
@@ -196,14 +188,17 @@ app.get("/qrscan", (req, res) => {
 
 
 
-app.get('/profile/:userid', (req, res) => {
+app.get('/profile/:userid', async (req, res) => {
     // Retrieve user with the specified ID from the data source
-    const userid = req.params.userid;
-    const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
-    getUser.then(function (result) {
-        res.json(result)
-        console.log('user_info', result);
-    })
+    // const userid = req.params.userid;
+    // const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
+    // getUser.then(function (result) {
+    //     res.json(result)
+    //     console.log('user_info', result);
+    // })
+    console.log(req.params.userid)
+    const user = await User.findById(req.params.userid)
+    res.send(user)
 })
 
 app.get("/eventdetails/:eventid", (req, res) => {
@@ -256,9 +251,19 @@ app.get("/rankings", (req, res) => {
   res.send("THIS IS RANKINGS");
 });
 
+app.get('/following', async(req, res)=>{
+  const user = await User.findOne({id: 1})
+  const follow = await user.populate([
+    {path: 'following', select: 'username firstname lastname'},
+  ])
+  res.send({following: follow.following})
+  
+})
+
+
 
 function checkAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
+  if (req.isAuthenticated()) {y
     return next();
   }
   res.redirect("/login ");

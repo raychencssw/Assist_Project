@@ -13,7 +13,7 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required: true,
+    // required: true,
   },
   firstname: {
     type: String,
@@ -30,14 +30,14 @@ const userSchema = new Schema({
     type: Number,
     required: true,
   },
-  school: {
-    type: Schema.Types.ObjectId,
-    ref: "School",
-  },
-  posts: {
+  // school: {
+  //   type: Schema.Types.ObjectId,
+  //   ref: "School",
+  // },
+  posts: [{
     type: Schema.Types.ObjectId,
     ref: "Post",
-  },
+  }],
   likedposts: [{
     type: Schema.Types.ObjectId,
     ref: "Post",
@@ -45,6 +45,14 @@ const userSchema = new Schema({
   eventsAttended: [{
     type: Schema.Types.ObjectId,
     ref: "Event",
+  }],
+  following:[{
+    type: Schema.Types.ObjectId,
+    ref: "User"
+  }],
+  followers:[{
+    type: Schema.Types.ObjectId,
+    ref: "User"
   }],
 
   points: {

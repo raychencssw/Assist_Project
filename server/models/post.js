@@ -11,12 +11,9 @@ const postSchema = new Schema({
         ref: 'User'
     },
     date: {
-        type: String,
-        required: true
-    },
-    time: {
-        type: String,
-        required: true
+        type: Date,
+        required: true,
+        default: Date.now
     },
     description: {
         type: String,

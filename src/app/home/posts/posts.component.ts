@@ -1,5 +1,5 @@
 import { Component, OnInit} from '@angular/core';
-import { PostServiceService } from 'src/app/post-service.service';
+import { PostServiceService } from 'src/app/services/post-service.service';
 
 @Component({
   selector: 'app-posts',
@@ -9,12 +9,13 @@ import { PostServiceService } from 'src/app/post-service.service';
 export class PostsComponent implements OnInit{
   posts: any = []
   times = []
+  pageNumber: any = 1
   constructor(private postservice: PostServiceService){
   
   }
   ngOnInit(): void {
     this.postservice.postsResponse.subscribe(postResponse=>{
-      this.posts = postResponse.posts
+      this.posts.push(...postResponse.posts)
       console.log(this.posts)
       for (let i = 0; i < this.posts.length; i++) {
         const tempDate = this.posts[i]['date']
@@ -22,7 +23,7 @@ export class PostsComponent implements OnInit{
         const currentDate = new Date()
         const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
         const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
-        console.log(elapsedSeconds)
+
         if(elapsedSeconds < 60){
           this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
         }else if(elapsedSeconds < 3600){
@@ -50,6 +51,10 @@ export class PostsComponent implements OnInit{
 
       }
     })
-    this.postservice.loadPosts()
+    this.postservice.loadPosts(this.pageNumber++)
+  }
+
+  onScroll(){
+    this.postservice.loadPosts(this.pageNumber++)
   }
 }

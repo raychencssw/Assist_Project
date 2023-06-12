@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { CreateEventServiceService } from '../create-event-service.service';
+import { CreateEventServiceService } from '../services/create-event-service.service';
 
 @Component({
   selector: 'app-eventcreate',

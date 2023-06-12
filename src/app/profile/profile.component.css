@@ -1,0 +1,40 @@
+.imgcontainer {
+    display: contents;
+
+}
+
+#profile {
+    margin: 3%;
+}
+
+.profile-img {
+    display: block;
+    flex-direction: column;
+    float: left;
+    margin: 3%;
+    width: 150px;
+    height: 150px;
+
+}
+
+h5 {
+    color: rgb(55, 88, 227);
+}
+
+
+@media (max-width: 700px) {
+
+    .profile-img {
+        display: block;
+        float: none;
+        margin: 1rem;
+        width: 150px;
+        height: 150px;
+    }
+
+    .btn {
+        margin-left: 3%;
+        margin-bottom: 3%;
+    }
+
+}

@@ -13,15 +13,17 @@ export class PostServiceService {
 
   addtoPosts(formData: any){
     return this.http.post(`http://localhost:3080/posts/submit`, formData).subscribe(()=>{
-      this.loadPosts()
-      this.router.navigate(['/'])
+      // this.loadPosts()
+      // this.router.navigate(['/home'])
+      window.location.reload()
 
     })
   }
 
-  loadPosts(){
+  loadPosts(pageNumber: Number){
     console.log("here")
-    this.http.get(`http://localhost:3080/home`).subscribe((response)=>{
+    this.http.get(`http://localhost:3080/home/${pageNumber}`).subscribe((response)=>{
+      console.log(response)
       this.postsResponse.next(response)
     })
   }
