@@ -29,8 +29,11 @@ initializePassport(passport);
 
 
 
-const app = express();
+const schemas = require('./schemas');
+const middleware = require('./middleware');
 
+const app = express();
+console.log("test middleware", middleware(schemas.profilePOST),)
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -258,6 +261,32 @@ app.get('/following', async(req, res)=>{
   ])
   res.send({following: follow.following})
   
+})
+
+
+app.post('/profileedit/:userid', (req, res) => {
+    const updatedData = req.body;
+    const userid = req.params.userid;
+    const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
+
+    if (useridfound) {
+        console.log("updated data?", updatedData.username)
+        const id_filter = { id: Number(userid) };
+        const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
+        const update = { $set: updateData };
+
+        const getUser = db.collection('users').updateOne(id_filter, update).then(
+            console.log("Successfully updated")
+        ).catch(error => {
+            console.error(error);
+            res.status(500).json({ error: 'An error occurred while updating the document' });
+        });
+
+    } else {
+        console.error('User not found');
+    }
+
+
 })
 
 

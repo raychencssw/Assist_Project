@@ -28,7 +28,12 @@
     "cloudinary": "^1.37.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+<<<<<<< HEAD
     "express-session": "^1.17.3",
+=======
+    "express-joi": "^0.3.1",
+    "joi": "^17.9.2",
+>>>>>>> origin/ChengShi
     "mongoose": "^7.2.1",
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",

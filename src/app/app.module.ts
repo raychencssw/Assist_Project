@@ -8,6 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {MatListModule} from '@angular/material/list';
 
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HeaderComponent } from './header/header.component';
@@ -31,7 +32,7 @@ const appRoutes: Routes = [
   { path: 'rankings', component: RankingsComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'profile', component: ProfileComponent }
+  { path: 'profile/:id', component: ProfileComponent },
 ]
 
 
@@ -49,6 +50,7 @@ const appRoutes: Routes = [
     FormComponent,
     FollowingComponent,
     FollowListenDirective,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
