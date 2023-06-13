@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ export class LoginComponent {
   };
 
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private authService: AuthService, private http: HttpClient, private router: Router) { }
 
   onSubmit() {
     // Define the endpoint URL
@@ -26,7 +27,10 @@ export class LoginComponent {
       (response) => {
         // Handle the successful response
         console.log(response);
-        this.router.navigate(['/home'])
+        const user = response;
+        // Stores the user object in auth service
+        this.authService.setUser(user);
+        this.router.navigate(['/home']);
       },
       (error) => {
         // Handle any errors
