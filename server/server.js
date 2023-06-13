@@ -1,29 +1,29 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
-const path = require('path')
-const mongoose = require('mongoose');
-const User = require('./models/user');
+const path = require("path");
+const mongoose = require("mongoose");
+const User = require("./models/user");
 const Event = require("./models/event");
-const Post = require('./models/post')
-const multer = require('multer');
+const Post = require("./models/post");
+const multer = require("multer");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
 //const flash = require("express-flash");
 const session = require("express-session");
 // const ngeohash = require('ngeohash')
-const {storage}= require('../cloudinary')
-const {cloudinary} = require('../cloudinary');
+const { storage } = require("../cloudinary");
+const { cloudinary } = require("../cloudinary");
 const db = mongoose.connection;
 
 // creating variables
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-let randomId = '';
-let posts = []
+const characters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+let randomId = "";
+let posts = [];
 
-
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage });
 initializePassport(passport);
 
 
@@ -48,7 +48,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-let db_url = "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
+let db_url =
+  "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
 
 mongoose
   .connect(db_url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -60,10 +61,49 @@ mongoose
     console.log(e);
   });
 
+// ROUTES
 
+app.get("/home", async (req, res) => {
+  const allPosts = await Post.find({}).populate("author", "username"); //.populate('author', 'firstname')
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post.id,
+      author: post.author.username,
+      location: post.location,
+      date: post.date,
+      time: post.time,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
+  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
 
+app.post("/posts/submit", upload.single("photo"), async (req, res) => {
+  // const data = req.body.post
+  // posts.push(data)
+  // console.log(posts)
+  console.log(req.body, req.file);
+  // this needs to be changed after authentication
+  foundUser = await User.findOne({ id: 1 });
 
-    // ROUTES
+  // getting todays date and time
+  const today = new Date();
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  const formattedDate = today.toLocaleDateString("en-US", options);
+  let hours = today.getHours();
+  let minutes = today.getMinutes();
+  minutes = String(minutes).padStart(2, "0");
+  const formattedTime = `${hours}:${minutes}`;
+  console.log(formattedDate, formattedTime);
+
+})
 
 app.get('/home/:page', async(req, res) => {
     page = req.params.page
@@ -129,7 +169,7 @@ app.post('/posts/submit', upload.single('photo'), async(req, res) => {
 
 app.post("/signup", async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
-
+  console.log("receive signup notification");
   try {
     const {
       username,
@@ -144,6 +184,7 @@ app.post("/signup", async (req, res) => {
     //Check if username already exists
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
+      console.log("username already exists");
       return res.status(409).json({ message: "Username already exists" });
     }
 
@@ -151,6 +192,7 @@ app.post("/signup", async (req, res) => {
     //Check if username already exists
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
+      console.log("email already exists");
       return res.status(409).json({ message: "Email already exists" });
     }
 
@@ -165,7 +207,7 @@ app.post("/signup", async (req, res) => {
     newUser.password = newUser.generateHash(req.body.password);
     await newUser.save();
     console.log("user saved");
-    res.redirect("/login");
+    res.status(200).json({ message: "Signup successful" });
   } catch (error) {
     console.error("Error signing up: ", error);
     res.redirect("/signup");
@@ -208,47 +250,40 @@ app.get("/eventdetails/:eventid", (req, res) => {
   res.send("HERE WE HAVE EVENT DETAILS");
 });
 
+app.post("/createevent", async (req, res) => {
+  //can't access DB, need debug
+  console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
+  console.log("req.body.Name: " + req.body.Name); //Great event
 
-app.post('/createevent', async (req, res)=>{
-    //can't access DB, need debug
-    console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
-    console.log("req.body.Name: " + req.body.Name); //Great event
+  //extract every property from req.body and store them to the variable defined inside const{ }
+  //these variables can later be used directly. Warning: these variables have to be exactly the same
+  //as in the eventForm, or it'll become undefined.
+  const { name, date, time, location, description } = req.body;
 
-    //extract every property from req.body and store them to the variable defined inside const{ }
-    //these variables can later be used directly. Warning: these variables have to be exactly the same
-    //as in the eventForm, or it'll become undefined.
-    const {
-        name,
-        date,
-        time,
-        location,
-        description,
-    }  = req.body;
+  console.log("name: " + name);
+  console.log("date: " + date);
+  console.log("time: " + time);
+  console.log("location: " + location);
+  console.log("description: " + description);
 
-    console.log("name: " + name);
-    console.log("date: " + date);
-    console.log("time: " + time);
-    console.log("location: " + location);
-    console.log("description: " + description);
+  //Check if username already exists
+  const existingUser = await Event.findOne({ name });
+  if (existingUser) {
+    return res.status(409).json({ message: "Eventname already exists" });
+  }
 
-    //Check if username already exists
-    const existingUser = await Event.findOne({ name });
-    if (existingUser) {
-        return res.status(409).json({ message: "Eventname already exists" });
-    }
-
-    const newEvent = new Event({
-        name,
-        date,
-        time,
-        location,
-        description,
-    });
-    console.log("newEvent: " + newEvent);
-    await newEvent.save();
-    console.log("a new Event is sent to backend successfully!");
-    res.status(201).json({ message: "Event created" });
-})
+  const newEvent = new Event({
+    name,
+    date,
+    time,
+    location,
+    description,
+  });
+  console.log("newEvent: " + newEvent);
+  await newEvent.save();
+  console.log("a new Event is sent to backend successfully!");
+  res.status(201).json({ message: "Event created" });
+});
 
 app.get("/rankings", (req, res) => {
   res.send("THIS IS RANKINGS");
@@ -295,7 +330,7 @@ function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {y
     return next();
   }
-  res.redirect("/login ");
+  res.redirect("/login");
 }
 
 function checkNotAuthenticated(req, res, next) {
@@ -305,12 +340,9 @@ function checkNotAuthenticated(req, res, next) {
   next();
 }
 
-
-
-app.use((req, res)=>{
-  res.status(404).send('404 PAGE NOT FOUND')
-})
-
+app.use((req, res) => {
+  res.status(404).send("404 PAGE NOT FOUND");
+});
 
 const port = process.env.PORT || 3080;
 
