@@ -1,13 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-<<<<<<< HEAD
 import { ProfileService } from '../services/profile.service';
-=======
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { NgForm } from '@angular/forms';
->>>>>>> origin/ChengShi
 
 @Component({
 
@@ -15,18 +12,8 @@ import { NgForm } from '@angular/forms';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent implements OnInit{
 
 
-<<<<<<< HEAD
-  constructor(private profileService: ProfileService){}
-
-  ngOnInit(): void {
-    this.profileService.profileResponse.subscribe(profile=>{
-      console.log(profile)
-    })
-  }
-=======
 export class ProfileComponent implements OnInit {
   public username: string[] = [];
   name: string | undefined;
@@ -107,5 +94,4 @@ export class ProfileComponent implements OnInit {
     this.modalService.dismissAll(); //dismiss the modal
   }
 
->>>>>>> origin/ChengShi
 }

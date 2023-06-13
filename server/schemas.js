@@ -17,8 +17,8 @@ const schemas = {
     postPOST: Joi.object({
         id: Joi.string().required().min(0),
         author: Joi.string().required(),
-        date: Joi.date().iso(),//'2023-06-09'
-        time: Joi.date().format('HH:mm'),//'12:30'
+        // date: Joi.date().iso(),//'2023-06-09'
+        // time: Joi.date().format('HH:mm'),//'12:30'
         description: Joi.string().required().min(0).max(500),
         location: Joi.string(),
         likes: Joi.number(),
@@ -26,8 +26,8 @@ const schemas = {
     }),
     eventPOST: Joi.object({
         id: Joi.string().required(),
-        date: Joi.date().iso(),//'2023-06-09'
-        time: Joi.date().format('HH:mm'),//'12:30'
+        // date: Joi.date().iso(),//'2023-06-09'
+        // time: Joi.date().format('HH:mm'),//'12:30'
         description: Joi.string().required().min(0).max(500),
         location: Joi.string().required(),
     }),

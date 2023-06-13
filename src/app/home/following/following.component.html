@@ -11,7 +11,7 @@
                 <div class="fw-bold">
                     {{f.firstname}} {{f.lastname}}
                 </div>
-                <p class="{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">@{{f.username}}</p>
+                <p class="{{f._id}}"routerLink="/profile/{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">@{{f.username}}</p>
             </div>
         </li>
     </ul>

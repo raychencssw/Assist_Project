@@ -6,28 +6,17 @@ const eventSchema = new Schema({
         type: Number,
         //required: true
     },
-<<<<<<< HEAD
     name:{
         //type: Number,
         type: String,
-=======
-    name: {
-        type: Number,
->>>>>>> origin/ChengShi
         required: true
     },
     description: {
         type: String,
         required: true
     },
-<<<<<<< HEAD
-    date:{
-        //type: Date,
-        type:String,
-=======
     date: {
         type: Date,
->>>>>>> origin/ChengShi
         required: true
     },
     time: {
@@ -62,14 +51,10 @@ const eventSchema = new Schema({
         type: Boolean,
         //required: true
     },
-    attendants: {
+    attendants: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }
+    }]
 })
 
-<<<<<<< HEAD
 module.exports= mongoose.model('Event', eventSchema);
-=======
-module.exports = mongoose.model('Event', userSchema);
->>>>>>> origin/ChengShi
