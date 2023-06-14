@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,32 +14,24 @@ export class RankingService {
     this.fetchSchoolData();
   }
 
-  //TODO: Handle error
-  fetchStudentData() {
-    this.http.get('http://localhost:3080/ranking/student')
-      .subscribe(
-        (response: any) => {
-          this.topStudents = response;
-        },
-        (error) => {
-          //Handle any errror
-          console.error(error)
-        }
-      );
+  fetchStudentData(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:3080/ranking/student').pipe(
+      catchError((error: any) => {
+        console.error(error);
+        // Handle the error as needed, e.g., show an error message
+        return throwError('An error occurred while fetching student data.');
+      })
+    );
   }
 
-  //TODO: Handle error
-  fetchSchoolData() {
-    this.http.get('http://localhost:3080/ranking/school')
-      .subscribe(
-        (response: any) => {
-          this.topSchools = response;
-        },
-        (error) => {
-          //Handle any errror
-          console.error(error)
-        }
-      );
+  fetchSchoolData(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:3080/ranking/school').pipe(
+      catchError((error: any) => {
+        console.error(error);
+        // Handle the error as needed, e.g., show an error message
+        return throwError('An error occurred while fetching school data.');
+      })
+    );
   }
 
   setTopStudents(students: any):void {

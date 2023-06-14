@@ -13,23 +13,14 @@ export class RankingsComponent implements OnInit {
   constructor(private rankingService: RankingService) { }
 
   ngOnInit() {
-    this.topStudents = this.rankingService.getTopStudents();
-    this.topSchools = this.rankingService.getTopSchools();
+    this.rankingService.fetchStudentData().subscribe(students => {
+      this.topStudents = students;
+    });
+
+    this.rankingService.fetchSchoolData().subscribe(schools => {
+      this.topSchools = schools;
+    });
   }
 
-  /*
-  fetchTopStudents() {
-    this.rankingService.getTopStudents()
-      .subscribe((students: any[]) => {
-        this.topStudents = students;
-      });
-  }
-
-  fetchTopSchools() {
-    this.rankingService.getTopSchools()
-      .subscribe((schools: any[]) => {
-        this.topSchools = schools;
-      });
-  }
-  */
+  
 }
