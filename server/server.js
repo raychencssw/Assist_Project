@@ -1,33 +1,31 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
-const path = require('path')
-const mongoose = require('mongoose');
-const User = require('./models/user');
+const path = require("path");
+const mongoose = require("mongoose");
+const User = require("./models/user");
 const Event = require("./models/event");
-const Post = require('./models/post')
-const multer = require('multer');
+const Post = require("./models/post");
+const School = require("./models/school");
+const multer = require("multer");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
 //const flash = require("express-flash");
 const session = require("express-session");
 // const ngeohash = require('ngeohash')
-const {storage}= require('../cloudinary')
-const {cloudinary} = require('../cloudinary');
+const { storage } = require("../cloudinary");
+const { cloudinary } = require("../cloudinary");
 const db = mongoose.connection;
 
 // creating variables
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-let randomId = '';
-let posts = []
+const characters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+let randomId = "";
+let posts = [];
 
-
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage });
 initializePassport(passport);
-
-
-
 
 const app = express();
 
@@ -45,7 +43,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-let db_url = "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
+let db_url =
+  "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
 
 mongoose
   .connect(db_url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -57,74 +56,68 @@ mongoose
     console.log(e);
   });
 
+// ROUTES
 
+app.get("/home", async (req, res) => {
+  const allPosts = await Post.find({}).populate("author", "username"); //.populate('author', 'firstname')
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post.id,
+      author: post.author.username,
+      location: post.location,
+      date: post.date,
+      time: post.time,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
+  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
 
+app.post("/posts/submit", upload.single("photo"), async (req, res) => {
+  // const data = req.body.post
+  // posts.push(data)
+  // console.log(posts)
+  console.log(req.body, req.file);
+  // this needs to be changed after authentication
+  foundUser = await User.findOne({ id: 1 });
 
-    // ROUTES
+  // getting todays date and time
+  const today = new Date();
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  const formattedDate = today.toLocaleDateString("en-US", options);
+  let hours = today.getHours();
+  let minutes = today.getMinutes();
+  minutes = String(minutes).padStart(2, "0");
+  const formattedTime = `${hours}:${minutes}`;
+  console.log(formattedDate, formattedTime);
 
-app.get('/home', async(req, res) => {
-    const allPosts = await Post.find({}).populate('author', 'username') //.populate('author', 'firstname')
-    const postObjects = allPosts.map(post => {
-        return {
-          id: post.id,
-          author: post.author.username,
-          location: post.location,
-          date: post.date,
-          time: post.time,
-          description: post.description,
-          likes: post.likes,
-          imageurl: post.imageurl
-        };
-    });
-    console.log(postObjects)
-    res.send({ posts: postObjects })
-})
+  // generating id
+  for (let i = 0; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomId += characters.charAt(randomIndex);
+  }
 
-app.post('/posts/submit', upload.single('photo'), async(req, res) => {
-    // const data = req.body.post
-    // posts.push(data)
-    // console.log(posts)
-    console.log(req.body, req.file)
-    // this needs to be changed after authentication
-    foundUser = await User.findOne({id: 1})
-
-    // getting todays date and time
-    const today = new Date()
-    const options = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }
-    const formattedDate = today.toLocaleDateString('en-US', options);
-    let hours = today.getHours();
-    let minutes = today.getMinutes();
-    minutes = String(minutes).padStart(2, '0');
-    const formattedTime = `${hours}:${minutes}`;
-    console.log(formattedDate, formattedTime)
-
-    // generating id
-    for (let i = 0; i < 10; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        randomId += characters.charAt(randomIndex);
-    }
-
-    const post = new Post({
-        id: randomId,
-        author: foundUser,
-        date: formattedDate,
-        time: formattedTime,
-        description: req.body.description,
-        location: req.body.location,
-        likes: 0,
-        imageurl: req.file.path
-
-    })
-    await post.save()
-    foundUser.posts.push(post)
-    res.json({ success: true, message: "Data received" })
-
-
-})
+  const post = new Post({
+    id: randomId,
+    author: foundUser,
+    date: formattedDate,
+    time: formattedTime,
+    description: req.body.description,
+    location: req.body.location,
+    likes: 0,
+    imageurl: req.file.path,
+  });
+  await post.save();
+  foundUser.posts.push(post);
+  res.json({ success: true, message: "Data received" });
+});
 
 // app.get('/signup', async (req, res)=>{
 //     const user = new User({id: 1, username: 'test', email: 'test@test.com', firstname: 'testFirst', lastname: 'testLast', role: 1, points: 14})
@@ -193,69 +186,95 @@ app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
-
-
-
-app.get('/profile/:userid', (req, res) => {
-    // Retrieve user with the specified ID from the data source
-    const userid = req.params.userid;
-    const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
-    getUser.then(function (result) {
-        res.json(result)
-        console.log('user_info', result);
-    })
-})
+/*
+app.get("/profile/:userid", (req, res) => {
+  // Retrieve user with the specified ID from the data source
+  const userid = req.params.userid;
+  const getUser = db.collection("users").findOne({ id: Number(userid) }); //promise
+  getUser.then(function (result) {
+    res.json(result);
+    console.log("user_info", result);
+  });
+});
+*/
 
 app.get("/eventdetails/:eventid", (req, res) => {
   res.send("HERE WE HAVE EVENT DETAILS");
 });
 
+app.post("/createevent", async (req, res) => {
+  //can't access DB, need debug
+  console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
+  console.log("req.body.Name: " + req.body.Name); //Great event
 
-app.post('/createevent', async (req, res)=>{
-    //can't access DB, need debug
-    console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
-    console.log("req.body.Name: " + req.body.Name); //Great event
+  //extract every property from req.body and store them to the variable defined inside const{ }
+  //these variables can later be used directly. Warning: these variables have to be exactly the same
+  //as in the eventForm, or it'll become undefined.
+  const { name, date, time, location, description } = req.body;
 
-    //extract every property from req.body and store them to the variable defined inside const{ }
-    //these variables can later be used directly. Warning: these variables have to be exactly the same
-    //as in the eventForm, or it'll become undefined.
-    const {
-        name,
-        date,
-        time,
-        location,
-        description,
-    }  = req.body;
+  console.log("name: " + name);
+  console.log("date: " + date);
+  console.log("time: " + time);
+  console.log("location: " + location);
+  console.log("description: " + description);
 
-    console.log("name: " + name);
-    console.log("date: " + date);
-    console.log("time: " + time);
-    console.log("location: " + location);
-    console.log("description: " + description);
+  //Check if username already exists
+  const existingUser = await Event.findOne({ name });
+  if (existingUser) {
+    return res.status(409).json({ message: "Eventname already exists" });
+  }
 
-    //Check if username already exists
-    const existingUser = await Event.findOne({ name });
-    if (existingUser) {
-        return res.status(409).json({ message: "Eventname already exists" });
-    }
-
-    const newEvent = new Event({
-        name,
-        date,
-        time,
-        location,
-        description,
-    });
-    console.log("newEvent: " + newEvent);
-    await newEvent.save();
-    console.log("a new Event is sent to backend successfully!");
-    res.status(201).json({ message: "Event created" });
-})
-
-app.get("/rankings", (req, res) => {
-  res.send("THIS IS RANKINGS");
+  const newEvent = new Event({
+    name,
+    date,
+    time,
+    location,
+    description,
+  });
+  console.log("newEvent: " + newEvent);
+  await newEvent.save();
+  console.log("a new Event is sent to backend successfully!");
+  res.status(201).json({ message: "Event created" });
 });
 
+app.get("/searchuser/:username", async (req, res) => {
+  // Retrieve user with the specified ID from the data source
+  const username = req.params.username;
+  const user = await User.findOne({ username: username }); //promise
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(500).json({ message: "No such user" });
+  }
+});
+
+app.get("/ranking/student", async (req, res) => {
+  try {
+    // Retrieve the top 10 users with the most points
+    const topUsers = await User.find().sort({ points: -1 }).limit(10);
+    // Send the top users as a JSON response
+    res.json(topUsers);
+  } catch (error) {
+    console.log("Error retrieving top users", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the top users" });
+  }
+});
+
+app.get("/ranking/school", async (req, res) => {
+  try {
+    // Retrieve the top 10 users with the most points
+    const topSchools = await School.find().sort({ points: -1 }).limit(10);
+    // Send the top users as a JSON response
+    res.json(topSchools);
+  } catch (error) {
+    console.log("Error retrieving top schools", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the top schools" });
+  }
+});
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -271,12 +290,9 @@ function checkNotAuthenticated(req, res, next) {
   next();
 }
 
-
-
-app.use((req, res)=>{
-  res.status(404).send('404 PAGE NOT FOUND')
-})
-
+app.use((req, res) => {
+  res.status(404).send("404 PAGE NOT FOUND");
+});
 
 const port = process.env.PORT || 3080;
 

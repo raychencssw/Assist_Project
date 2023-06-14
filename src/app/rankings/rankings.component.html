@@ -1,1 +1,35 @@
-<p>rankings works!</p>
+<h2>Top 10 Students</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let student of topStudents; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ student.username }}</td>
+      <td>{{ student.points }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Top 10 Schools</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let school of topSchools; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ school.name }}</td>
+      <td>{{ school.points }}</td>
+    </tr>
+  </tbody>
+</table>
