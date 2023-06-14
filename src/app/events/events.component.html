@@ -28,12 +28,12 @@
                 <table>
                     <tbody>
                         <tr *ngFor="let event of monthlyEvents">
-                            <div class="assist-blue">{{event.Date}}</div>
+                            <div class="assist-blue">{{event.date}}</div>
                                 <div>
-                                <td class="text-secondary" style="width:50px;">{{event.Time}}</td>
+                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
                                 <td class="vertical"></td>
-                                <td class="text-secondary" style="padding-left:10px;">{{event.Name}}<br>
-                                    {{event.Location}}
+                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
+                                    {{event.location.city}}, {{event.location.state}}
                                 </td>
                             </div>
                         </tr>

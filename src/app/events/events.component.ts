@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Event } from '../type'
 //import { weeklyEvents } from '../fake-data'
-import { monthlyEvents } from '../fake-data'
+//import { monthlyEvents } from '../fake-data'
 import { EventcreateComponent } from '../eventcreate/eventcreate.component';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
@@ -16,7 +16,7 @@ export class EventsComponent implements OnInit{
 
   events: any = [];             //store the events fetched from the backend
   weeklyEvents: any = [];
-  monthlyEvents: Event[] = [];
+  monthlyEvents: any = [];
 
   //A service for opening modal windows.
   //pass NgbModal as an argument
@@ -29,21 +29,20 @@ export class EventsComponent implements OnInit{
 
       //store the events from the MongoDB to this.events(not sorted yet)
       this.events = events;
-      console.log("this.events: " + JSON.stringify(this.events));
+      //console.log("this.events: " + JSON.stringify(this.events));
 
       //sort the events according to the date
       this.sortEvent();
-      console.log("this.events(sorted): " + JSON.stringify(this.events));
+      //console.log("this.events(sorted): " + JSON.stringify(this.events));
 
-      this.weeklyEvents = this.events;   //need to be replaced
+      this.displayWeekly();
+      this.displayMonthly();
+
       console.log("this.weeklyEvents: " + JSON.stringify(this.weeklyEvents));
+      console.log("this.monthlyEvents: " + JSON.stringify(this.monthlyEvents));
 
-
-      //this.dateConverter();
     });
 
-    
-    this.monthlyEvents = monthlyEvents;   //need to be replaced
   }
 
   //Options available when opening new modal windows with NgbModal.open() method.
@@ -110,6 +109,57 @@ export class EventsComponent implements OnInit{
         }
       }
     })
+  }
+
+  displayWeekly(){
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    console.log("today: " + today); //Mon Jun 12 2023 00:00:00 GMT-0700 (Pacific Daylight Time)
+
+    const WEEK = 6 * 24 * 60 * 60 * 1000;  //518,400,000
+
+    for (let i = 0; i < this.events.length; i++){
+      const eventDate = new Date(this.events[i].date);
+      console.log("eventDate: " + eventDate);
+      console.log("event dateTime: " + eventDate.getTime());
+      console.log("today dateTime: " + today.getTime());
+
+      const period = eventDate.getTime() - today.getTime();
+      console.log("period: " + period);
+      if( period <= WEEK && period >= 0){
+        console.log("event with name " + this.events[i].name + " and period " + period + " is within one week!" );
+        this.weeklyEvents.push(this.events[i]);
+      }
+    }
+  }
+
+  displayMonthly(){
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+    console.log("todayYear: " + todayYear);
+    console.log("todayMonth: " + todayMonth); 
+
+
+    for (let i = 0; i < this.events.length; i++){
+      const eventDate = new Date(this.events[i].date);
+
+      const eventYear = eventDate.getFullYear();
+      const eventMonth = eventDate.getMonth();
+      console.log("eventYear: " + eventYear);
+      console.log("eventMonth: " + eventMonth);
+
+      const period = eventDate.getTime() - today.getTime();
+
+      if(period >= 0 && eventYear == todayYear && eventMonth == todayMonth){
+        console.log("event with name " + this.events[i].name + " and period " + period + " is within this month!" );
+        this.monthlyEvents.push(this.events[i]);
+      }
+    }
   }
 
   dateConverter(){
