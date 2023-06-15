@@ -150,6 +150,24 @@ app.get("/events", async (req, res) => {
     res.send(events);
 });
 
+app.get("/event/:eventId", async (req, res) => {
+    const eventId = req.params.eventId;
+    console.log("eventID: " + eventID);
+    try {
+      // Find the event by eventId
+      const event = await Event.findOne({ _id: eventId });
+  
+      if (event) {
+        res.send(event);
+      } else {
+        res.status(404).json({ message: "Event not found" });
+      }
+    } catch (error) {
+      console.error("Error retrieving event: ", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
 app.get("/rankings", (req, res) => {
   res.send("THIS IS RANKINGS");
 });

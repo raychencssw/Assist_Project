@@ -17,6 +17,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
 import { EventcreateComponent } from './eventcreate/eventcreate.component';
+import { EventDetailsComponent } from './eventdetails/eventdetails.component';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -44,6 +45,7 @@ const appRoutes: Routes =[
     SignupComponent,
     LoginComponent,
     EventcreateComponent,
+    EventDetailsComponent,
   ],
   imports: [
     BrowserModule,

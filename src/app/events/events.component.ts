@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Event } from '../type'
+//import { Event } from '../type'
 //import { weeklyEvents } from '../fake-data'
 //import { monthlyEvents } from '../fake-data'
 import { EventcreateComponent } from '../eventcreate/eventcreate.component';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -21,7 +22,8 @@ export class EventsComponent implements OnInit{
   //A service for opening modal windows.
   //pass NgbModal as an argument
   constructor(private modalService: NgbModal,
-              private eventService: EventServiceService){};
+              private eventService: EventServiceService,
+              private router: Router){};
 
   ngOnInit():void{
     //loadEvent() returns Observable, so subscribe here
@@ -160,6 +162,11 @@ export class EventsComponent implements OnInit{
         this.monthlyEvents.push(this.events[i]);
       }
     }
+  }
+
+  displayDetail(eventId: string){
+    console.log("eventId: " + eventId); //648803c05d9c559303ac3a74
+    this.router.navigate(['/event-detail', eventId]);
   }
 
   dateConverter(){

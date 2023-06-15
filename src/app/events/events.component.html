@@ -14,7 +14,10 @@
                                 <td class="vertical"></td>
                                 <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
                                     {{event.location.city}}, {{event.location.state}}
-                                </td>
+                                </td>                       
+                                <!-- how to adjust the arrow bracket's posiiton?--> 
+                                <!-- <td class="text-end"><button (click)="displayDetail(event._id)"><i class="fa-sharp fa-solid fa-chevron-right"></i></button></td>                                -->
+                                <td class="text-end"><a [routerLink]="'/event-detail/' + event._id"><i class="fa-sharp fa-solid fa-chevron-right"></i></a></td> 
                             </div>
                         </tr>
                     </tbody>
