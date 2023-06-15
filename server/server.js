@@ -20,6 +20,11 @@ const verifyToken = require('./verifyToken')
 const { storage } = require("../cloudinary");
 const { cloudinary } = require("../cloudinary");
 const db = mongoose.connection;
+//const passport = require("passport");
+//const initializePassport = require("./passport-config");
+//initializePassport(passport);
+// const ngeohash = require('ngeohash')
+
 
 // creating variables
 const characters =
@@ -253,6 +258,10 @@ app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
+
+
+
+
 app.get('/profile/:userid', verifyToken, async (req, res) => {
     // Retrieve user with the specified ID from the data source
     // const userid = req.params.userid;
@@ -266,40 +275,79 @@ app.get('/profile/:userid', verifyToken, async (req, res) => {
     res.send(user)
 })
 
-app.get("/eventdetails/:eventid", (req, res) => {
-  res.send("HERE WE HAVE EVENT DETAILS");
-});
+// app.get("/eventdetails/:eventid", (req, res) => {
+//   res.send("HERE WE HAVE EVENT DETAILS");
+// });
 
-app.post("/createevent", verifyToken, async (req, res) => {
-  console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
-  console.log("req.body.Name: " + req.body.Name); //Great event
 
-  const { name, date, time, location, description } = req.body;
+app.post('/createevent', async (req, res)=>{
 
-  //Check if username already exists
+  //console.log("req.body: " + JSON.stringify(req.body)); //{"name":"Great event","date":"Great Day","time":"Great Time","location":"Great Locale","description":"Have fun"}
+
+  //extract every property from req.body and store them to the variable defined inside const{ }
+  //these variables can later be used directly. Warning: these variables have to be exactly 
+  //the same as in the eventForm, or it'll become undefined.
+  const {
+      name,
+      date,
+      time,
+      location:{
+          street,
+          city,
+          state,
+      },
+      description,
+  }  = req.body;
+
+  //Check if username already exists, need check later
   const existingUser = await Event.findOne({ name });
   if (existingUser) {
-    return res.status(409).json({ message: "Eventname already exists" });
+      return res.status(409).json({ message: "Eventname already exists" });
   }
 
   const newEvent = new Event({
-    name,
-    date,
-    time,
-    location,
-    description,
+      name,
+      date,
+      time,
+      location:{
+          street,
+          city,
+          state,
+      },
+      description,
   });
   console.log("newEvent: " + newEvent);
   await newEvent.save();
   console.log("a new Event is sent to backend successfully!");
   res.status(201).json({ message: "Event created" });
+})
+
+app.get("/events", async (req, res) => {
+  //await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
+  const events = await Event.find();
+  console.log("events: " + events);
+  res.send(events);
 });
 
-app.get("/rankings", verifyToken, (req, res) => {
-  res.send("THIS IS RANKINGS");
+app.get("/event/:eventId", async (req, res) => {
+  const eventId = req.params.eventId;
+  console.log("eventID: " + eventId);
+  try {
+    // Find the event by eventId
+    const event = await Event.findOne({ _id: eventId });
+
+    if (event) {
+      res.send(event);
+    } else {
+      res.status(404).json({ message: "Event not found" });
+    }
+  } catch (error) {
+    console.error("Error retrieving event: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
-app.get('/following', verifyToken, async(req, res)=>{
+app.get('/following', async(req, res)=>{
   const user = await User.findOne({id: 1})
   const follow = await user.populate([
     {path: 'following', select: 'username firstname lastname'},
@@ -335,7 +383,7 @@ app.post('/profileedit/:userid', verifyToken, (req, res) => {
 })
 
 
-app.get("/searchuser/:username", verifyToken, async (req, res) => {
+app.get("/searchuser/:username", async (req, res) => {
   // Retrieve user with the specified ID from the data source
   const username = req.params.username;
   const user = await User.findOne({ username: username }); //promise
@@ -346,7 +394,13 @@ app.get("/searchuser/:username", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/ranking/student", verifyToken, async (req, res) => {
+
+
+app.get("/rankings", (req, res) => {
+  res.send("THIS IS RANKINGS");
+});
+
+app.get("/ranking/student", async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topUsers = await User.find().sort({ points: -1 }).limit(10);
@@ -360,7 +414,7 @@ app.get("/ranking/student", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/ranking/school", verifyToken, async (req, res) => {
+app.get("/ranking/school", async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topSchools = await School.find().sort({ points: -1 }).limit(10);
@@ -390,7 +444,8 @@ function checkNotAuthenticated(req, res, next) {
 
 app.use((req, res) => {
   res.status(404).send("404 PAGE NOT FOUND");
-});
+
+})
 
 const port = process.env.PORT || 3080;
 

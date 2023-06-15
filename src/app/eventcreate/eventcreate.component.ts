@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { CreateEventServiceService } from '../services/create-event-service.service';
+import { EventServiceService } from '../event-service.service';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 
@@ -34,7 +34,8 @@ export class EventcreateComponent implements OnInit{
 
 
   //A reference to the currently opened (active) modal.
-	constructor(public activeModal: NgbActiveModal) {};
+	constructor(public activeModal: NgbActiveModal, 
+              private eventService: EventServiceService) {};
 
   ngOnInit() {
     this.datePickerStartAt = new Date();
@@ -55,7 +56,7 @@ export class EventcreateComponent implements OnInit{
     console.log("formattedDate: " + formattedDate);    //formattedDate: 4/7/2023
 
     //call eventService and then store the event info to the MongoDB
-    // this.eventService.addtoEvents(this.eventForm)
+    this.eventService.addtoEvents(this.eventForm)
 
     // Close the modal
     this.activeModal.close();

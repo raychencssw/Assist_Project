@@ -25,7 +25,7 @@ import { FormComponent } from './home/form/form.component';
 import { FollowingComponent } from './home/following/following.component';
 import { FollowListenDirective } from './directives/follow-listen.directive';
 import { NgForm } from '@angular/forms';
-import { EventdetailsComponent } from './eventdetails/eventdetails.component';
+import { EventDetailsComponent } from './eventdetails/eventdetails.component';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -60,7 +60,7 @@ const appRoutes: Routes = [
     FollowingComponent,
     FollowListenDirective,
     ProfileComponent,
-    EventdetailsComponent,
+    EventDetailsComponent,
   ],
   imports: [
     BrowserModule,
