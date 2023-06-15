@@ -37,7 +37,6 @@ const userSchema = new Schema({
   posts: [{
     type: Schema.Types.ObjectId,
     ref: "Post",
-<<<<<<< HEAD
   }],
   likedposts: [{
     type: Schema.Types.ObjectId,
@@ -55,21 +54,6 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User"
   }],
-=======
-  },
-  likedposts: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Post",
-    },
-  ],
-  eventsAttended: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Event",
-    },
-  ],
->>>>>>> origin/ranking
 
   points: {
     type: Number,

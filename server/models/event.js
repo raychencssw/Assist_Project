@@ -7,7 +7,6 @@ const eventSchema = new Schema({
         //required: true
     },
     name:{
-        //type: Number,
         type: String,
         required: true
     },
@@ -15,26 +14,32 @@ const eventSchema = new Schema({
         type: String,
         required: true
     },
-    date: {
-        type: Date,
+    date:{
+        type: String,
         required: true
     },
     time: {
-        type: String,
-        required: true
+        hour:{
+            type:Number,
+            required: true
+        },
+        minute:{
+            type:Number,
+            required: true
+        }
     },
     location: {
         street: {
             type: String,
-            //required: true
+            required: true
         },
         city: {
             type: String,
-            //required: true
+            required: true
         },
         state: {
             type: String,
-            //required: true
+            required: true
         },
     },
     coordinates: {
