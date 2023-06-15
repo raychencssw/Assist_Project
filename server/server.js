@@ -295,11 +295,11 @@ app.post("/createevent", verifyToken, async (req, res) => {
   res.status(201).json({ message: "Event created" });
 });
 
-app.get("/rankings", (req, res) => {
+app.get("/rankings", verifyToken, (req, res) => {
   res.send("THIS IS RANKINGS");
 });
 
-app.get('/following', async(req, res)=>{
+app.get('/following', verifyToken, async(req, res)=>{
   const user = await User.findOne({id: 1})
   const follow = await user.populate([
     {path: 'following', select: 'username firstname lastname'},
@@ -309,7 +309,7 @@ app.get('/following', async(req, res)=>{
 })
 
 
-app.post('/profileedit/:userid', (req, res) => {
+app.post('/profileedit/:userid', verifyToken, (req, res) => {
     const updatedData = req.body;
     const userid = req.params.userid;
     const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
@@ -335,7 +335,7 @@ app.post('/profileedit/:userid', (req, res) => {
 })
 
 
-app.get("/searchuser/:username", async (req, res) => {
+app.get("/searchuser/:username", verifyToken, async (req, res) => {
   // Retrieve user with the specified ID from the data source
   const username = req.params.username;
   const user = await User.findOne({ username: username }); //promise
@@ -346,7 +346,7 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get("/ranking/student", async (req, res) => {
+app.get("/ranking/student", verifyToken, async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topUsers = await User.find().sort({ points: -1 }).limit(10);
@@ -360,7 +360,7 @@ app.get("/ranking/student", async (req, res) => {
   }
 });
 
-app.get("/ranking/school", async (req, res) => {
+app.get("/ranking/school", verifyToken, async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topSchools = await School.find().sort({ points: -1 }).limit(10);
