@@ -25,6 +25,13 @@ import { FormComponent } from './home/form/form.component';
 import { FollowingComponent } from './home/following/following.component';
 import { FollowListenDirective } from './directives/follow-listen.directive';
 import { NgForm } from '@angular/forms';
+import { EventdetailsComponent } from './eventdetails/eventdetails.component';
+
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatNativeDateModule } from '@angular/material/core';
+import { NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AuthGuard } from './auth.guard';
 
@@ -52,7 +59,8 @@ const appRoutes: Routes = [
     FormComponent,
     FollowingComponent,
     FollowListenDirective,
-    ProfileComponent
+    ProfileComponent,
+    EventdetailsComponent,
   ],
   imports: [
     BrowserModule,
@@ -64,7 +72,12 @@ const appRoutes: Routes = [
     NoopAnimationsModule,
     MatTabsModule,
     InfiniteScrollModule,
-    MatListModule
+    MatListModule,
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatDatepickerModule, 
+    MatNativeDateModule,
+    NgbTimepickerModule,
     
   ],
   providers: [AuthGuard],

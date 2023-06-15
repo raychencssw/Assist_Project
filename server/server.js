@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const User = require("./models/user");
 const Event = require("./models/event");
 const Post = require("./models/post");
+const School = require("./models/school");
 const multer = require("multer");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
@@ -252,9 +253,6 @@ app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
-
-
-
 app.get('/profile/:userid', verifyToken, async (req, res) => {
     // Retrieve user with the specified ID from the data source
     // const userid = req.params.userid;
@@ -337,6 +335,44 @@ app.post('/profileedit/:userid', (req, res) => {
 })
 
 
+app.get("/searchuser/:username", async (req, res) => {
+  // Retrieve user with the specified ID from the data source
+  const username = req.params.username;
+  const user = await User.findOne({ username: username }); //promise
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(500).json({ message: "No such user" });
+  }
+});
+
+app.get("/ranking/student", async (req, res) => {
+  try {
+    // Retrieve the top 10 users with the most points
+    const topUsers = await User.find().sort({ points: -1 }).limit(10);
+    // Send the top users as a JSON response
+    res.json(topUsers);
+  } catch (error) {
+    console.log("Error retrieving top users", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the top users" });
+  }
+});
+
+app.get("/ranking/school", async (req, res) => {
+  try {
+    // Retrieve the top 10 users with the most points
+    const topSchools = await School.find().sort({ points: -1 }).limit(10);
+    // Send the top users as a JSON response
+    res.json(topSchools);
+  } catch (error) {
+    console.log("Error retrieving top schools", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the top schools" });
+  }
+});
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {y
