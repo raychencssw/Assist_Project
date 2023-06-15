@@ -1,0 +1,5 @@
+<h5>search events by name</h5>
+<input type="text" [(ngModel)]="searchText" (input)="onSearch()">
+<select>
+    <option *ngFor="let result of searchResults">{{ result }} </option>
+</select>

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Joi = require('express-joi')
 const eventSchema = new Schema({
     id: {
         type: Number,

@@ -15,6 +15,12 @@ const session = require("express-session");
 // const ngeohash = require('ngeohash')
 const { storage } = require('../cloudinary')
 const { cloudinary } = require('../cloudinary');
+
+const Joi = require('joi');
+const schemas = require('./schemas');
+const middleware = require('./middleware');
+const { async } = require('rxjs');
+
 const db = mongoose.connection;
 
 // creating variables
@@ -25,15 +31,7 @@ let posts = []
 
 const upload = multer({ storage: storage })
 initializePassport(passport);
-
-
-
-
-const schemas = require('./schemas');
-const middleware = require('./middleware');
-
 const app = express();
-console.log("test middleware", middleware(schemas.profilePOST),)
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -129,12 +127,6 @@ app.post('/posts/submit', upload.single('photo'), async (req, res) => {
 
 })
 
-// app.get('/signup', async (req, res)=>{
-//     const user = new User({id: 1, username: 'test', email: 'test@test.com', firstname: 'testFirst', lastname: 'testLast', role: 1, points: 14})
-//     await user.save()
-//     res.send(user)
-// })
-
 app.post("/signup", async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
 
@@ -202,7 +194,6 @@ app.get("/qrscan", (req, res) => {
 app.get('/profile/:userid', (req, res) => {
   // Retrieve user with the specified ID from the data source
   const userid = req.params.userid;
-
   const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
   getUser.then(function (result) {
     res.json(result)
@@ -211,13 +202,15 @@ app.get('/profile/:userid', (req, res) => {
 })
 
 
-app.post('/profileedit/:userid', (req, res) => {
+
+
+app.post('/profileedit/:userid', middleware(schemas.profilePOST), (req, res) => { // 
   const updatedData = req.body;
+  console.log("updated Data", updatedData) //{ userbane: 'ssd' ...}
   const userid = req.params.userid;
   const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
 
   if (useridfound) {
-    console.log("updated data?", updatedData.username)
     const id_filter = { id: Number(userid) };
     const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
     const update = { $set: updateData };
@@ -232,12 +225,15 @@ app.post('/profileedit/:userid', (req, res) => {
   } else {
     console.error('User not found');
   }
+}
+)
 
-
-})
-
-app.get("/eventdetails/:eventid", (req, res) => {
-  res.send("HERE WE HAVE EVENT DETAILS");
+app.get("/eventsearch", (req, res) => {
+  const getEvents = Event.distinct('name')//.toArray()//OBJECT
+  getEvents.then(function (result) {
+    res.json(result)
+    console.log('user_info', result);
+  })
 });
 
 

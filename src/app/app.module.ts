@@ -18,7 +18,8 @@ import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 import { EventcreateComponent } from './eventcreate/eventcreate.component';
-
+import { SearchComponent } from './search/search.component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'events', component: EventsComponent },
@@ -26,6 +27,7 @@ const appRoutes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
   { path: 'profile/:id', component: ProfileComponent },
+  { path: 'search', component: SearchComponent },
 ]
 
 
@@ -41,6 +43,7 @@ const appRoutes: Routes = [
     LoginComponent,
     ProfileComponent,
     EventcreateComponent,
+    SearchComponent,
   ],
   imports: [
     BrowserModule,
