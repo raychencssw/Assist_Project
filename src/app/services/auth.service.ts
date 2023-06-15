@@ -87,8 +87,8 @@ export class AuthService {
     this.http.get(`http://localhost:3080/logout`).subscribe((response)=>{
       this.isLoggedIn = false;
       this.router.navigate(['/login']);
-      this.user = null
       this.clearAuthToken();
+      this.user = null
       this.loginResponse.next(false)
     })
 
