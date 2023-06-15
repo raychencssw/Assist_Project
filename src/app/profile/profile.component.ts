@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ProfileService } from '../services/profile.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { NgForm } from '@angular/forms';
+import { AuthService } from '../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
 
@@ -27,12 +29,15 @@ export class ProfileComponent implements OnInit {
   eventsAttended: string[] = [];
   id: any;
   closeResult!: string;
+  token: any
+  private subscription?: Subscription;
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
+    private auth: AuthService
 
   ) {
 
@@ -45,10 +50,21 @@ export class ProfileComponent implements OnInit {
       console.log(this.id)
     })
 
+    this.subscription = this.auth.getUser().subscribe((response: any)=>{
+      this.token = response['token']
+    })
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.token }`
+    });
+
+    const requestOptions = { headers: headers };
+
+    console.log(this.token)
     var backendUrl = 'http://localhost:3080/profile/'
     const userid = this.id
     backendUrl = backendUrl + userid
-    this.http.get<any>(backendUrl).subscribe((data) => {
+    this.http.get<any>(backendUrl, requestOptions).subscribe((data) => {
       this.email = data['email'];
       this.username = data['username'];
       this.firstname = data['firstname'];

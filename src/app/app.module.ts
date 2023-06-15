@@ -26,13 +26,15 @@ import { FollowingComponent } from './home/following/following.component';
 import { FollowListenDirective } from './directives/follow-listen.directive';
 import { NgForm } from '@angular/forms';
 
+import { AuthGuard } from './auth.guard';
+
 const appRoutes: Routes = [
-  { path: 'home', component: HomeComponent },
-  { path: 'events', component: EventsComponent },
-  { path: 'rankings', component: RankingsComponent },
+  { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
+  { path: 'events', component: EventsComponent, canActivate:[AuthGuard]},
+  { path: 'rankings', component: RankingsComponent, canActivate:[AuthGuard]},
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'profile/:id', component: ProfileComponent },
+  { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]}
 ]
 
 
@@ -65,7 +67,7 @@ const appRoutes: Routes = [
     MatListModule
     
   ],
-  providers: [],
+  providers: [AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

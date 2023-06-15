@@ -12,6 +12,9 @@ const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
 //const flash = require("express-flash");
 const session = require("express-session");
+const jwt = require('jsonwebtoken');
+const config = require('./config')
+const verifyToken = require('./verifyToken')
 // const ngeohash = require('ngeohash')
 const { storage } = require("../cloudinary");
 const { cloudinary } = require("../cloudinary");
@@ -35,8 +38,8 @@ const middleware = require('./middleware');
 const app = express();
 console.log("test middleware", middleware(schemas.profilePOST),)
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
+app.use(bodyParser.json({limit: '25mb'}));
 app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
@@ -81,31 +84,31 @@ app.get("/home", async (req, res) => {
   res.send({ posts: postObjects });
 });
 
-app.post("/posts/submit", upload.single("photo"), async (req, res) => {
-  // const data = req.body.post
-  // posts.push(data)
-  // console.log(posts)
-  console.log(req.body, req.file);
-  // this needs to be changed after authentication
-  foundUser = await User.findOne({ id: 1 });
+// app.post("/posts/submit", verifyToken, upload.single("photo"), async (req, res) => {
+//   // const data = req.body.post
+//   // posts.push(data)
+//   // console.log(posts)
+//   console.log(req.body, req.file);
+//   // this needs to be changed after authentication
+//   foundUser = await User.findOne({ id: 1 });
 
-  // getting todays date and time
-  const today = new Date();
-  const options = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  const formattedDate = today.toLocaleDateString("en-US", options);
-  let hours = today.getHours();
-  let minutes = today.getMinutes();
-  minutes = String(minutes).padStart(2, "0");
-  const formattedTime = `${hours}:${minutes}`;
-  console.log(formattedDate, formattedTime);
+//   // getting todays date and time
+//   const today = new Date();
+//   const options = {
+//     year: "numeric",
+//     month: "long",
+//     day: "numeric",
+//   };
+//   const formattedDate = today.toLocaleDateString("en-US", options);
+//   let hours = today.getHours();
+//   let minutes = today.getMinutes();
+//   minutes = String(minutes).padStart(2, "0");
+//   const formattedTime = `${hours}:${minutes}`;
+//   console.log(formattedDate, formattedTime);
 
-})
+// })
 
-app.get('/home/:page', async(req, res) => {
+app.get('/home/:page', verifyToken,  async(req, res) => {
     page = req.params.page
     const limit = 5
     const allPosts = await Post.find({}).populate('author', 'username').skip((page-1) * limit).limit(limit)
@@ -125,8 +128,9 @@ app.get('/home/:page', async(req, res) => {
     res.send({ posts: postObjects })
 })
 
-app.post('/posts/submit', upload.single('photo'), async(req, res) => {
+app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) => {
     // this needs to be changed after authentication
+    console.log(req.body)
     foundUser = await User.findOne({id: 1});
 
     // generating id
@@ -214,17 +218,35 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/login",
-  })
-);
+// app.post(
+//   "/login",
+//   passport.authenticate("local", {
+//     successRedirect: "/",
+//     failureRedirect: "/login",
+//   })
+// );
 
-app.get("/home", (req, res) => {
-  res.send({ posts: posts });
+app.post("/login", passport.authenticate("local"), function (req, res) {
+  const token = jwt.sign({ id: req.user._id }, config.secretKey, { expiresIn: config.expiresIn });
+  console.log(token)
+  res.json({
+    token: token,
+    user: req.user
+  });
 });
+
+app.get('/logout', (req, res)=>{
+  req.logout(function(err) {
+    if (err) { 
+      return next(err); 
+    }
+    res.json({message: 'logged out'});
+  });
+})
+
+// app.get("/home", (req, res) => {
+//   res.send({ posts: posts });
+// });
 
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
@@ -233,7 +255,7 @@ app.get("/qrscan", (req, res) => {
 
 
 
-app.get('/profile/:userid', async (req, res) => {
+app.get('/profile/:userid', verifyToken, async (req, res) => {
     // Retrieve user with the specified ID from the data source
     // const userid = req.params.userid;
     // const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
@@ -250,21 +272,11 @@ app.get("/eventdetails/:eventid", (req, res) => {
   res.send("HERE WE HAVE EVENT DETAILS");
 });
 
-app.post("/createevent", async (req, res) => {
-  //can't access DB, need debug
+app.post("/createevent", verifyToken, async (req, res) => {
   console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
   console.log("req.body.Name: " + req.body.Name); //Great event
 
-  //extract every property from req.body and store them to the variable defined inside const{ }
-  //these variables can later be used directly. Warning: these variables have to be exactly the same
-  //as in the eventForm, or it'll become undefined.
   const { name, date, time, location, description } = req.body;
-
-  console.log("name: " + name);
-  console.log("date: " + date);
-  console.log("time: " + time);
-  console.log("location: " + location);
-  console.log("description: " + description);
 
   //Check if username already exists
   const existingUser = await Event.findOne({ name });
@@ -330,7 +342,7 @@ function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {y
     return next();
   }
-  res.redirect("/login");
+  res.status(400).json({ statusCode: 400, message: "not authenticated" });
 }
 
 function checkNotAuthenticated(req, res, next) {
