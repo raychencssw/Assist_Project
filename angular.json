@@ -25,7 +25,7 @@
               "src/assets"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/pink-bluegrey.css",
+              "src/custom-theme.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
               "src/all.min.css"

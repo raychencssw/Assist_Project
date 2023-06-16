@@ -202,8 +202,6 @@ app.get('/profile/:userid', (req, res) => {
 })
 
 
-
-
 app.post('/profileedit/:userid', middleware(schemas.profilePOST), (req, res) => { // 
   const updatedData = req.body;
   console.log("updated Data", updatedData) //{ userbane: 'ssd' ...}
@@ -232,10 +230,15 @@ app.get("/eventsearch", (req, res) => {
   const getEvents = Event.distinct('name')//.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result)
-    console.log('user_info', result);
   })
 });
 
+app.get("/usersearch", (req, res) => {
+  const getEvents = User.distinct('username')//.toArray()//OBJECT
+  getEvents.then(function (result) {
+    res.json(result)
+  })
+});
 
 app.post('/createevent', async (req, res) => {
   //can't access DB, need debug

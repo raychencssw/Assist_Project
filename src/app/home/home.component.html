@@ -1,8 +1,9 @@
 <div class="container" style="width: 60%;">
     <form [formGroup]="postForm" ngNativeValidate (ngSubmit)="onSubmit()">
-        <div class="row" >
+        <div class="row">
             <div class="col col-lg-12">
-                <textarea id="postText" class="form-control" formControlName="posttext" rows="4" cols="12" placeholder = "Type Something..." required="" ></textarea>
+                <textarea id="postText" class="form-control" formControlName="posttext" rows="4" cols="12"
+                    placeholder="Type Something..." required=""></textarea>
             </div>
             <!-- <div *ngIf="postForm.get('posttext')?.errors?.['required']">
                 Description is required.
@@ -10,20 +11,23 @@
         </div>
         <div class="row" #locationDiv>
             <div class="col col-lg-12 mt-2" #locationInput>
-                <input type="text" placeholder="Type your location.." class="form-control" formControlName="postlocation" required="">
+                <input type="text" placeholder="Type your location.." class="form-control"
+                    formControlName="postlocation" required="">
             </div>
         </div>
         <div class="row mt-2">
             <div class="col col-lg-12">
-                <input formControlName="autolocation" class="form-check-input" type="checkbox" id="flexCheckDefault" (change)="checkChecked()" #locationCheckBox >
+                <input formControlName="autolocation" class="form-check-input" type="checkbox" id="flexCheckDefault"
+                    (change)="checkChecked()" #locationCheckBox>
                 <label class="form-check-label" for="flexCheckDefault" style="margin-left: 20px;">
-                  Locate me
+                    Locate me
                 </label>
             </div>
         </div>
         <div class="row mt-2">
             <div class="col col-lg-12">
-                <input type="file" formControlName="photo" class="form-control" (change)="onFileSelected($event)" required="">
+                <input type="file" formControlName="photo" class="form-control" (change)="onFileSelected($event)"
+                    required="">
                 <div *ngIf="isWrongExtension">
                     Only JPEG and PNG files are allowed.
                 </div>
@@ -37,4 +41,3 @@
     </form>
     <app-posts></app-posts>
 </div>
-

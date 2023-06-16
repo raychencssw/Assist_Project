@@ -91,6 +91,7 @@ export class ProfileComponent implements OnInit {
       });
     this.ngOnInit(); //reload the table  
     this.modalService.dismissAll(); //dismiss the modal
+    window.location.reload();
   }
 
 }

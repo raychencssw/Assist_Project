@@ -20,6 +20,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { EventcreateComponent } from './eventcreate/eventcreate.component';
 import { SearchComponent } from './search/search.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'events', component: EventsComponent },
@@ -53,8 +54,9 @@ const appRoutes: Routes = [
     FormsModule,
     HttpClientModule,
     NoopAnimationsModule,
-    MatTabsModule
-
+    MatTabsModule,
+    MatAutocompleteModule,
+    MatInputModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
