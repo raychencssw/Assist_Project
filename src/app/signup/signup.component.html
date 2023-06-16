@@ -38,7 +38,7 @@
 
   <div>
     <label for="profilePicture">Profile Picture:</label>
-    <input type="text" id="profilePicture" name="profilePicture">
+    <input type="file" id="profilePicture" name="profilePicture" (change)="onFileChange($event)" accept="image/*" required>
   </div>
   
   <button type="submit">Signup</button>

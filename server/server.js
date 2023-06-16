@@ -13,9 +13,9 @@ const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
 //const flash = require("express-flash");
 const session = require("express-session");
-const jwt = require('jsonwebtoken');
-const config = require('./config')
-const verifyToken = require('./verifyToken')
+const jwt = require("jsonwebtoken");
+const config = require("./config");
+const verifyToken = require("./verifyToken");
 // const ngeohash = require('ngeohash')
 const { storage } = require("../cloudinary");
 const { cloudinary } = require("../cloudinary");
@@ -24,7 +24,6 @@ const db = mongoose.connection;
 //const initializePassport = require("./passport-config");
 //initializePassport(passport);
 // const ngeohash = require('ngeohash')
-
 
 // creating variables
 const characters =
@@ -35,17 +34,14 @@ let posts = [];
 const upload = multer({ storage: storage });
 initializePassport(passport);
 
-
-
-
-const schemas = require('./schemas');
-const middleware = require('./middleware');
+const schemas = require("./schemas");
+const middleware = require("./middleware");
 
 const app = express();
-console.log("test middleware", middleware(schemas.profilePOST),)
+console.log("test middleware", middleware(schemas.profilePOST));
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
-app.use(bodyParser.json({limit: '25mb'}));
+app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
+app.use(bodyParser.json({ limit: "25mb" }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
@@ -114,52 +110,57 @@ app.get("/home", async (req, res) => {
 
 // })
 
-app.get('/home/:page', verifyToken,  async(req, res) => {
-    page = req.params.page
-    const limit = 5
-    const allPosts = await Post.find({}).populate('author', 'username').skip((page-1) * limit).limit(limit)
-    const postObjects = allPosts.map(post => {
-        return {
-          id: post.id,
-          author: post.author.username,
-          location: post.location,
-          date: post.date,
-          time: post.time,
-          description: post.description,
-          likes: post.likes,
-          imageurl: post.imageurl
-        };
-    });
-    console.log(postObjects)
-    res.send({ posts: postObjects })
-})
+app.get("/home/:page", verifyToken, async (req, res) => {
+  page = req.params.page;
+  const limit = 5;
+  const allPosts = await Post.find({})
+    .populate("author", "username")
+    .skip((page - 1) * limit)
+    .limit(limit);
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post.id,
+      author: post.author.username,
+      location: post.location,
+      date: post.date,
+      time: post.time,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
+  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
 
-app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) => {
+app.post(
+  "/posts/submit",
+  verifyToken,
+  upload.single("photo"),
+  async (req, res) => {
     // this needs to be changed after authentication
-    console.log(req.body)
-    foundUser = await User.findOne({id: 1});
+    console.log(req.body);
+    foundUser = await User.findOne({ id: 1 });
 
     // generating id
     for (let i = 0; i < 10; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        randomId += characters.charAt(randomIndex);
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      randomId += characters.charAt(randomIndex);
     }
 
     const post = new Post({
-        id: randomId,
-        author: foundUser,
-        description: req.body.description,
-        location: req.body.location,
-        likes: 0,
-        imageurl: req.file.path
-
-    })
-    await post.save()
-    foundUser.posts.push(post)
-    res.json({ success: true, message: "Data received" })
-
-
-})
+      id: randomId,
+      author: foundUser,
+      description: req.body.description,
+      location: req.body.location,
+      likes: 0,
+      imageurl: req.file.path,
+    });
+    await post.save();
+    foundUser.posts.push(post);
+    res.json({ success: true, message: "Data received" });
+  }
+);
 
 // app.get('/test', async (req, res)=>{
 //     // const user = new User({id: 1, username: 'test', email: 'test@test.com', firstname: 'testFirst', lastname: 'testLast', role: 1, points: 14})
@@ -177,19 +178,13 @@ app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) =
 //   await foundUser.save()
 // })
 
-app.post("/signup", async (req, res) => {
+app.post("/signup", upload.single("profilePicture"), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
   console.log("receive signup notification");
   try {
-    const {
-      username,
-      email,
-      firstname,
-      lastname,
-      profilepicture,
-      role,
-      school,
-    } = req.body;
+    const { username, email, firstname, lastname, role } = req.body;
+
+    const profilePicture = req.file.path;
 
     //Check if username already exists
     const existingUsername = await User.findOne({ username });
@@ -211,9 +206,12 @@ app.post("/signup", async (req, res) => {
       email,
       firstname,
       lastname,
-      profilepicture,
+      profilePicture,
       role,
     });
+    if (req.body.password == null) {
+      console.log("No password");
+    }
     newUser.password = newUser.generateHash(req.body.password);
     await newUser.save();
     console.log("user saved");
@@ -233,22 +231,24 @@ app.post("/signup", async (req, res) => {
 // );
 
 app.post("/login", passport.authenticate("local"), function (req, res) {
-  const token = jwt.sign({ id: req.user._id }, config.secretKey, { expiresIn: config.expiresIn });
-  console.log(token)
+  const token = jwt.sign({ id: req.user._id }, config.secretKey, {
+    expiresIn: config.expiresIn,
+  });
+  console.log(token);
   res.json({
     token: token,
-    user: req.user
+    user: req.user,
   });
 });
 
-app.get('/logout', (req, res)=>{
-  req.logout(function(err) {
-    if (err) { 
-      return next(err); 
+app.get("/logout", (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
     }
-    res.json({message: 'logged out'});
+    res.json({ message: "logged out" });
   });
-})
+});
 
 // app.get("/home", (req, res) => {
 //   res.send({ posts: posts });
@@ -258,69 +258,59 @@ app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
-
-
-
-
-app.get('/profile/:userid', verifyToken, async (req, res) => {
-    // Retrieve user with the specified ID from the data source
-    // const userid = req.params.userid;
-    // const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
-    // getUser.then(function (result) {
-    //     res.json(result)
-    //     console.log('user_info', result);
-    // })
-    console.log(req.params.userid)
-    const user = await User.findById(req.params.userid)
-    res.send(user)
-})
+app.get("/profile/:userid", verifyToken, async (req, res) => {
+  // Retrieve user with the specified ID from the data source
+  // const userid = req.params.userid;
+  // const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
+  // getUser.then(function (result) {
+  //     res.json(result)
+  //     console.log('user_info', result);
+  // })
+  console.log(req.params.userid);
+  const user = await User.findById(req.params.userid);
+  res.send(user);
+});
 
 // app.get("/eventdetails/:eventid", (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-
-app.post('/createevent', async (req, res)=>{
-
+app.post("/createevent", async (req, res) => {
   //console.log("req.body: " + JSON.stringify(req.body)); //{"name":"Great event","date":"Great Day","time":"Great Time","location":"Great Locale","description":"Have fun"}
 
   //extract every property from req.body and store them to the variable defined inside const{ }
-  //these variables can later be used directly. Warning: these variables have to be exactly 
+  //these variables can later be used directly. Warning: these variables have to be exactly
   //the same as in the eventForm, or it'll become undefined.
   const {
-      name,
-      date,
-      time,
-      location:{
-          street,
-          city,
-          state,
-      },
-      description,
-  }  = req.body;
+    name,
+    date,
+    time,
+    location: { street, city, state },
+    description,
+  } = req.body;
 
   //Check if username already exists, need check later
   const existingUser = await Event.findOne({ name });
   if (existingUser) {
-      return res.status(409).json({ message: "Eventname already exists" });
+    return res.status(409).json({ message: "Eventname already exists" });
   }
 
   const newEvent = new Event({
-      name,
-      date,
-      time,
-      location:{
-          street,
-          city,
-          state,
-      },
-      description,
+    name,
+    date,
+    time,
+    location: {
+      street,
+      city,
+      state,
+    },
+    description,
   });
   console.log("newEvent: " + newEvent);
   await newEvent.save();
   console.log("a new Event is sent to backend successfully!");
   res.status(201).json({ message: "Event created" });
-})
+});
 
 app.get("/events", async (req, res) => {
   //await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
@@ -347,41 +337,45 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-app.get('/following', async(req, res)=>{
-  const user = await User.findOne({id: 1})
+app.get("/following", async (req, res) => {
+  const user = await User.findOne({ id: 1 });
   const follow = await user.populate([
-    {path: 'following', select: 'username firstname lastname'},
-  ])
-  res.send({following: follow.following})
-  
-})
+    { path: "following", select: "username firstname lastname" },
+  ]);
+  res.send({ following: follow.following });
+});
 
+app.post("/profileedit/:userid", verifyToken, (req, res) => {
+  const updatedData = req.body;
+  const userid = req.params.userid;
+  const useridfound = db.collection("users").findOne({ id: Number(userid) }); //check if we could find the user id data
 
-app.post('/profileedit/:userid', verifyToken, (req, res) => {
-    const updatedData = req.body;
-    const userid = req.params.userid;
-    const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
+  if (useridfound) {
+    console.log("updated data?", updatedData.username);
+    const id_filter = { id: Number(userid) };
+    const updateData = {
+      username: updatedData.username,
+      school: updatedData.school,
+      firstname: updatedData.firstname,
+      lastname: updatedData.lastname,
+      email: updatedData.email,
+    };
+    const update = { $set: updateData };
 
-    if (useridfound) {
-        console.log("updated data?", updatedData.username)
-        const id_filter = { id: Number(userid) };
-        const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
-        const update = { $set: updateData };
-
-        const getUser = db.collection('users').updateOne(id_filter, update).then(
-            console.log("Successfully updated")
-        ).catch(error => {
-            console.error(error);
-            res.status(500).json({ error: 'An error occurred while updating the document' });
-        });
-
-    } else {
-        console.error('User not found');
-    }
-
-
-})
-
+    const getUser = db
+      .collection("users")
+      .updateOne(id_filter, update)
+      .then(console.log("Successfully updated"))
+      .catch((error) => {
+        console.error(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while updating the document" });
+      });
+  } else {
+    console.error("User not found");
+  }
+});
 
 app.get("/searchuser/:username", async (req, res) => {
   // Retrieve user with the specified ID from the data source
@@ -392,12 +386,6 @@ app.get("/searchuser/:username", async (req, res) => {
   } else {
     res.status(500).json({ message: "No such user" });
   }
-});
-
-
-
-app.get("/rankings", (req, res) => {
-  res.send("THIS IS RANKINGS");
 });
 
 app.get("/ranking/student", async (req, res) => {
@@ -429,7 +417,8 @@ app.get("/ranking/school", async (req, res) => {
 });
 
 function checkAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {y
+  if (req.isAuthenticated()) {
+    y;
     return next();
   }
   res.status(400).json({ statusCode: 400, message: "not authenticated" });
@@ -444,8 +433,7 @@ function checkNotAuthenticated(req, res, next) {
 
 app.use((req, res) => {
   res.status(404).send("404 PAGE NOT FOUND");
-
-})
+});
 
 const port = process.env.PORT || 3080;
 
