@@ -21,7 +21,7 @@ export class EventsComponent implements OnInit{
 
   constructor(private modalService: NgbModal,                   //open a modal when "create event" button is clicked
               private eventService: EventServiceService,        //load events from DB when the page is first-time loaded or after a new event is created
-              private router: Router){};                        //????
+              private router: Router){};                        //for the routerLink that direct to event deatil page
 
   ngOnInit():void{
     //loadEvent() returns Observable, so subscribe here
@@ -30,7 +30,7 @@ export class EventsComponent implements OnInit{
 
       this.weeklyEvents = [];
       this.monthlyEvents = [];
-      
+
       //store the events from the MongoDB to this.events(not sorted yet)
       this.events = events;
       //console.log("this.events: " + JSON.stringify(this.events));
@@ -56,8 +56,10 @@ export class EventsComponent implements OnInit{
   createEvent(){
     //specify 'static' for a backdrop which doesn't close the modal on click.
     this.modalOption.backdrop = 'static'; 
+
     //the modal will NOT be closed when Escape key is pressed
     this.modalOption.keyboard = false;
+
     //open the modal window and the content inside is EventcreateComponent
     //modalRef os a reference to the newly opened modal returned by the NgbModal.open() method.
 		const modalRef = this.modalService.open(EventcreateComponent,this.modalOption);
@@ -187,18 +189,4 @@ export class EventsComponent implements OnInit{
     }
   }
 
-  displayDetail(eventId: string){
-    console.log("eventId: " + eventId); //648803c05d9c559303ac3a74
-    this.router.navigate(['/event-detail', eventId]);
-  }
-
-  // dateConverter(){
-  //   this.events.length.sort
-  //   for (let i = 0; i < this.events.length; i++) {
-  //     const date = new Date(this.events[i]["date"]);
-  //     console.log("date: " + date);  //Fri Jun 30 2023 00:00:00 GMT-0700 (Pacific Daylight Time)
-  //     const dayOfWeek = date.getDay();
-  //     console.log("dayOfWeek: " + dayOfWeek);
-  //   }
-  // }
 }

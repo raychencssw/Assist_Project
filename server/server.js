@@ -10,7 +10,9 @@ const User = require("./models/user");
 // const ngeohash = require('ngeohash')
 const Event = require("./models/event");  // instanitiate a model, in other words, document
 
-
+// creating variables
+const characters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const posts = [];
 
 const app = express();
@@ -120,13 +122,21 @@ app.post('/createevent', async (req, res)=>{
         description,
     }  = req.body;
 
-    //Check if username already exists, need check later
+    //Check if username already exists, need check later for other mechanism???
     const existingUser = await Event.findOne({ name });
     if (existingUser) {
         return res.status(409).json({ message: "Eventname already exists" });
     }
 
+    // generating id
+    var id = "";
+    for (let i = 0; i < 10; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        id += characters.charAt(randomIndex);
+    }
+
     const newEvent = new Event({
+        id,
         name,
         date,
         time,
@@ -152,10 +162,11 @@ app.get("/events", async (req, res) => {
 
 app.get("/event/:eventId", async (req, res) => {
     const eventId = req.params.eventId;
-    console.log("eventID: " + eventID);
+    console.log("eventID: " + eventId);
     try {
       // Find the event by eventId
-      const event = await Event.findOne({ _id: eventId });
+      // const event = await Event.findOne({ _id: eventId })
+      const event = await Event.findOne({ id: eventId });
   
       if (event) {
         res.send(event);

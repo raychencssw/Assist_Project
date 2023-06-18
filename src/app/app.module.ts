@@ -31,6 +31,7 @@ const appRoutes: Routes =[
   {path: 'rankings', component: RankingsComponent},
   {path: 'signup', component: SignupComponent},
   {path: 'login', component: LoginComponent},
+  { path: 'event-detail/:id', component: EventDetailsComponent },
   
 ]
 
