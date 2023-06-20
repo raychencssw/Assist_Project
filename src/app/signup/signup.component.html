@@ -24,16 +24,13 @@
     <label for="lastName">Last Name:</label>
     <input type="text" id="lastname" name="lastname" [(ngModel)]="user.lastname" required>
   </div>
-
-    
-  <div>
-    <label for="role">Role:</label>
-    <input type="text" id="role" name="role" [(ngModel)]="user.role" required>
-  </div>
   
   <div>
     <label for="school">School:</label>
-    <input type="text" id="school" name="school" [(ngModel)]="user.school">
+    <select id="school" name="school" [(ngModel)]="user.school">
+      <option value="">Select a school</option>
+      <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
+    </select>
   </div>
 
   <div>

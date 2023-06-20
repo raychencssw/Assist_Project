@@ -14,6 +14,9 @@ export class SignupComponent {
   isWrongExtension: boolean = false
   formData: any
 
+  schools: string[] = ['Los Al', 'Valley Christian', 'Orangewood Academy', 'King Drew','Leuzinger',
+  'Poly High', 'Carson', 'Rancho Dominguez', 'South East Gate', 'Washington Prep', 'Da Vinci Schools'];
+
   user = {
     email: '',
     username: '',
@@ -21,12 +24,18 @@ export class SignupComponent {
     firstname: '',
     lastname: '',
     school: '',
-    role: '',
   };
 
   constructor(private http: HttpClient, private router: Router) {}
 
   onSubmit() {
+    //Check if user has selected a school
+    if (!this.user.school) {
+      // Display an error message or perform any other validation logic
+      alert('Please select a school.');
+      return;
+    }
+    
     if(this.isWrongExtension) {
       console.error("Incorrect file extension");
       this.router.navigate(['/signup']);

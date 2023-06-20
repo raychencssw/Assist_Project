@@ -182,7 +182,7 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
   console.log("receive signup notification");
   try {
-    const { username, email, firstname, lastname, role } = req.body;
+    const { username, email, firstname, lastname, school } = req.body;
 
     const profilePicture = req.file.path;
 
@@ -201,13 +201,17 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
       return res.status(409).json({ message: "Email already exists" });
     }
 
+    //Find school id from school name
+    const schoolDocument = await School.findOne({ name: school });
+    const schoolID = schoolDocument.id;
+
     const newUser = new User({
       username,
       email,
       firstname,
       lastname,
       profilePicture,
-      role,
+      schoolID,
     });
     if (req.body.password == null) {
       console.log("No password");
