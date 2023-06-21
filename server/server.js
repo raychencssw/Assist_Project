@@ -122,6 +122,9 @@ app.post('/createevent', async (req, res)=>{
         description,
     }  = req.body;
 
+    const imageurl = req.file.path;
+    console.log("incoming imageurl: " + imageurl);
+
     //Check if username already exists, need check later for other mechanism???
     const existingUser = await Event.findOne({ name });
     if (existingUser) {
@@ -138,6 +141,7 @@ app.post('/createevent', async (req, res)=>{
     const newEvent = new Event({
         id,
         name,
+        imageurl,
         date,
         time,
         location:{
