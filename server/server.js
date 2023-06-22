@@ -197,7 +197,7 @@ app.get('/profile/:userid', (req, res) => {
   const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
   getUser.then(function (result) {
     res.json(result)
-    console.log('user_info', result);
+    console.log('user_info get');
   })
 })
 

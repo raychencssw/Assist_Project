@@ -4,7 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { NgForm } from '@angular/forms';
-
+import { string } from 'joi';
+import * as cloudinaryCore from 'cloudinary-core';
 @Component({
 
   selector: 'app-profile',
@@ -14,29 +15,39 @@ import { NgForm } from '@angular/forms';
 
 
 export class ProfileComponent implements OnInit {
-  public username: string[] = [];
-  name: string | undefined;
-  firstname: string[] = [];
-  lastname: string[] = [];
-  email: string[] = [];
+  public username: string = '';
+  name: string = '';
+  firstname: string = '';
+  lastname: string = '';
+  email: string = '';
   role: number[] = [];
   points: number[] = [];
-  profilepicture: string[] = [];
-  school: string[] = [];
-  eventsAttended: string[] = [];
+  profilepicture: string = '';
+  school: string = '';
+  eventsAttended: string = '';
+
   id: any;
   closeResult!: string;
+  isWrongExtension: boolean = false
+  update_username: string = '';
+  update_firstname: string = '';
+  update_lastname: string = '';
+  update_email: string = '';
+  update_school: string = '';
+  update_profilepicture: string = '';
+
+
+  //on selected File
+  photoUrl: string = " ";
+  fileToUpload: File | null = null;
+  cloudinary: any;
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
-
-  ) {
-
-
-  }
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -48,18 +59,29 @@ export class ProfileComponent implements OnInit {
     const userid = this.id
     backendUrl = backendUrl + userid
     this.http.get<any>(backendUrl).subscribe((data) => {
-      this.email = data['email'];
-      this.username = data['username'];
+
+      this.email = data["email"];
+      this.username = data["username"];
       this.firstname = data['firstname'];
       this.lastname = data['lastname'];
       this.role = data['role'];
       this.points = data['points']
       this.school = data['school']
       this.eventsAttended = data['eventsAttended']
+      this.profilepicture = data['profilepicture']
       this.name = this.firstname + " " + this.lastname
+
+      //get default values
+      this.update_username = this.username
+      this.update_firstname = this.firstname;
+      this.update_lastname = this.lastname;
+      this.update_email = this.email;
+      this.update_school = this.school;
+      this.update_profilepicture = this.profilepicture;
 
     })
   }
+
   modalOption: NgbModalOptions = {};
 
   editUserInfo(content: any) {
@@ -83,15 +105,19 @@ export class ProfileComponent implements OnInit {
   onSubmit(f: NgForm) {
 
     const url = 'http://localhost:3080/profileedit/' + String(this.id)
-    console.log('Update form value', f.value)
+
+    console.log('username', f.value["username"])
+
 
     this.http.post(url, f.value)
       .subscribe((result) => {
         console.log(result)
       });
+
     this.ngOnInit(); //reload the table  
     this.modalService.dismissAll(); //dismiss the modal
-    window.location.reload();
+    window.location.reload();//reload the page for data update
   }
+
 
 }
