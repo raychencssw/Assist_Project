@@ -10,10 +10,16 @@ const User = require("./models/user");
 // const ngeohash = require('ngeohash')
 const Event = require("./models/event");  // instanitiate a model, in other words, document
 
+const multer = require("multer");
+const { storage } = require("../cloudinary");
+const { cloudinary } = require("../cloudinary");
+
 // creating variables
 const characters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const posts = [];
+
+const upload = multer({ storage: storage });
 
 const app = express();
 
@@ -103,7 +109,7 @@ app.get("/eventdetails/:eventid", (req, res) => {
 });
 
 
-app.post('/createevent', async (req, res)=>{
+app.post('/createevent', upload.single('photo'),async (req, res)=>{
 
     //console.log("req.body: " + JSON.stringify(req.body)); //{"name":"Great event","date":"Great Day","time":"Great Time","location":"Great Locale","description":"Have fun"}
 
@@ -122,8 +128,8 @@ app.post('/createevent', async (req, res)=>{
         description,
     }  = req.body;
 
-    const imageurl = req.file.path;
-    console.log("incoming imageurl: " + imageurl);
+    // const imageurl = req.file.path;
+    // console.log("incoming imageurl: " + imageurl);
 
     //Check if username already exists, need check later for other mechanism???
     const existingUser = await Event.findOne({ name });
@@ -141,7 +147,7 @@ app.post('/createevent', async (req, res)=>{
     const newEvent = new Event({
         id,
         name,
-        imageurl,
+        // imageurl,
         date,
         time,
         location:{

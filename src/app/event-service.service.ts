@@ -14,7 +14,10 @@ export class EventServiceService {
   
     addtoEvents(event: any):Observable<any>{
       console.log("event: " + JSON.stringify(event));
-      //event: {"name":"Great event","date":"Great Day","time":"Great Time","location":"Great Locale","description":"Have fun"}
+      //why imageurl is {} ????
+      //event: {"name":"Cheez-it, Choose it","imageurl":{},"date":"6/23/2023","time":{"hour":13,"minute":30},
+      //"location":{"street":"100 Citadel Dr","city":"Commerce","state":"CA"},"description":"Life is full of 
+      //opportunity and choices. Choose whatever you want to help others. You choose it, and we give you Cheez-it!"}
       
       //1st parameter: the entrypoint defined in server.js
       //2nd parameter: the body to be sent to the backend

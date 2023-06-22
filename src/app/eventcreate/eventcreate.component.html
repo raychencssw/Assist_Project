@@ -7,11 +7,11 @@
         <label class="form-label mb-0 mt-3 fw-bold">Event Name</label>
         <input id="event" type="text" name="Event" class="form-control" [(ngModel)]="eventForm.name">
 
-        <label class="form-label mb-0 mt-3 fw-bold">Upload Photo</label>
-        <input type="file" class="form-control" [(ngModel)]="eventForm.imageurl" (change)="onFileSelected($event)" required="">
+        <!-- <label class="form-label mb-0 mt-3 fw-bold">Upload Photo</label>
+        <input type="file" class="form-control" (change)="onFileSelected($event)" required="">
         <div *ngIf="isWrongExtension">
             Only JPEG and PNG files are allowed.
-        </div>
+        </div> -->
 
         <!-- <label class="form-label mb-0 mt-3 fw-bold">Date</label>
         <input id="date" type="text" name="Date" class="form-control" [(ngModel)]="eventForm.date"> -->

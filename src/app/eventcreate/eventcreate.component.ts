@@ -19,6 +19,7 @@ export class EventcreateComponent implements OnInit{
   fileName: any = "";
   isWrongExtension: boolean = false;
 
+
   /**
    *   Date handling: The user's input was string originally and was assigned to formDate. Then it is passed
    *                  to Date object to allow further operation. A method toLocaleDateString() is applied to
@@ -33,7 +34,7 @@ export class EventcreateComponent implements OnInit{
 
   public eventForm = {
     name: '',
-    imageurl:'',
+    photo: null as File | null,
     date:'',
     time: { hour: 13, minute: 30 },
     location:{
@@ -64,9 +65,9 @@ export class EventcreateComponent implements OnInit{
 
     console.log("this.fileName.split('.'): " + this.fileName.split('.'));
     //pop removes and returns the last element of the array
-    this.fileExtension = this.fileName.split('.').pop()
-    console.log(this.fileName)
-    console.log(this.fileExtension)
+    this.fileExtension = this.fileName.split('.').pop();
+    console.log("file name: " + this.fileName);
+    console.log("file extension: " + this.fileExtension);
     if(this.fileExtension !== 'jpeg' && this.fileExtension !== 'jpg' && this.fileExtension !== 'png'){
       this.isWrongExtension = true
     }else{
@@ -87,6 +88,10 @@ export class EventcreateComponent implements OnInit{
     let formattedDate = tempDate.toLocaleDateString();
     this.eventForm.date = String(formattedDate);
     console.log("formattedDate: " + formattedDate);    //formattedDate: 4/7/2023
+
+    this.eventForm.photo = this.selectedFile;
+
+    console.log("eventForm: " + JSON.stringify(this.eventForm));
 
     //call eventService and then store the event info to the MongoDB
     this.eventService.addtoEvents(this.eventForm).subscribe(() => {
