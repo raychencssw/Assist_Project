@@ -15,11 +15,12 @@ const session = require("express-session");
 // const ngeohash = require('ngeohash')
 const { storage } = require('../cloudinary')
 const { cloudinary } = require('../cloudinary');
-
 const Joi = require('joi');
 const schemas = require('./schemas');
 const middleware = require('./middleware');
 const { async } = require('rxjs');
+
+
 
 const db = mongoose.connection;
 
@@ -28,8 +29,8 @@ const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567
 let randomId = '';
 let posts = []
 
+const upload = multer({ storage: storage });
 
-const upload = multer({ storage: storage })
 initializePassport(passport);
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -202,28 +203,61 @@ app.get('/profile/:userid', (req, res) => {
 })
 
 
-app.post('/profileedit/:userid', middleware(schemas.profilePOST), (req, res) => { // 
+app.post('/profileedit/:userid', upload.single("profilepicture"), (req, res) => { // 
   const updatedData = req.body;
-  console.log("updated Data", updatedData) //{ userbane: 'ssd' ...}
+  const check_file = req.file;
+  console.log("check_file ", check_file)
   const userid = req.params.userid;
   const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
+  const id_filter = { id: Number(userid) };
 
-  if (useridfound) {
-    const id_filter = { id: Number(userid) };
-    const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
-    const update = { $set: updateData };
+  if (useridfound) { // if there is a user
+    if (!check_file) {
+      const updateData = { // no profilepicture: profilepicture,
+        username: updatedData.username,
+        school: updatedData.school,
+        firstname: updatedData.firstname,
+        lastname: updatedData.lastname,
+        email: updatedData.email
+      }
+      const update = { $set: updateData };
+      console.log("there is no picture")
 
-    const getUser = db.collection('users').updateOne(id_filter, update).then(
-      console.log("Successfully updated")
-    ).catch(error => {
-      console.error(error);
-      res.status(500).json({ error: 'An error occurred while updating the document' });
-    });
+      const getUser = db.collection('users').updateOne(id_filter, update).then(
+        console.log("Successfully updated")
+      ).catch(error => {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while updating the document' });
+      });
+    }
+
+    else {
+      const profilepicture = req.file.path;
+      const updateData = {
+        profilepicture: profilepicture,
+        username: updatedData.username,
+        school: updatedData.school,
+        firstname: updatedData.firstname,
+        lastname: updatedData.lastname,
+        email: updatedData.email
+      }
+      const update = { $set: updateData };
+      console.log("there is a new picture")
+      const getUser = db.collection('users').updateOne(id_filter, update).then(
+        console.log("Successfully updated")
+      ).catch(error => {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while updating the document' });
+      });
+
+    }
 
   } else {
     console.error('User not found');
   }
 }
+
+
 )
 
 app.get("/eventsearch", (req, res) => {

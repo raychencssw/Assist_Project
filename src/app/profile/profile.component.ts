@@ -4,8 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { NgForm } from '@angular/forms';
-import { string } from 'joi';
-import * as cloudinaryCore from 'cloudinary-core';
 @Component({
 
   selector: 'app-profile',
@@ -15,20 +13,19 @@ import * as cloudinaryCore from 'cloudinary-core';
 
 
 export class ProfileComponent implements OnInit {
-  public username: string = '';
+  username: string = '';
   name: string = '';
   firstname: string = '';
   lastname: string = '';
   email: string = '';
-  role: number[] = [];
-  points: number[] = [];
+  role: number | undefined;
+  points: number | undefined;
   profilepicture: string = '';
   school: string = '';
-  eventsAttended: string = '';
+  eventsAttended: string[] = [];
 
   id: any;
   closeResult!: string;
-  isWrongExtension: boolean = false
   update_username: string = '';
   update_firstname: string = '';
   update_lastname: string = '';
@@ -39,8 +36,11 @@ export class ProfileComponent implements OnInit {
 
   //on selected File
   photoUrl: string = " ";
-  fileToUpload: File | null = null;
-  cloudinary: any;
+  selectedFile: File | null = null;
+  fileExtension: any = " ";
+  isWrongExtension: boolean = false;
+  fileName: any = "";
+  formData: any;
 
   constructor(
     private http: HttpClient,
@@ -58,6 +58,7 @@ export class ProfileComponent implements OnInit {
     var backendUrl = 'http://localhost:3080/profile/'
     const userid = this.id
     backendUrl = backendUrl + userid
+
     this.http.get<any>(backendUrl).subscribe((data) => {
 
       this.email = data["email"];
@@ -70,7 +71,6 @@ export class ProfileComponent implements OnInit {
       this.eventsAttended = data['eventsAttended']
       this.profilepicture = data['profilepicture']
       this.name = this.firstname + " " + this.lastname
-
       //get default values
       this.update_username = this.username
       this.update_firstname = this.firstname;
@@ -78,7 +78,6 @@ export class ProfileComponent implements OnInit {
       this.update_email = this.email;
       this.update_school = this.school;
       this.update_profilepicture = this.profilepicture;
-
     })
   }
 
@@ -102,22 +101,55 @@ export class ProfileComponent implements OnInit {
       return `with: ${reason}`;
     }
   }
+
   onSubmit(f: NgForm) {
-
     const url = 'http://localhost:3080/profileedit/' + String(this.id)
+    this.formData = new FormData();
 
-    console.log('username', f.value["username"])
+
+    if (this.selectedFile) {
+      this.formData.append('profilepicture', this.selectedFile);
+
+    }
+    if (!this.formData['profilepicture']) {
+      // No file selected, append old picture url
+      this.formData.append('profilepicture', this.update_profilepicture);
+      console.log("No change on profile picture")
+    }
 
 
-    this.http.post(url, f.value)
+    this.formData.append('username', f.value["username"]);
+    this.formData.append('lastname', f.value["lastname"]);
+    this.formData.append('firstname', f.value["firstname"]);
+    this.formData.append('email', f.value["email"]);
+    this.formData.append('school', f.value["school"]);
+
+    console.log('this.formData', this.formData['profilepicture'])
+
+
+    this.http.post(url, this.formData)//f.value
       .subscribe((result) => {
-        console.log(result)
-      });
+        console.log('Data successfully sent to the server', result)
+      },
+        (error) => {
+          console.error('Error occurred while sending data', error);
+          // Handle the error here
+        });
 
     this.ngOnInit(); //reload the table  
     this.modalService.dismissAll(); //dismiss the modal
     window.location.reload();//reload the page for data update
+
   }
 
-
+  onFileChange(event: any) {
+    this.selectedFile = event.target.files[0] as File
+    this.fileName = this.selectedFile.name
+    this.fileExtension = this.fileName.split('.').pop()
+    if (this.fileExtension !== 'jpeg' && this.fileExtension !== 'jpg' && this.fileExtension !== 'png') {
+      this.isWrongExtension = true
+    } else {
+      this.isWrongExtension = false
+    }
+  }
 }

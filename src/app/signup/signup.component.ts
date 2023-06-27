@@ -16,10 +16,10 @@ export class SignupComponent {
     lastname: '',
     school: '',
     role: '',
-    profilePicture: ''
+    profilepicture: ''
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   onSubmit() {
     const url = 'http://localhost:3080/signup';
