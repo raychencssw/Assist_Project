@@ -29,8 +29,8 @@
                 <p>{{post['date']}}</p>
                 <p style="margin-left: 10px;">{{post['time']}}</p>
                 <div>
-                  <span><i class="fa-regular fa-heart" style="color: #f70808; height: 50px;"></i></span>
-                  <i class="fa-solid fa-heart" style="color: #ec1354; height: 50px;"></i>
+                    <span (click)="toggleLike(post['id'])" style="cursor: pointer;" *ngIf="!isLiked(post['id'])"><i class="fa-regular fa-heart" style="color: #f70808; height: 50px;"></i></span>
+                    <span (click)="toggleLike(post['id'])" style="cursor: pointer;" *ngIf="isLiked(post['id'])"><i class="fa-solid fa-heart" style="color: #ec1354; height: 50px;"></i></span>
                 </div>
               </div>
             </div>

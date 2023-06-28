@@ -7,6 +7,9 @@ import {HttpClientModule} from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {MatListModule} from '@angular/material/list';
+import { ToastrModule } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppComponent } from './app.component';
@@ -78,6 +81,8 @@ const appRoutes: Routes = [
     MatDatepickerModule, 
     MatNativeDateModule,
     NgbTimepickerModule,
+    BrowserAnimationsModule, // required animations module
+    ToastrModule.forRoot(), // ToastrModule added
     
   ],
   providers: [AuthGuard],

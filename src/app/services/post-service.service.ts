@@ -10,20 +10,17 @@ export class PostServiceService implements OnInit{
   posts: any = []
   postsResponse = new Subject<any>()
   token: any
+
   private subscription?: Subscription
 
   constructor(private http: HttpClient, private router: Router, private auth: AuthService) { }
 
   ngOnInit(): void {
-    const sub = this.auth.getUser().subscribe((response: any)=>{
-      this.token = response['token']
-    })
+    this.token = this.auth.getAuthToken()
   }
 
   addtoPosts(formData: any){
-    this.subscription = this.auth.getUser().subscribe((response: any)=>{
-      this.token = response['token']
-    })
+    this.token = this.auth.getAuthToken()
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token }`
     });
@@ -37,9 +34,7 @@ export class PostServiceService implements OnInit{
   }
 
   loadPosts(pageNumber: Number){
-    const sub = this.auth.getUser().subscribe((response: any)=>{
-      this.token = response['token']
-    })
+    this.token = this.auth.getAuthToken()
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token }`
     });
@@ -47,6 +42,23 @@ export class PostServiceService implements OnInit{
     this.http.get(`http://localhost:3080/home/${pageNumber}`, requestOptions).subscribe((response)=>{
       console.log(response)
       this.postsResponse.next(response)
+    })
+  }
+
+  addRemoveLike(userid: string, postid: string, addtoLike: boolean){
+    console.log(userid, postid, addtoLike)
+    this.token = this.auth.getAuthToken()
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token }`
+    });
+    const requestOptions = { headers: headers };
+    const data = {
+      userid: userid,
+      postid: postid,
+      addtoLike: addtoLike
+    }
+    this.http.post(`http://localhost:3080/posts/togglelike`, data, requestOptions).subscribe(response=>{
+      console.log(response)
     })
   }
 }

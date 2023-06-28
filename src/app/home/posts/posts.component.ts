@@ -1,5 +1,6 @@
 import { Component, OnInit} from '@angular/core';
 import { PostServiceService } from 'src/app/services/post-service.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-posts',
@@ -9,11 +10,15 @@ import { PostServiceService } from 'src/app/services/post-service.service';
 export class PostsComponent implements OnInit{
   posts: any = []
   times = []
+  userLikedPosts: any
   pageNumber: any = 1
-  constructor(private postservice: PostServiceService){
+
+  constructor(private postservice: PostServiceService, private auth: AuthService){
   
   }
   ngOnInit(): void {
+    this.userLikedPosts = this.auth.findUserLikedPosts()
+    console.log(this.userLikedPosts)
     this.postservice.postsResponse.subscribe(postResponse=>{
       this.posts.push(...postResponse.posts)
       console.log(this.posts)
@@ -23,6 +28,7 @@ export class PostsComponent implements OnInit{
         const currentDate = new Date()
         const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
         const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+        console.log(this.posts[i]['date'], uploadDate)
 
         if(elapsedSeconds < 60){
           this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
@@ -47,6 +53,13 @@ export class PostsComponent implements OnInit{
           }else{
             this.posts[i]['date'] = `${days} days ago`;
           }
+        }else if(elapsedSeconds > 604800){
+          const formattedDate = uploadDate.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+          this.posts[i]['date'] = formattedDate;
         }
 
       }
@@ -56,5 +69,28 @@ export class PostsComponent implements OnInit{
 
   onScroll(){
     this.postservice.loadPosts(this.pageNumber++)
+  }
+
+  isLiked(id: any): boolean{
+    // console.log(this.userLikedPosts)
+    // console.log(id)
+    // console.log(this.userLikedPosts.includes(id))
+    return this.userLikedPosts.includes(id)
+  }
+  toggleLike(postId: any){
+    if(this.userLikedPosts.includes(postId)){
+      const filteredLikes = this.userLikedPosts.filter((id: any)=>{
+        console.log(id, postId)
+        return id != postId
+      })
+      this.userLikedPosts = filteredLikes
+      const user = this.auth.findUser()
+      this.postservice.addRemoveLike(user['id'], postId, false)
+    }else{
+      this.userLikedPosts.push(postId)
+      const user = this.auth.findUser()
+      this.postservice.addRemoveLike(user['id'], postId, true)
+    }
+
   }
 }

@@ -1,20 +1,28 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Subject, Observable, of } from 'rxjs';
+import { Subject, Observable, of, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService implements OnInit{
   private user: any = []; // Define a private property to store the user object
   private isLoggedIn = false;
-  private token = ""
-  loginResponse = new Subject<any>()
+  private token: any
+  userJson: any
+  loginResponse = new BehaviorSubject<any>(this.user['token'])
   authResponse = new Subject<any>()
 
   constructor(private http: HttpClient, private router: Router) {
     this.isLoggedIn = this.checkAuthenticationStatus();
+   }
+
+   ngOnInit(): void {
+     if(!this.token){
+      this.token = localStorage.getItem('token')
+     }
+
    }
 
 
@@ -28,11 +36,13 @@ export class AuthService {
         next: (response) => {
         // Stores the user object in auth service
           this.user = response;
-          console.log(this.user)
-          this.router.navigate(['/home']);
-          this.setAuthToken(this.user['token']);
+          this.token = this.user['token']
+          this.setAuthToken(this.token);
           this.isLoggedIn = true
           this.loginResponse.next(true);
+          this.startTokenExpiration()
+          this.setUser(this.user)
+          this.router.navigate(['/home']);
       },
       error: (error) => {
         // Handle any errors
@@ -47,19 +57,43 @@ export class AuthService {
 
   }
 
+  startTokenExpiration(){
+    const expirationTime = 60 * 60 * 1000;
+  }
+
 
   setUser(user: any): void {
-    this.user = user; // Set the user object received from the backend
+    console.log(this.user)
+    const tempUser = user.user
+    const userDetails = {
+      id: tempUser._id,
+      email : tempUser.email,
+      firstName: tempUser.firstname,
+      lastName: tempUser.lastname,
+      eventsAttended: tempUser.eventsAttended,
+      followers: tempUser.followers,
+      following: tempUser.following,
+      points: tempUser.points,
+      userName: tempUser.username,
+      posts: tempUser.posts,
+      likedPosts: tempUser.likedposts
+    }
+    const userString = JSON.stringify(userDetails)
+    localStorage.setItem('user', userString)
   }
   private setAuthToken(token: string): void {
-    localStorage.setItem(this.user['token'], token);
+    localStorage.setItem('token', token);
     console.log(localStorage)
   }
-  private getAuthToken(): string | null {
-    return localStorage.getItem(this.user['token']);
+
+
+  getAuthToken(): string | null {
+    console.log(localStorage.getItem('token'))
+    return localStorage.getItem('token');
   }
   private clearAuthToken(): void {
-    localStorage.removeItem(this.user['token']);
+    localStorage.removeItem('token');
+    localStorage.clear()
   }
   checkAuthenticationStatus(): boolean {
     const authToken = this.getAuthToken();
@@ -70,11 +104,37 @@ export class AuthService {
     return of(this.user); // Retrieve the stored user object
   }
 
+  findUser(){
+    const userString = localStorage.getItem('user')
+    if(userString){
+      this.userJson = JSON.parse(userString)
+    }
+    return this.userJson
+  }
+  findUserLikedPosts(){
+
+    const userString = localStorage.getItem('user')
+    if(userString){
+      this.userJson = JSON.parse(userString)
+      console.log(this.userJson)
+    }
+    return this.userJson.likedPosts
+  }
+
   clearUser(): void {
     this.user = null; // Clear the user object
+    localStorage.removeItem('user');
+    localStorage.clear()
   }
   isAuthenticated(): boolean {
-    return this.isLoggedIn;
+    var getToken = this.getAuthToken()
+    console.log(getToken)
+    if(getToken){
+      this.loginResponse.next(true)
+      return true
+    }
+    this.loginResponse.next(false)
+    return false;
   }
 
   isLoggedInUser(){
@@ -88,6 +148,7 @@ export class AuthService {
       this.isLoggedIn = false;
       this.router.navigate(['/login']);
       this.clearAuthToken();
+      this.clearUser()
       this.user = null
       this.loginResponse.next(false)
     })

@@ -14,6 +14,7 @@ const initializePassport = require("./passport-config");
 //const flash = require("express-flash");
 const session = require("express-session");
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 const config = require('./config')
 const verifyToken = require('./verifyToken')
 // const ngeohash = require('ngeohash')
@@ -72,23 +73,23 @@ mongoose
 
 // ROUTES
 
-app.get("/home", async (req, res) => {
-  const allPosts = await Post.find({}).populate("author", "username"); //.populate('author', 'firstname')
-  const postObjects = allPosts.map((post) => {
-    return {
-      id: post.id,
-      author: post.author.username,
-      location: post.location,
-      date: post.date,
-      time: post.time,
-      description: post.description,
-      likes: post.likes,
-      imageurl: post.imageurl,
-    };
-  });
-  console.log(postObjects);
-  res.send({ posts: postObjects });
-});
+// app.get("/home", verifyToken, async (req, res) => {
+//   const allPosts = await Post.find({}).populate("author", "username"); //.populate('author', 'firstname')
+//   const postObjects = allPosts.map((post) => {
+//     return {
+//       id: post.id,
+//       author: post.author.username,
+//       location: post.location,
+//       date: post.date,
+//       time: post.time,
+//       description: post.description,
+//       likes: post.likes,
+//       imageurl: post.imageurl,
+//     };
+//   });
+//   console.log(postObjects);
+//   res.send({ posts: postObjects });
+// });
 
 // app.post("/posts/submit", verifyToken, upload.single("photo"), async (req, res) => {
 //   // const data = req.body.post
@@ -120,11 +121,10 @@ app.get('/home/:page', verifyToken,  async(req, res) => {
     const allPosts = await Post.find({}).populate('author', 'username').skip((page-1) * limit).limit(limit)
     const postObjects = allPosts.map(post => {
         return {
-          id: post.id,
+          id: post._id,
           author: post.author.username,
           location: post.location,
           date: post.date,
-          time: post.time,
           description: post.description,
           likes: post.likes,
           imageurl: post.imageurl
@@ -144,11 +144,12 @@ app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) =
         const randomIndex = Math.floor(Math.random() * characters.length);
         randomId += characters.charAt(randomIndex);
     }
-
+    const currentDate = Date.now();
     const post = new Post({
         id: randomId,
         author: foundUser,
         description: req.body.description,
+        date: currentDate,
         location: req.body.location,
         likes: 0,
         imageurl: req.file.path
@@ -160,6 +161,41 @@ app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) =
 
 
 })
+app.post('/posts/togglelike', async (req, res)=>{
+
+  const user = await User.findById(req.body.userid)
+  const post = await Post.findById(req.body.postid)
+  console.log(user, post)
+  if(req.body.addtoLike){
+    user.likedposts.push(post._id)
+    const like = post.likes + 1
+    post.likes = like
+  }else{
+    user.likedposts = user.likedposts.map(post=>{
+      if(post != req.body.postid){
+        return post
+      }
+    })
+    if(post.likes > 0){
+      const like = post.likes - 1
+      post.likes = like
+    }
+  }
+  await user.save()
+  await post.save()
+  console.log(user, post)
+})
+
+// app.get('/posts/addposts/:userid', async (req, res)=>{
+//   const user = await User.findById(req.params.userid)
+//   console.log(user)
+//   allPosts = await Post.find({})
+//   for(i = 0; i <allPosts.length; i++){
+//     user.likedposts.push(allPosts[i])
+//   }
+//   await user.save()
+//   res.send(user)
+// })
 
 // app.get('/test', async (req, res)=>{
 //     // const user = new User({id: 1, username: 'test', email: 'test@test.com', firstname: 'testFirst', lastname: 'testLast', role: 1, points: 14})
@@ -347,7 +383,7 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-app.get('/following', async(req, res)=>{
+app.get('/following', verifyToken, async(req, res)=>{
   const user = await User.findOne({id: 1})
   const follow = await user.populate([
     {path: 'following', select: 'username firstname lastname'},
@@ -428,8 +464,10 @@ app.get("/ranking/school", async (req, res) => {
   }
 });
 
+
+
 function checkAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {y
+  if (req.isAuthenticated()) {
     return next();
   }
   res.status(400).json({ statusCode: 400, message: "not authenticated" });

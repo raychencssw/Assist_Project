@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { FollowingService } from 'src/app/services/following.service';
 
 @Component({
   selector: 'app-following',
@@ -8,13 +9,14 @@ import { HttpClient } from '@angular/common/http';
 })
 export class FollowingComponent implements OnInit{
   follow:any = []
-  constructor(private http:HttpClient){}
+  constructor(private http:HttpClient, private following: FollowingService){}
 
   ngOnInit(): void {
-    this.http.get<any>(`http://localhost:3080/following`).subscribe((response)=>{
-      this.follow = response['following']
+    this.following.following$.subscribe((response)=>{
+      this.follow = response
       console.log(this.follow)
     })
+    this.following.getFollowers()
   }
 
 }

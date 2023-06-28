@@ -50,9 +50,7 @@ export class ProfileComponent implements OnInit {
       console.log(this.id)
     })
 
-    this.subscription = this.auth.getUser().subscribe((response: any)=>{
-      this.token = response['token']
-    })
+    this.token = this.auth.getAuthToken()
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this.token }`
