@@ -18,8 +18,15 @@ const moment = require('moment');
 const config = require('./config')
 const verifyToken = require('./verifyToken')
 // const ngeohash = require('ngeohash')
-const { storage } = require("../cloudinary");
-const { cloudinary } = require("../cloudinary");
+const { storage } = require('../cloudinary')
+const { cloudinary } = require('../cloudinary');
+const Joi = require('joi');
+const schemas = require('./schemas');
+const middleware = require('./middleware');
+const { async } = require('rxjs');
+
+
+
 const db = mongoose.connection;
 //const passport = require("passport");
 //const initializePassport = require("./passport-config");
@@ -34,16 +41,9 @@ let randomId = "";
 let posts = [];
 
 const upload = multer({ storage: storage });
+
 initializePassport(passport);
-
-
-
-
-const schemas = require('./schemas');
-const middleware = require('./middleware');
-
 const app = express();
-console.log("test middleware", middleware(schemas.profilePOST),)
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
 app.use(bodyParser.json({limit: '25mb'}));
@@ -72,48 +72,6 @@ mongoose
   });
 
 // ROUTES
-
-// app.get("/home", verifyToken, async (req, res) => {
-//   const allPosts = await Post.find({}).populate("author", "username"); //.populate('author', 'firstname')
-//   const postObjects = allPosts.map((post) => {
-//     return {
-//       id: post.id,
-//       author: post.author.username,
-//       location: post.location,
-//       date: post.date,
-//       time: post.time,
-//       description: post.description,
-//       likes: post.likes,
-//       imageurl: post.imageurl,
-//     };
-//   });
-//   console.log(postObjects);
-//   res.send({ posts: postObjects });
-// });
-
-// app.post("/posts/submit", verifyToken, upload.single("photo"), async (req, res) => {
-//   // const data = req.body.post
-//   // posts.push(data)
-//   // console.log(posts)
-//   console.log(req.body, req.file);
-//   // this needs to be changed after authentication
-//   foundUser = await User.findOne({ id: 1 });
-
-//   // getting todays date and time
-//   const today = new Date();
-//   const options = {
-//     year: "numeric",
-//     month: "long",
-//     day: "numeric",
-//   };
-//   const formattedDate = today.toLocaleDateString("en-US", options);
-//   let hours = today.getHours();
-//   let minutes = today.getMinutes();
-//   minutes = String(minutes).padStart(2, "0");
-//   const formattedTime = `${hours}:${minutes}`;
-//   console.log(formattedDate, formattedTime);
-
-// })
 
 app.get('/home/:page', verifyToken,  async(req, res) => {
     page = req.params.page
@@ -154,10 +112,10 @@ app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) =
         likes: 0,
         imageurl: req.file.path
 
-    })
-    await post.save()
-    foundUser.posts.push(post)
-    res.json({ success: true, message: "Data received" })
+  })
+  await post.save()
+  foundUser.posts.push(post)
+  res.json({ success: true, message: "Data received" })
 
 
 })
@@ -186,32 +144,6 @@ app.post('/posts/togglelike', async (req, res)=>{
   console.log(user, post)
 })
 
-// app.get('/posts/addposts/:userid', async (req, res)=>{
-//   const user = await User.findById(req.params.userid)
-//   console.log(user)
-//   allPosts = await Post.find({})
-//   for(i = 0; i <allPosts.length; i++){
-//     user.likedposts.push(allPosts[i])
-//   }
-//   await user.save()
-//   res.send(user)
-// })
-
-// app.get('/test', async (req, res)=>{
-//     // const user = new User({id: 1, username: 'test', email: 'test@test.com', firstname: 'testFirst', lastname: 'testLast', role: 1, points: 14})
-//     // await user.save()
-//     // res.send(user)
-//     foundUser = await User.findOne({id: 1});
-//     allUsers = await User.find({})
-
-//     for(i = 0; i < allUsers.length; i++){
-//       if(allUsers[i].id != 1){
-//         foundUser.following.push(allUsers[i])
-//       }
-//     }
-//   console.log(foundUser)
-//   await foundUser.save()
-// })
 
 app.post("/signup", async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
@@ -315,42 +247,111 @@ app.get('/profile/:userid', verifyToken, async (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
+app.post('/profileedit/:userid', upload.single("profilepicture"), (req, res) => { // 
+  const updatedData = req.body;
+  const check_file = req.file;
+  console.log("check_file ", check_file)
+  const userid = req.params.userid;
+  const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
+  const id_filter = { id: Number(userid) };
 
-app.post('/createevent', async (req, res)=>{
+  if (useridfound) { // if there is a user
+    if (!check_file) {
+      const updateData = { // no profilepicture: profilepicture,
+        username: updatedData.username,
+        school: updatedData.school,
+        firstname: updatedData.firstname,
+        lastname: updatedData.lastname,
+        email: updatedData.email
+      }
+      const update = { $set: updateData };
+      console.log("there is no picture")
 
-  //console.log("req.body: " + JSON.stringify(req.body)); //{"name":"Great event","date":"Great Day","time":"Great Time","location":"Great Locale","description":"Have fun"}
+      const getUser = db.collection('users').updateOne(id_filter, update).then(
+        console.log("Successfully updated")
+      ).catch(error => {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while updating the document' });
+      });
+    }
+
+    else {
+      const profilepicture = req.file.path;
+      const updateData = {
+        profilepicture: profilepicture,
+        username: updatedData.username,
+        school: updatedData.school,
+        firstname: updatedData.firstname,
+        lastname: updatedData.lastname,
+        email: updatedData.email
+      }
+      const update = { $set: updateData };
+      console.log("there is a new picture")
+      const getUser = db.collection('users').updateOne(id_filter, update).then(
+        console.log("Successfully updated")
+      ).catch(error => {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while updating the document' });
+      });
+
+    }
+
+  } else {
+    console.error('User not found');
+  }
+}
+
+
+)
+
+app.get("/eventsearch", (req, res) => {
+  const getEvents = Event.distinct('name')//.toArray()//OBJECT
+  getEvents.then(function (result) {
+    res.json(result)
+  })
+});
+
+app.get("/usersearch", (req, res) => {
+  const getEvents = User.distinct('username')//.toArray()//OBJECT
+  getEvents.then(function (result) {
+    res.json(result)
+  })
+});
+
+app.post('/createevent', async (req, res) => {
+  //can't access DB, need debug
+  console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
+  console.log("req.body.Name: " + req.body.Name); //Great event
 
   //extract every property from req.body and store them to the variable defined inside const{ }
-  //these variables can later be used directly. Warning: these variables have to be exactly 
-  //the same as in the eventForm, or it'll become undefined.
+  //these variables can later be used directly. Warning: these variables have to be exactly the same
+  //as in the eventForm, or it'll become undefined.
   const {
-      name,
-      date,
-      time,
-      location:{
-          street,
-          city,
-          state,
-      },
-      description,
-  }  = req.body;
+    name,
+    date,
+    time,
+    location,
+    description,
+  } = req.body;
 
-  //Check if username already exists, need check later
+  console.log("name: " + name);
+  console.log("date: " + date);
+  console.log("time: " + time);
+  console.log("location: " + location);
+  console.log("description: " + description);
+
+  //Check if username already exists
   const existingUser = await Event.findOne({ name });
   if (existingUser) {
-      return res.status(409).json({ message: "Eventname already exists" });
+    return res.status(409).json({ message: "Eventname already exists" });
   }
 
   const newEvent = new Event({
-      name,
-      date,
-      time,
-      location:{
-          street,
-          city,
-          state,
-      },
-      description,
+    name,
+    date,
+    time,
+    location,
+    description,
   });
   console.log("newEvent: " + newEvent);
   await newEvent.save();

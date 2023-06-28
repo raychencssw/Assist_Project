@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { Routes, RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import {FormsModule} from '@angular/forms'
-import {HttpClientModule} from '@angular/common/http';
+import { FormsModule } from '@angular/forms'
+import { HttpClientModule } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {MatListModule} from '@angular/material/list';
@@ -38,13 +38,16 @@ import { NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AuthGuard } from './auth.guard';
 
+import { SearchComponent } from './search/search.component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
   { path: 'events', component: EventsComponent, canActivate:[AuthGuard]},
   { path: 'rankings', component: RankingsComponent, canActivate:[AuthGuard]},
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]}
+  { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]},
+  { path: 'search', component: SearchComponent, canActivate:[AuthGuard]},
 ]
 
 
@@ -64,6 +67,7 @@ const appRoutes: Routes = [
     FollowListenDirective,
     ProfileComponent,
     EventDetailsComponent,
+    SearchComponent,
   ],
   imports: [
     BrowserModule,
@@ -84,6 +88,8 @@ const appRoutes: Routes = [
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
     
+    MatAutocompleteModule,
+    MatInputModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent]

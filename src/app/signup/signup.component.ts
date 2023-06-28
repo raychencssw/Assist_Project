@@ -17,7 +17,7 @@ export class SignupComponent {
     lastname: '',
     school: '',
     role: '',
-    profilePicture: ''
+    profilepicture: ''
   };
 
   constructor(private http: HttpClient, private router: Router) {}

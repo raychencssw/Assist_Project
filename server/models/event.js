@@ -1,12 +1,16 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Joi = require('express-joi')
 const eventSchema = new Schema({
     id: {
         type: Number,
         //required: true
     },
+<<<<<<< HEAD
     name:{
+=======
+    name: {
+        //type: Number,
+>>>>>>> origin/ChengShi
         type: String,
         required: true
     },
@@ -14,7 +18,12 @@ const eventSchema = new Schema({
         type: String,
         required: true
     },
+<<<<<<< HEAD
     date:{
+=======
+    date: {
+        //type: Date,
+>>>>>>> origin/ChengShi
         type: String,
         required: true
     },
@@ -62,4 +71,8 @@ const eventSchema = new Schema({
     }]
 })
 
+<<<<<<< HEAD
 module.exports= mongoose.model('Event', eventSchema);
+=======
+module.exports = mongoose.model('Event', eventSchema);
+>>>>>>> origin/ChengShi

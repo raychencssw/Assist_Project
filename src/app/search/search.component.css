@@ -1,0 +1,65 @@
+.container {
+    display: flex;
+    align-items: center;
+
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+.radio-label {
+    color: #ffffff;
+    ;
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    padding-left: 25px;
+    padding-right: 25px;
+
+}
+
+.radio-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 18px;
+    width: 18px;
+    border: 2px solid #ffffff6e;
+    border-radius: 50%;
+}
+
+.radio-label:hover .checkmark {
+    border-color: #ffffff;
+}
+
+.radio-label input:checked~.checkmark {
+    background-color: #ffffff;
+}
+
+
+
+.textbox {
+    padding: 5px;
+    margin: auto;
+    border: 2px solid white;
+    border-radius: 16px;
+    width: 50rem;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+
+}
+
+.textbox:focus {
+    outline: none;
+    border-color: #ffffff;
+}

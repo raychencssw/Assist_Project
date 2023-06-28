@@ -3,14 +3,20 @@
     <mat-tab-group class="custom-tab-group"> <!-- how do I adjust the spacing between tabs? -->
 
         <!-- events in a week -->
-        <mat-tab label="Week"> 
+        <mat-tab label="Week">
             <div class="events-wrap">
                 <table>
                     <tbody>
                         <tr *ngFor="let event of weeklyEvents">
+<<<<<<< HEAD
                             <div class="assist-blue">{{event.date}}</div>
                                 <div>
                                 <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
+=======
+                            <div class="assist-blue">{{event.Date}}</div>
+                            <div>
+                                <td class="text-secondary" style="width:50px;">{{event.Time}}</td>
+>>>>>>> origin/ChengShi
                                 <td class="vertical"></td>
                                 <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
                                     {{event.location.city}}, {{event.location.state}}
@@ -26,14 +32,20 @@
         </mat-tab>
 
         <!-- events in a month -->
-        <mat-tab label="Month"> 
+        <mat-tab label="Month">
             <div class="events-wrap">
                 <table>
                     <tbody>
                         <tr *ngFor="let event of monthlyEvents">
+<<<<<<< HEAD
                             <div class="assist-blue">{{event.date}}</div>
                                 <div>
                                 <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
+=======
+                            <div class="assist-blue">{{event.Date}}</div>
+                            <div>
+                                <td class="text-secondary" style="width:50px;">{{event.Time}}</td>
+>>>>>>> origin/ChengShi
                                 <td class="vertical"></td>
                                 <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
                                     {{event.location.city}}, {{event.location.state}}
@@ -59,7 +71,8 @@
             <p class="fs-6 fw-bold assist-blue points-content">1 point = 1 hour</p><br>
 
             <i class="fa-solid fa-check" style="color: #ee8150; width:20px; font-size:18px;"></i>
-            <p class="fs-6 fw-bold assist-blue points-content">Get double points for bringing family and friends!</p><br>
+            <p class="fs-6 fw-bold assist-blue points-content">Get double points for bringing family and friends!</p>
+            <br>
 
             <i class="fa-solid fa-check" style="color: #ee8150; width:20px; font-size:18px;"></i>
             <p class="fs-6 fw-bold assist-blue points-content">Get triple points for creating and event</p>
@@ -67,7 +80,7 @@
 
         <!-- instruction area(with backgound color: assist-blue) -->
         <div class="instruct">
-            
+
             <p class="fs-5 fw-bold mb-1 mt-3 text-center" style="color:white">Few tips before the event</p>
             <p class="fs-6 fw-light mt-0 text-center" style="color:white">To help you get the points you need.</p>
 
@@ -95,5 +108,4 @@
         </div>
     </div>
 
-</div>  <!-- <div class="container-xl event-page-bottom"> -->
-
+</div> <!-- <div class="container-xl event-page-bottom"> -->

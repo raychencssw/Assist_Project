@@ -25,7 +25,11 @@
               "src/assets"
             ],
             "styles": [
+<<<<<<< HEAD
               "@angular/material/prebuilt-themes/indigo-pink.css",
+=======
+              "src/custom-theme.scss",
+>>>>>>> origin/ChengShi
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
               "src/all.min.css",
