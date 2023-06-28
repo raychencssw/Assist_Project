@@ -244,41 +244,17 @@ app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, re
   const updatedData = req.body;
   const check_file = req.file;
   console.log("check_file ", check_file)
-  // const userid = req.params.userid;
-  // const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
-  // const id_filter = { id: Number(userid) };
   const user = await User.findById(req.params.userid)
-    if (!check_file) {
-      user.username = req.body.username,
-      user.school = req.body.school,
-      user.firstname = req.body.firstname,
-      user.lastname = req.body.lastname,
-      user.email = req.body.email
-      await user.save()
-      console.log(user)
+  user.username = req.body.username,
+  user.school = req.body.school,
+  user.firstname = req.body.firstname,
+  user.lastname = req.body.lastname,
+  user.email = req.body.email
+    if (check_file) {
+      user.profilepicture = req.file.path
     }
+    await user.save()
     res.status(201).json({ message: "profile updated created" });
-
-    // else {
-    //   const profilepicture = req.file.path;
-    //   const updateData = {
-    //     profilepicture: profilepicture,
-    //     username: updatedData.username,
-    //     school: updatedData.school,
-    //     firstname: updatedData.firstname,
-    //     lastname: updatedData.lastname,
-    //     email: updatedData.email
-    //   }
-    //   const update = { $set: updateData };
-    //   console.log("there is a new picture")
-    //   const getUser = db.collection('users').updateOne(id_filter, update).then(
-    //     console.log("Successfully updated")
-    //   ).catch(error => {
-    //     console.error(error);
-    //     res.status(500).json({ error: 'An error occurred while updating the document' });
-    //   });
-
-    // }
 })
 
 app.get("/eventsearch", (req, res) => {

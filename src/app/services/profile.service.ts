@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 })
 export class ProfileService {
   profileResponse = new Subject<any>()
+
   token: any
   constructor(private http: HttpClient, private router: Router, private auth: AuthService) { 
     this.auth.authResponse.subscribe((response)=>{
@@ -19,15 +20,13 @@ export class ProfileService {
   getProfile(id:string){
     this.router.navigate([`/profile/${id}`])
   }
-  updateUser(formData: any){
+  updateUser(formData: any, callback: (response: any) => void){
     const user = this.auth.findUser()
     const id = user['id']
     console.log(id)
     this.http.post(`http://localhost:3080/profileedit/${id}`, formData).subscribe(response=>{
       console.log(response)
-
-      // this.modalService.dismissAll(); //dismiss the modal
-      // window.location.reload();//reload the page for data update
+      callback(response)
     })
   }
 }

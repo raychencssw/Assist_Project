@@ -144,22 +144,12 @@ export class ProfileComponent implements OnInit {
     this.formData.append('email', f.value["email"]);
     this.formData.append('school', f.value["school"]);
 
-    console.log('this.formData', this.formData['profilepicture'])
-
-
-    // this.http.post(url, this.formData)//f.value
-    //   .subscribe((result) => {
-    //     console.log('Data successfully sent to the server', result)
-    //   },
-    //     (error) => {
-    //       console.error('Error occurred while sending data', error);
-    //       // Handle the error here
-    //     });
-
-    // this.ngOnInit(); //reload the table  
-    // this.modalService.dismissAll(); //dismiss the modal
-    // window.location.reload();//reload the page for data update
-    this.profile.updateUser(this.formData)
+    this.profile.updateUser(this.formData, (response: any)=>{
+      console.log(response)
+      this.ngOnInit(); //reload the table  
+      this.modalService.dismissAll(); //dismiss the modal
+      window.location.reload();//reload the page for data update
+    })
 
   }
 
