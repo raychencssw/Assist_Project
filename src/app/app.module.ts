@@ -48,6 +48,8 @@ const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]},
   { path: 'search', component: SearchComponent, canActivate:[AuthGuard]},
+  { path: 'event-detail/:id', component: EventDetailsComponent, canActivate:[AuthGuard] },
+  
 ]
 
 

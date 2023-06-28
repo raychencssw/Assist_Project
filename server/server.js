@@ -7,7 +7,6 @@ const User = require("./models/user");
 const Event = require("./models/event");
 const Post = require("./models/post");
 const School = require("./models/school");
-const multer = require("multer");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
@@ -18,8 +17,6 @@ const moment = require('moment');
 const config = require('./config')
 const verifyToken = require('./verifyToken')
 // const ngeohash = require('ngeohash')
-const { storage } = require('../cloudinary')
-const { cloudinary } = require('../cloudinary');
 const Joi = require('joi');
 const schemas = require('./schemas');
 const middleware = require('./middleware');
@@ -33,6 +30,9 @@ const db = mongoose.connection;
 //initializePassport(passport);
 // const ngeohash = require('ngeohash')
 
+const multer = require("multer");
+const { storage } = require("../cloudinary");
+const { cloudinary } = require("../cloudinary");
 
 // creating variables
 const characters =
@@ -293,23 +293,39 @@ app.post('/createevent', async (req, res) => {
   console.log("location: " + location);
   console.log("description: " + description);
 
-  //Check if username already exists
-  const existingUser = await Event.findOne({ name });
-  if (existingUser) {
-    return res.status(409).json({ message: "Eventname already exists" });
-  }
+    // const imageurl = req.file.path;
+    // console.log("incoming imageurl: " + imageurl);
 
-  const newEvent = new Event({
-    name,
-    date,
-    time,
-    location,
-    description,
-  });
-  console.log("newEvent: " + newEvent);
-  await newEvent.save();
-  console.log("a new Event is sent to backend successfully!");
-  res.status(201).json({ message: "Event created" });
+    //Check if username already exists, need check later for other mechanism???
+    const existingUser = await Event.findOne({ name });
+    if (existingUser) {
+        return res.status(409).json({ message: "Eventname already exists" });
+    }
+
+    // generating id
+    var id = "";
+    for (let i = 0; i < 10; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        id += characters.charAt(randomIndex);
+    }
+
+    const newEvent = new Event({
+        id,
+        name,
+        // imageurl,
+        date,
+        time,
+        location:{
+            street,
+            city,
+            state,
+        },
+        description,
+    });
+    console.log("newEvent: " + newEvent);
+    await newEvent.save();
+    console.log("a new Event is sent to backend successfully!");
+    res.status(201).json({ message: "Event created" });
 })
 
 app.get("/events", async (req, res) => {
@@ -320,21 +336,22 @@ app.get("/events", async (req, res) => {
 });
 
 app.get("/event/:eventId", async (req, res) => {
-  const eventId = req.params.eventId;
-  console.log("eventID: " + eventId);
-  try {
-    // Find the event by eventId
-    const event = await Event.findOne({ _id: eventId });
-
-    if (event) {
-      res.send(event);
-    } else {
-      res.status(404).json({ message: "Event not found" });
+    const eventId = req.params.eventId;
+    console.log("eventID: " + eventId);
+    try {
+      // Find the event by eventId
+      // const event = await Event.findOne({ _id: eventId })
+      const event = await Event.findOne({ id: eventId });
+  
+      if (event) {
+        res.send(event);
+      } else {
+        res.status(404).json({ message: "Event not found" });
+      }
+    } catch (error) {
+      console.error("Error retrieving event: ", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-  } catch (error) {
-    console.error("Error retrieving event: ", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
 });
 
 app.get('/following', verifyToken, async(req, res)=>{
