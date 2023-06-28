@@ -53,7 +53,8 @@ export class ProfileComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
-    private auth: AuthService
+    private auth: AuthService,
+    private profile: ProfileService
 
   ) {
 
@@ -121,6 +122,7 @@ export class ProfileComponent implements OnInit {
   }
 
   onSubmit(f: NgForm) {
+
     const url = 'http://localhost:3080/profileedit/' + String(this.id)
     this.formData = new FormData();
 
@@ -145,18 +147,19 @@ export class ProfileComponent implements OnInit {
     console.log('this.formData', this.formData['profilepicture'])
 
 
-    this.http.post(url, this.formData)//f.value
-      .subscribe((result) => {
-        console.log('Data successfully sent to the server', result)
-      },
-        (error) => {
-          console.error('Error occurred while sending data', error);
-          // Handle the error here
-        });
+    // this.http.post(url, this.formData)//f.value
+    //   .subscribe((result) => {
+    //     console.log('Data successfully sent to the server', result)
+    //   },
+    //     (error) => {
+    //       console.error('Error occurred while sending data', error);
+    //       // Handle the error here
+    //     });
 
-    this.ngOnInit(); //reload the table  
-    this.modalService.dismissAll(); //dismiss the modal
-    window.location.reload();//reload the page for data update
+    // this.ngOnInit(); //reload the table  
+    // this.modalService.dismissAll(); //dismiss the modal
+    // window.location.reload();//reload the page for data update
+    this.profile.updateUser(this.formData)
 
   }
 

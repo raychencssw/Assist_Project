@@ -231,13 +231,6 @@ app.get("/qrscan", (req, res) => {
 
 
 app.get('/profile/:userid', verifyToken, async (req, res) => {
-    // Retrieve user with the specified ID from the data source
-    // const userid = req.params.userid;
-    // const getUser = db.collection('users').findOne({ id: Number(userid) })//promise
-    // getUser.then(function (result) {
-    //     res.json(result)
-    //     console.log('user_info', result);
-    // })
     console.log(req.params.userid)
     const user = await User.findById(req.params.userid)
     res.send(user)
@@ -247,62 +240,46 @@ app.get('/profile/:userid', verifyToken, async (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-app.post('/profileedit/:userid', upload.single("profilepicture"), (req, res) => { // 
+app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
   const updatedData = req.body;
   const check_file = req.file;
   console.log("check_file ", check_file)
-  const userid = req.params.userid;
-  const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
-  const id_filter = { id: Number(userid) };
-
-  if (useridfound) { // if there is a user
+  // const userid = req.params.userid;
+  // const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
+  // const id_filter = { id: Number(userid) };
+  const user = await User.findById(req.params.userid)
     if (!check_file) {
-      const updateData = { // no profilepicture: profilepicture,
-        username: updatedData.username,
-        school: updatedData.school,
-        firstname: updatedData.firstname,
-        lastname: updatedData.lastname,
-        email: updatedData.email
-      }
-      const update = { $set: updateData };
-      console.log("there is no picture")
-
-      const getUser = db.collection('users').updateOne(id_filter, update).then(
-        console.log("Successfully updated")
-      ).catch(error => {
-        console.error(error);
-        res.status(500).json({ error: 'An error occurred while updating the document' });
-      });
+      user.username = req.body.username,
+      user.school = req.body.school,
+      user.firstname = req.body.firstname,
+      user.lastname = req.body.lastname,
+      user.email = req.body.email
+      await user.save()
+      console.log(user)
     }
+    res.status(201).json({ message: "profile updated created" });
 
-    else {
-      const profilepicture = req.file.path;
-      const updateData = {
-        profilepicture: profilepicture,
-        username: updatedData.username,
-        school: updatedData.school,
-        firstname: updatedData.firstname,
-        lastname: updatedData.lastname,
-        email: updatedData.email
-      }
-      const update = { $set: updateData };
-      console.log("there is a new picture")
-      const getUser = db.collection('users').updateOne(id_filter, update).then(
-        console.log("Successfully updated")
-      ).catch(error => {
-        console.error(error);
-        res.status(500).json({ error: 'An error occurred while updating the document' });
-      });
+    // else {
+    //   const profilepicture = req.file.path;
+    //   const updateData = {
+    //     profilepicture: profilepicture,
+    //     username: updatedData.username,
+    //     school: updatedData.school,
+    //     firstname: updatedData.firstname,
+    //     lastname: updatedData.lastname,
+    //     email: updatedData.email
+    //   }
+    //   const update = { $set: updateData };
+    //   console.log("there is a new picture")
+    //   const getUser = db.collection('users').updateOne(id_filter, update).then(
+    //     console.log("Successfully updated")
+    //   ).catch(error => {
+    //     console.error(error);
+    //     res.status(500).json({ error: 'An error occurred while updating the document' });
+    //   });
 
-    }
-
-  } else {
-    console.error('User not found');
-  }
-}
-
-
-)
+    // }
+})
 
 app.get("/eventsearch", (req, res) => {
   const getEvents = Event.distinct('name')//.toArray()//OBJECT
@@ -394,30 +371,30 @@ app.get('/following', verifyToken, async(req, res)=>{
 })
 
 
-app.post('/profileedit/:userid', verifyToken, (req, res) => {
-    const updatedData = req.body;
-    const userid = req.params.userid;
-    const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
+// app.post('/profileedit/:userid', verifyToken, (req, res) => {
+//     const updatedData = req.body;
+//     const userid = req.params.userid;
+//     const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
 
-    if (useridfound) {
-        console.log("updated data?", updatedData.username)
-        const id_filter = { id: Number(userid) };
-        const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
-        const update = { $set: updateData };
+//     if (useridfound) {
+//         console.log("updated data?", updatedData.username)
+//         const id_filter = { id: Number(userid) };
+//         const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
+//         const update = { $set: updateData };
 
-        const getUser = db.collection('users').updateOne(id_filter, update).then(
-            console.log("Successfully updated")
-        ).catch(error => {
-            console.error(error);
-            res.status(500).json({ error: 'An error occurred while updating the document' });
-        });
+//         const getUser = db.collection('users').updateOne(id_filter, update).then(
+//             console.log("Successfully updated")
+//         ).catch(error => {
+//             console.error(error);
+//             res.status(500).json({ error: 'An error occurred while updating the document' });
+//         });
 
-    } else {
-        console.error('User not found');
-    }
+//     } else {
+//         console.error('User not found');
+//     }
 
 
-})
+// })
 
 
 app.get("/searchuser/:username", async (req, res) => {
