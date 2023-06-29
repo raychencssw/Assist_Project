@@ -45,8 +45,8 @@ const upload = multer({ storage: storage });
 initializePassport(passport);
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ limit: '25mb', extended: true }));
-app.use(bodyParser.json({limit: '25mb'}));
+app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
+app.use(bodyParser.json({ limit: "25mb" }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
@@ -103,8 +103,8 @@ app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), async(req
 
     // generating id
     for (let i = 0; i < 10; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        randomId += characters.charAt(randomIndex);
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      randomId += characters.charAt(randomIndex);
     }
     const currentDate = Date.now();
     const post = new Post({
@@ -127,16 +127,14 @@ app.post('/posts/togglelike', async (req, res)=>{
 
   const user = await User.findById(req.body.userid)
   const post = await Post.findById(req.body.postid)
-  console.log(user, post)
+  // console.log(user, post)
   if(req.body.addtoLike){
     user.likedposts.push(post._id)
     const like = post.likes + 1
     post.likes = like
   }else{
-    user.likedposts = user.likedposts.map(post=>{
-      if(post != req.body.postid){
-        return post
-      }
+    user.likedposts = user.likedposts.filter(postId=>{
+      postId != req.body.postid
     })
     if(post.likes > 0){
       const like = post.likes - 1
@@ -145,23 +143,19 @@ app.post('/posts/togglelike', async (req, res)=>{
   }
   await user.save()
   await post.save()
+  console.log("HEREEEEE")
   console.log(user, post)
+  return res.status(201).json({ message: "Like toggled" });
 })
 
 
-app.post("/signup", async (req, res) => {
+app.post("/signup", upload.single("profilePicture"), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
   console.log("receive signup notification");
   try {
-    const {
-      username,
-      email,
-      firstname,
-      lastname,
-      profilepicture,
-      role,
-      school,
-    } = req.body;
+    const { username, email, firstname, lastname, role } = req.body;
+
+    const profilePicture = req.file.path;
 
     //Check if username already exists
     const existingUsername = await User.findOne({ username });
@@ -183,9 +177,12 @@ app.post("/signup", async (req, res) => {
       email,
       firstname,
       lastname,
-      profilepicture,
+      profilePicture,
       role,
     });
+    if (req.body.password == null) {
+      console.log("No password");
+    }
     newUser.password = newUser.generateHash(req.body.password);
     await newUser.save();
     console.log("user saved");
@@ -205,26 +202,25 @@ app.post("/signup", async (req, res) => {
 // );
 
 app.post("/login", passport.authenticate("local"), function (req, res) {
-  const token = jwt.sign({ id: req.user._id }, config.secretKey, { expiresIn: config.expiresIn });
-  console.log(token)
+  const token = jwt.sign({ id: req.user._id }, config.secretKey, {
+    expiresIn: config.expiresIn,
+  });
+  console.log(token);
   res.json({
     token: token,
-    user: req.user
+    user: req.user,
   });
 });
 
-app.get('/logout', (req, res)=>{
-  req.logout(function(err) {
-    if (err) { 
-      return next(err); 
+app.get("/logout", (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
     }
-    res.json({message: 'logged out'});
+    res.json({ message: "logged out" });
   });
-})
+});
 
-// app.get("/home", (req, res) => {
-//   res.send({ posts: posts });
-// });
 
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
@@ -361,37 +357,10 @@ app.get("/event/:eventId", async (req, res) => {
 app.get('/following', verifyToken, async(req, res)=>{
   const user = await User.findOne({id: 1})
   const follow = await user.populate([
-    {path: 'following', select: 'username firstname lastname'},
-  ])
-  res.send({following: follow.following})
-  
-})
-
-
-// app.post('/profileedit/:userid', verifyToken, (req, res) => {
-//     const updatedData = req.body;
-//     const userid = req.params.userid;
-//     const useridfound = db.collection('users').findOne({ id: Number(userid) }) //check if we could find the user id data
-
-//     if (useridfound) {
-//         console.log("updated data?", updatedData.username)
-//         const id_filter = { id: Number(userid) };
-//         const updateData = { username: updatedData.username, school: updatedData.school, firstname: updatedData.firstname, lastname: updatedData.lastname, email: updatedData.email }
-//         const update = { $set: updateData };
-
-//         const getUser = db.collection('users').updateOne(id_filter, update).then(
-//             console.log("Successfully updated")
-//         ).catch(error => {
-//             console.error(error);
-//             res.status(500).json({ error: 'An error occurred while updating the document' });
-//         });
-
-//     } else {
-//         console.error('User not found');
-//     }
-
-
-// })
+    { path: "following", select: "username firstname lastname" },
+  ]);
+  res.send({ following: follow.following });
+});
 
 
 app.get("/searchuser/:username", async (req, res) => {
@@ -403,12 +372,6 @@ app.get("/searchuser/:username", async (req, res) => {
   } else {
     res.status(500).json({ message: "No such user" });
   }
-});
-
-
-
-app.get("/rankings", (req, res) => {
-  res.send("THIS IS RANKINGS");
 });
 
 app.get("/ranking/student", async (req, res) => {
@@ -457,8 +420,7 @@ function checkNotAuthenticated(req, res, next) {
 
 app.use((req, res) => {
   res.status(404).send("404 PAGE NOT FOUND");
-
-})
+});
 
 const port = process.env.PORT || 3080;
 

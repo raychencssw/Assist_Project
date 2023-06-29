@@ -11,6 +11,7 @@ export class AuthService implements OnInit{
   private isLoggedIn = false;
   private token: any
   userJson: any
+  postJson: any
   loginResponse = new BehaviorSubject<any>(this.user['token'])
   authResponse = new Subject<any>()
 
@@ -80,10 +81,23 @@ export class AuthService implements OnInit{
     }
     const userString = JSON.stringify(userDetails)
     localStorage.setItem('user', userString)
+    this.setLikedPosts(tempUser.likedposts)
   }
   private setAuthToken(token: string): void {
     localStorage.setItem('token', token);
     console.log(localStorage)
+  }
+  setLikedPosts(userPosts: any){
+    console.log(userPosts)
+    const postString = JSON.stringify(userPosts)
+    localStorage.setItem('likedposts', postString)
+  }
+  getLikedPosts(){
+    const likedString = localStorage.getItem('likedposts')
+    if(likedString){
+      this.postJson = JSON.parse(likedString)
+    }
+    return this.postJson
   }
 
 

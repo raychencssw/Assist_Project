@@ -17,7 +17,7 @@ export class PostsComponent implements OnInit{
   
   }
   ngOnInit(): void {
-    this.userLikedPosts = this.auth.findUserLikedPosts()
+    this.userLikedPosts = this.auth.getLikedPosts()
     console.log(this.userLikedPosts)
     this.postservice.postsResponse.subscribe(postResponse=>{
       this.posts.push(...postResponse.posts)
@@ -80,16 +80,17 @@ export class PostsComponent implements OnInit{
   toggleLike(postId: any){
     if(this.userLikedPosts.includes(postId)){
       const filteredLikes = this.userLikedPosts.filter((id: any)=>{
-        console.log(id, postId)
         return id != postId
       })
       this.userLikedPosts = filteredLikes
       const user = this.auth.findUser()
       this.postservice.addRemoveLike(user['id'], postId, false)
+      this.auth.setLikedPosts(this.userLikedPosts)
     }else{
       this.userLikedPosts.push(postId)
       const user = this.auth.findUser()
       this.postservice.addRemoveLike(user['id'], postId, true)
+      this.auth.setLikedPosts(this.userLikedPosts)
     }
 
   }
