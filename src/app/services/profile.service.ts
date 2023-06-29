@@ -8,15 +8,37 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ProfileService {
-  profileResponse = new Subject<any>()
-  token: any
-  constructor(private http: HttpClient, private router: Router, private auth: AuthService) { 
-    this.auth.authResponse.subscribe((response)=>{
+  profileResponse = new Subject<any>();
+  token: any;
+  constructor(private http: HttpClient, private router: Router, private auth: AuthService) {
+    this.auth.authResponse.subscribe((response) => {
       this.token = response
     })
   }
 
-  getProfile(id:string){
+  getProfile(id: string) {
     this.router.navigate([`/profile/${id}`])
   }
+
+  getUserProfile(id: string) {
+    this.token = this.auth.getAuthToken()
+    var backendUrl = 'http://localhost:3080/profile/' + id;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = { headers: headers };
+    return this.http.get(backendUrl, requestOptions);
+  }
+  editUserProfile(id: string, username: string, formData: any) {
+    this.token = this.auth.getAuthToken()
+    var backendUrl = 'http://localhost:3080/profileedit/' + id;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+
+    const requestOptions = { headers: headers };
+    return this.http.post(backendUrl, formData, requestOptions);
+
+  }
+
 }

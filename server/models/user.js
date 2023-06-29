@@ -30,6 +30,10 @@ const userSchema = new Schema({
     type: Number,
     required: true,
   },
+  id: {
+    type: String,
+    required: true,
+  },
   // school: {
   //   type: Schema.Types.ObjectId,
   //   ref: "School",
@@ -46,11 +50,11 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Event",
   }],
-  following:[{
+  following: [{
     type: Schema.Types.ObjectId,
     ref: "User"
   }],
-  followers:[{
+  followers: [{
     type: Schema.Types.ObjectId,
     ref: "User"
   }],

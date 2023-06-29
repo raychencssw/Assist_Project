@@ -14,7 +14,9 @@
     margin: 3%;
     width: 150px;
     height: 150px;
-
+    object-fit: cover;
+    /* Ensures the image covers the entire container */
+    object-position: center;
 }
 
 h5 {

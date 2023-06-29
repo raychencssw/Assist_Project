@@ -8,22 +8,17 @@
                 <table>
                     <tbody>
                         <tr *ngFor="let event of weeklyEvents">
-<<<<<<< HEAD
-                            <div class="assist-blue">{{event.date}}</div>
-                                <div>
-                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
-=======
                             <div class="assist-blue">{{event.Date}}</div>
                             <div>
                                 <td class="text-secondary" style="width:50px;">{{event.Time}}</td>
->>>>>>> origin/ChengShi
                                 <td class="vertical"></td>
                                 <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
                                     {{event.location.city}}, {{event.location.state}}
-                                </td>                       
-                                <!-- how to adjust the arrow bracket's posiiton?--> 
+                                </td>
+                                <!-- how to adjust the arrow bracket's posiiton?-->
                                 <!-- <td class="text-end"><button (click)="displayDetail(event._id)"><i class="fa-sharp fa-solid fa-chevron-right"></i></button></td>                                -->
-                                <td class="text-end"><a [routerLink]="'/event-detail/' + event._id"><i class="fa-sharp fa-solid fa-chevron-right"></i></a></td> 
+                                <td class="text-end"><a [routerLink]="'/event-detail/' + event._id"><i
+                                            class="fa-sharp fa-solid fa-chevron-right"></i></a></td>
                             </div>
                         </tr>
                     </tbody>
@@ -37,15 +32,10 @@
                 <table>
                     <tbody>
                         <tr *ngFor="let event of monthlyEvents">
-<<<<<<< HEAD
                             <div class="assist-blue">{{event.date}}</div>
-                                <div>
-                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
-=======
-                            <div class="assist-blue">{{event.Date}}</div>
                             <div>
-                                <td class="text-secondary" style="width:50px;">{{event.Time}}</td>
->>>>>>> origin/ChengShi
+                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}
+                                </td>
                                 <td class="vertical"></td>
                                 <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
                                     {{event.location.city}}, {{event.location.state}}

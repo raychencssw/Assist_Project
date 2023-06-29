@@ -2,8 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { of, Observable } from 'rxjs';
-import { map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { SearchServiceService } from '../services/search-service.service';
+import { ProfileService } from '../services/profile.service';
 
+import { Router } from '@angular/router';
+import { Console } from 'console';
 
 @Component({
   selector: 'app-search',
@@ -17,8 +21,10 @@ export class SearchComponent {
   users: string[] = [];
   selectedOption!: string;
   searchControl = new FormControl();
-
-  constructor(private http: HttpClient) { }
+  getUsersProfile: any;
+  profileId: string = "";
+  constructor(private http: HttpClient, private router: Router, private searchService: SearchServiceService,
+    private profileService: ProfileService) { }
 
   handleOptionChange() {
     this.searchControl.reset();
@@ -33,7 +39,7 @@ export class SearchComponent {
             this.searchResults = [];
             return ([]);
           } else {
-            return this.fetchAutocompleteData1(value);
+            return this.searchService.fetchAutocompleteData1(value); //changed
           }
         }
         )
@@ -50,7 +56,7 @@ export class SearchComponent {
             this.searchResults = [];
             return ([]);
           } else {
-            return this.fetchAutocompleteData2(value);
+            return this.searchService.fetchAutocompleteData2(value);//changed
           }
         }
 
@@ -59,9 +65,10 @@ export class SearchComponent {
         this.searchResults = data
       });
     }
+
   }
 
-  fetchAutocompleteData1(value: string): Observable<string[]> {
+  /*fetchAutocompleteData1(value: string): Observable<string[]> {
     const backendUrl1 = 'http://localhost:3080/usersearch';
     return this.http.get<string[]>(backendUrl1).pipe(
       map(response => response.map(item => item.toString()) //the response data array converted to a string. 
@@ -70,8 +77,6 @@ export class SearchComponent {
         .slice(0, 10)//keep only 10 results at most 
       )
     );
-
-
   }
 
   fetchAutocompleteData2(value: string): Observable<string[]> {
@@ -84,6 +89,21 @@ export class SearchComponent {
       )
     );
 
+  }*/
+  navigateToProfile(result: any) {
+    if (this.selectedOption === 'option1') {
+      this.searchService.searchuser(result).subscribe(profile => {
+        this.getUsersProfile = profile
+        this.profileId = this.getUsersProfile["_id"]
+        this.profileService.getProfile(this.profileId)
+      });
+
+    }
+    else {
+      console.log('event profile not work yet');
+    }
+
   }
+
 }
 
