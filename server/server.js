@@ -76,11 +76,15 @@ mongoose
 app.get('/home/:page', verifyToken,  async(req, res) => {
     page = req.params.page
     const limit = 5
-    const allPosts = await Post.find({}).populate('author', 'username').skip((page-1) * limit).limit(limit)
+    const allPosts = await Post.find({}).populate([{path: 'author', select: ' _id username firstname lastname profilepicture'}]).skip((page-1) * limit).limit(limit)
     const postObjects = allPosts.map(post => {
         return {
           id: post._id,
-          author: post.author.username,
+          userid: post.author._id,
+          username: post.author.username,
+          firstname: post.author.firstname,
+          lastname: post.author.lastname,
+          userprofilepic: post.author.profilepicture,
           location: post.location,
           date: post.date,
           description: post.description,
@@ -92,10 +96,10 @@ app.get('/home/:page', verifyToken,  async(req, res) => {
     res.send({ posts: postObjects })
 })
 
-app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) => {
+app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), async(req, res) => {
     // this needs to be changed after authentication
     console.log(req.body)
-    foundUser = await User.findOne({id: 1});
+    foundUser = await User.findById(req.params.userid);
 
     // generating id
     for (let i = 0; i < 10; i++) {
@@ -112,7 +116,7 @@ app.post('/posts/submit', verifyToken, upload.single('photo'), async(req, res) =
         likes: 0,
         imageurl: req.file.path
 
-  })
+    })
   await post.save()
   foundUser.posts.push(post)
   res.json({ success: true, message: "Data received" })

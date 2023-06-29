@@ -128,7 +128,6 @@ export class AuthService implements OnInit{
   }
   isAuthenticated(): boolean {
     var getToken = this.getAuthToken()
-    console.log(getToken)
     if(getToken){
       this.loginResponse.next(true)
       return true

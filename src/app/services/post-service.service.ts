@@ -21,11 +21,13 @@ export class PostServiceService implements OnInit{
 
   addtoPosts(formData: any){
     this.token = this.auth.getAuthToken()
+    const user = this.auth.findUser()
+    const id = user['id']
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token }`
     });
     const requestOptions = { headers: headers };
-    this.http.post(`http://localhost:3080/posts/submit`, formData, requestOptions).subscribe(()=>{
+    this.http.post(`http://localhost:3080/posts/submit/${id}`, formData, requestOptions).subscribe(()=>{
       // this.loadPosts()
       // this.router.navigate(['/home'])
       window.location.reload()

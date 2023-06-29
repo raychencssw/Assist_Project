@@ -11,8 +11,9 @@
             <div class="profile-overlay" style="width: 100%;">
               <div class="row">
                 <div class="col col-lg-6" style="display: flex; align-items: center;">
-                  <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" class="profile-img" alt="Profile Image">
-                  <h4 style="margin-right: 10px; margin-left: 10px;">{{post['author']}}</h4>
+                  <img *ngIf="post['userprofilepic']" src="{{post['userprofilepic']}}" class="profile-img" alt="Profile Image">
+                  <img *ngIf="!post['userprofilepic']" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" class="profile-img" alt="Profile Image">
+                  <h4 class="{{post['userid']}}" routerLink="/profile/{{post['userid']}}" style="margin-right: 10px; margin-left: 10px; cursor: pointer; color: aqua;" appFollowListen>{{post['username']}}</h4>
                 </div>
                 <div class="col col-lg-6" style="display: flex; align-items: center;">
                   <p style="margin-left: auto; margin-right: 10%;">{{post['location']}}</p>
@@ -23,7 +24,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col col-lg-6">
-                <p class="card-text">{{post['author']}}</p>
+                <p class="card-text">{{post['firstname']}} {{post['lastname']}}</p>
               </div>
               <div class="col col-lg-6" style="display: flex; align-items: center; margin-left: auto;">
                 <p>{{post['date']}}</p>
