@@ -110,10 +110,42 @@ app.get("/home", async (req, res) => {
 
 // })
 
+/*
 app.get("/home/:page", verifyToken, async (req, res) => {
   page = req.params.page;
   const limit = 5;
   const allPosts = await Post.find({})
+    .populate("author", "username")
+    .skip((page - 1) * limit)
+    .limit(limit);
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post.id,
+      author: post.author.username,
+      location: post.location,
+      date: post.date,
+      time: post.time,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
+  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
+*/
+
+app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
+  console.log("Receive call to get posts");
+  page = req.params.page;
+  let userId = req.params.userId;
+  let query = {};
+  if (userId !== undefined) {
+    console.log("Get post for this user: " + userId);
+    query = { author: userId };
+  }
+  const limit = 5;
+  const allPosts = await Post.find(query)
     .populate("author", "username")
     .skip((page - 1) * limit)
     .limit(limit);

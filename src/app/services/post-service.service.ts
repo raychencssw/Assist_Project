@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 export class PostServiceService implements OnInit{
   posts: any = []
   postsResponse = new Subject<any>()
+  oneUserPostsResponse = new Subject<any>()
   token: any
   private subscription?: Subscription
 
@@ -44,9 +45,38 @@ export class PostServiceService implements OnInit{
       'Authorization': `Bearer ${this.token }`
     });
     const requestOptions = { headers: headers };
-    this.http.get(`http://localhost:3080/home/${pageNumber}`, requestOptions).subscribe((response)=>{
+    let url = `http://localhost:3080/home/${pageNumber}`;
+    this.http.get(url, requestOptions).subscribe((response)=>{
       console.log(response)
       this.postsResponse.next(response)
     })
+  }
+
+  //load posts for one user
+  loadOneUserPosts(pageNumber: Number, userId: string){
+    const sub = this.auth.getUser().subscribe((response: any)=>{
+      this.token = response['token']
+    })
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token }`
+    });
+    const requestOptions = { headers: headers };
+    let url = `http://localhost:3080/home/${pageNumber}/${userId}`;
+    this.http.get(url, requestOptions).subscribe((response)=>{
+      console.log(response)
+      this.oneUserPostsResponse.next(response)
+    })
+  
+    /*
+    if (username) {
+      url += `/${username}`; // Append the username to the URL if it is provided
+      this.http.get(url, requestOptions).subscribe((response)=>{
+        console.log(response)
+        this.oneUserPostsResponse.next(response)
+      })
+    } else {
+      console.log("Can't get posts: no username given");
+    }
+    */
   }
 }

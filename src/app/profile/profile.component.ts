@@ -7,6 +7,7 @@ import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
+import { PostServiceService } from '../services/post-service.service';
 
 @Component({
 
@@ -17,28 +18,48 @@ import { Subscription } from 'rxjs';
 
 
 export class ProfileComponent implements OnInit {
-  public username: string[] = [];
-  name: string | undefined;
-  firstname: string[] = [];
-  lastname: string[] = [];
-  email: string[] = [];
-  role: number[] = [];
-  points: number[] = [];
-  profilepicture: string[] = [];
-  school: string[] = [];
+  username: string = '';
+  name: string = '';
+  firstname: string = '';
+  lastname: string = '';
+  email: string = '';
+  role: number | undefined;
+  points: number | undefined;
+  profilepicture: string = '';
+  school: string = '';
   eventsAttended: string[] = [];
+
   id: any;
   closeResult!: string;
   token: any
   private subscription?: Subscription;
+  update_username: string = '';
+  update_firstname: string = '';
+  update_lastname: string = '';
+  update_email: string = '';
+  update_school: string = '';
+  update_profilepicture: string = '';
+
+  posts: any = []
+  times = []
+  pageNumber: any = 1
+
+
+  //on selected File
+  photoUrl: string = " ";
+  selectedFile: File | null = null;
+  fileExtension: any = " ";
+  isWrongExtension: boolean = false;
+  fileName: any = "";
+  formData: any;
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
-    private auth: AuthService
-
+    private auth: AuthService,
+    private postservice: PostServiceService
   ) {
 
 
@@ -73,10 +94,60 @@ export class ProfileComponent implements OnInit {
       this.points = data['points']
       this.school = data['school']
       this.eventsAttended = data['eventsAttended']
+      this.profilepicture = data['profilepicture']
       this.name = this.firstname + " " + this.lastname
+      //get default values
+      this.update_username = this.username
+      this.update_firstname = this.firstname;
+      this.update_lastname = this.lastname;
+      this.update_email = this.email;
+      this.update_school = this.school;
+      this.update_profilepicture = this.profilepicture;
 
+      this.getPosts();
     })
   }
+
+  getPosts() {
+    this.postservice.oneUserPostsResponse.subscribe(postResponse=>{
+      this.posts.push(...postResponse.posts)
+      console.log(this.posts)
+      for (let i = 0; i < this.posts.length; i++) {
+        const tempDate = this.posts[i]['date']
+        const uploadDate = new Date(tempDate)
+        const currentDate = new Date()
+        const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
+        const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+
+        if(elapsedSeconds < 60){
+          this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
+        }else if(elapsedSeconds < 3600){
+          const minutes = Math.floor(elapsedSeconds / 60);
+          if(minutes <= 1){
+            this.posts[i]['date'] = `${minutes} minute ago`
+          }else{
+            this.posts[i]['date'] = `${minutes} minutes ago`
+          }
+        }else if(elapsedSeconds < 86400){
+          const hours = Math.floor(elapsedSeconds / 3600);
+          if(hours <= 1){
+            this.posts[i]['date'] = `${hours} hour ago`
+          }else{
+            this.posts[i]['date'] = `${hours} hours ago`
+          }
+        }else if (elapsedSeconds < 604800) {
+          const days = Math.floor(elapsedSeconds / 86400);
+          if(days <= 1){
+            this.posts[i]['date'] = `${days} day ago`;
+          }else{
+            this.posts[i]['date'] = `${days} days ago`;
+          }
+        }
+      }
+    })
+    this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
+  }
+
   modalOption: NgbModalOptions = {};
 
   editUserInfo(content: any) {
@@ -97,17 +168,59 @@ export class ProfileComponent implements OnInit {
       return `with: ${reason}`;
     }
   }
+
   onSubmit(f: NgForm) {
-
     const url = 'http://localhost:3080/profileedit/' + String(this.id)
-    console.log('Update form value', f.value)
+    this.formData = new FormData();
 
-    this.http.post(url, f.value)
+
+    if (this.selectedFile) {
+      this.formData.append('profilepicture', this.selectedFile);
+
+    }
+    if (!this.formData['profilepicture']) {
+      // No file selected, append old picture url
+      this.formData.append('profilepicture', this.update_profilepicture);
+      console.log("No change on profile picture")
+    }
+
+
+    this.formData.append('username', f.value["username"]);
+    this.formData.append('lastname', f.value["lastname"]);
+    this.formData.append('firstname', f.value["firstname"]);
+    this.formData.append('email', f.value["email"]);
+    this.formData.append('school', f.value["school"]);
+
+    console.log('this.formData', this.formData['profilepicture'])
+
+
+    this.http.post(url, this.formData)//f.value
       .subscribe((result) => {
-        console.log(result)
-      });
+        console.log('Data successfully sent to the server', result)
+      },
+        (error) => {
+          console.error('Error occurred while sending data', error);
+          // Handle the error here
+        });
+
     this.ngOnInit(); //reload the table  
     this.modalService.dismissAll(); //dismiss the modal
+    window.location.reload();//reload the page for data update
+
   }
 
+  onFileChange(event: any) {
+    this.selectedFile = event.target.files[0] as File
+    this.fileName = this.selectedFile.name
+    this.fileExtension = this.fileName.split('.').pop()
+    if (this.fileExtension !== 'jpeg' && this.fileExtension !== 'jpg' && this.fileExtension !== 'png') {
+      this.isWrongExtension = true
+    } else {
+      this.isWrongExtension = false
+    }
+  }
+
+  onScroll(){
+    this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
+  }
 }
