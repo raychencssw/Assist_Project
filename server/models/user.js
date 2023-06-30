@@ -30,34 +30,40 @@ const userSchema = new Schema({
     type: Number,
     required: true,
   },
-  id: {
-    type: String,
-    required: true,
+  schoolID: {
+    type: Schema.Types.ObjectId,
+    ref: "School",
   },
-  // school: {
-  //   type: Schema.Types.ObjectId,
-  //   ref: "School",
-  // },
-  posts: [{
-    type: Schema.Types.ObjectId,
-    ref: "Post",
-  }],
-  likedposts: [{
-    type: Schema.Types.ObjectId,
-    ref: "Post",
-  }],
-  eventsAttended: [{
-    type: Schema.Types.ObjectId,
-    ref: "Event",
-  }],
-  following: [{
-    type: Schema.Types.ObjectId,
-    ref: "User"
-  }],
-  followers: [{
-    type: Schema.Types.ObjectId,
-    ref: "User"
-  }],
+  posts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
+  likedposts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
+  eventsAttended: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+    },
+  ],
+  following: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  followers: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 
   points: {
     type: Number,

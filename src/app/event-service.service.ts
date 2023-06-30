@@ -31,7 +31,8 @@ export class EventServiceService {
     }
 
     loadEvent(){        
-        return this.http.get(`http://localhost:3080/events`)
+      console.log("loadEvent!")
+      return this.http.get(`http://localhost:3080/events`);
     }
 
     getEventById(eventId: string): Observable<any> {

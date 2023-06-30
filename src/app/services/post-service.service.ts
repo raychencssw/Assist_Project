@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 export class PostServiceService implements OnInit{
   posts: any = []
   postsResponse = new Subject<any>()
+  oneUserPostsResponse = new Subject<any>()
   token: any
 
   private subscription?: Subscription
@@ -21,11 +22,13 @@ export class PostServiceService implements OnInit{
 
   addtoPosts(formData: any){
     this.token = this.auth.getAuthToken()
+    const user = this.auth.findUser()
+    const id = user['id']
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token }`
     });
     const requestOptions = { headers: headers };
-    this.http.post(`http://localhost:3080/posts/submit`, formData, requestOptions).subscribe(()=>{
+    this.http.post(`http://localhost:3080/posts/submit/${id}`, formData, requestOptions).subscribe(()=>{
       // this.loadPosts()
       // this.router.navigate(['/home'])
       window.location.reload()
@@ -39,7 +42,8 @@ export class PostServiceService implements OnInit{
       'Authorization': `Bearer ${this.token }`
     });
     const requestOptions = { headers: headers };
-    this.http.get(`http://localhost:3080/home/${pageNumber}`, requestOptions).subscribe((response)=>{
+    let url = `http://localhost:3080/home/${pageNumber}`;
+    this.http.get(url, requestOptions).subscribe((response)=>{
       console.log(response)
       this.postsResponse.next(response)
     })
@@ -61,4 +65,21 @@ export class PostServiceService implements OnInit{
       console.log(response)
     })
   }
+  //load posts for one user
+  loadOneUserPosts(pageNumber: Number, userId: string){
+    const sub = this.auth.getUser().subscribe((response: any)=>{
+      this.token = response['token']
+    })
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token }`
+    });
+    const requestOptions = { headers: headers };
+    let url = `http://localhost:3080/home/${pageNumber}/${userId}`;
+    this.http.get(url, requestOptions).subscribe((response)=>{
+      console.log(response)
+      this.oneUserPostsResponse.next(response)
+    })
+    
+  }
 }
+
