@@ -97,32 +97,64 @@ app.get('/home/:page', verifyToken,  async(req, res) => {
 })
 
 app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), async(req, res) => {
-    // this needs to be changed after authentication
-    console.log(req.body)
-    foundUser = await User.findById(req.params.userid);
+  console.log(req.body)
+  foundUser = await User.findById(req.params.userid);
 
-    // generating id
-    for (let i = 0; i < 10; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      randomId += characters.charAt(randomIndex);
-    }
-    const currentDate = Date.now();
-    const post = new Post({
-        id: randomId,
-        author: foundUser,
-        description: req.body.description,
-        date: currentDate,
-        location: req.body.location,
-        likes: 0,
-        imageurl: req.file.path
+  // generating id
+  for (let i = 0; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomId += characters.charAt(randomIndex);
+  }
+  const currentDate = Date.now();
+  const post = new Post({
+      id: randomId,
+      author: foundUser,
+      description: req.body.description,
+      date: currentDate,
+      location: req.body.location,
+      likes: 0,
+      imageurl: req.file.path
 
-    })
+  })
   await post.save()
   foundUser.posts.push(post)
   res.json({ success: true, message: "Data received" })
 
 
 })
+
+
+app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
+  console.log("Receive call to get posts");
+  page = req.params.page;
+  let userId = req.params.userId;
+  let query = {};
+  if (userId !== undefined) {
+    console.log("Get post for this user: " + userId);
+    query = { author: userId };
+  }
+  const limit = 5;
+  const allPosts = await Post.find(query)
+    .populate("author", "username")
+    .skip((page - 1) * limit)
+    .limit(limit);
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post.id,
+      author: post.author.username,
+      location: post.location,
+      date: post.date,
+      time: post.time,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
+  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
+
+
 app.post('/posts/togglelike', async (req, res)=>{
 
   const user = await User.findById(req.body.userid)
@@ -153,7 +185,7 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
   console.log("receive signup notification");
   try {
-    const { username, email, firstname, lastname, role } = req.body;
+    const { username, email, firstname, lastname, school } = req.body;
 
     const profilePicture = req.file.path;
 
@@ -172,13 +204,17 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
       return res.status(409).json({ message: "Email already exists" });
     }
 
+    //Find school id from school name
+    const schoolDocument = await School.findOne({ name: school });
+    const schoolID = schoolDocument.id;
+
     const newUser = new User({
       username,
       email,
       firstname,
       lastname,
       profilePicture,
-      role,
+      schoolID,
     });
     if (req.body.password == null) {
       console.log("No password");

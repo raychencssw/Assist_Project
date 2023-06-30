@@ -30,10 +30,10 @@ const userSchema = new Schema({
     type: Number,
     required: true,
   },
-  // school: {
-  //   type: Schema.Types.ObjectId,
-  //   ref: "School",
-  // },
+  schoolID: {
+    type: Schema.Types.ObjectId,
+    ref: "School",
+  },
   posts: [
     {
       type: Schema.Types.ObjectId,

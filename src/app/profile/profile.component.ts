@@ -7,6 +7,7 @@ import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
+import { PostServiceService } from '../services/post-service.service';
 
 @Component({
 
@@ -39,6 +40,10 @@ export class ProfileComponent implements OnInit {
   update_school: string = '';
   update_profilepicture: string = '';
 
+  posts: any = []
+  times = []
+  pageNumber: any = 1
+
 
   //on selected File
   photoUrl: string = " ";
@@ -54,8 +59,8 @@ export class ProfileComponent implements OnInit {
     private router: Router,
     private modalService: NgbModal,
     private auth: AuthService,
-    private profile: ProfileService
-
+    private profile: ProfileService,
+    private postservice: PostServiceService
   ) {
 
 
@@ -97,7 +102,49 @@ export class ProfileComponent implements OnInit {
       this.update_email = this.email;
       this.update_school = this.school;
       this.update_profilepicture = this.profilepicture;
+
+      this.getPosts();
     })
+  }
+
+  getPosts() {
+    this.postservice.oneUserPostsResponse.subscribe(postResponse=>{
+      this.posts.push(...postResponse.posts)
+      console.log(this.posts)
+      for (let i = 0; i < this.posts.length; i++) {
+        const tempDate = this.posts[i]['date']
+        const uploadDate = new Date(tempDate)
+        const currentDate = new Date()
+        const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
+        const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+
+        if(elapsedSeconds < 60){
+          this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
+        }else if(elapsedSeconds < 3600){
+          const minutes = Math.floor(elapsedSeconds / 60);
+          if(minutes <= 1){
+            this.posts[i]['date'] = `${minutes} minute ago`
+          }else{
+            this.posts[i]['date'] = `${minutes} minutes ago`
+          }
+        }else if(elapsedSeconds < 86400){
+          const hours = Math.floor(elapsedSeconds / 3600);
+          if(hours <= 1){
+            this.posts[i]['date'] = `${hours} hour ago`
+          }else{
+            this.posts[i]['date'] = `${hours} hours ago`
+          }
+        }else if (elapsedSeconds < 604800) {
+          const days = Math.floor(elapsedSeconds / 86400);
+          if(days <= 1){
+            this.posts[i]['date'] = `${days} day ago`;
+          }else{
+            this.posts[i]['date'] = `${days} days ago`;
+          }
+        }
+      }
+    })
+    this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
   }
 
   modalOption: NgbModalOptions = {};
@@ -122,7 +169,6 @@ export class ProfileComponent implements OnInit {
   }
 
   onSubmit(f: NgForm) {
-
     const url = 'http://localhost:3080/profileedit/' + String(this.id)
     this.formData = new FormData();
 
@@ -162,5 +208,9 @@ export class ProfileComponent implements OnInit {
     } else {
       this.isWrongExtension = false
     }
+  }
+
+  onScroll(){
+    this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
   }
 }
