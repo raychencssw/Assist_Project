@@ -1,15 +1,41 @@
-<h2>Login</h2>
+<div class="container mt-3">
 
-<form (ngSubmit)="onSubmit()">
-  <div>
-    <label for="email">Email:</label>
-    <input type="email" id="email" [(ngModel)]="user.email" name="email" required>
+  <div class="center">
+
+    <!-- Login header -->
+    <div class="row h2 mt-2 text-primary text-center">
+      <div class="col">
+        Login
+      </div>
+    </div>
+
+    <div class="">
+    <form (ngSubmit)="onSubmit()">
+      <div class="row">
+        <!-- Email -->
+        <div class="col-sm-6">
+          <i class="fa-solid fa-envelope" style="color: #000000;"></i>
+          <label class="ms-2" for="email">Email:</label><br>
+          <input type="email" id="email" [(ngModel)]="user.email" name="email" required>
+        </div>
+
+        <!-- Password -->
+        <div class="col-sm-6">
+          <i class="fa-solid fa-lock" style="color: #000000;"></i>
+          <label class="ms-2" for="password">Password:</label><br>
+          <input type="password" id="password" [(ngModel)]="user.password" name="password" required>
+        </div>
+      </div>
+
+      <!-- Login button -->
+      <div class="row mt-3 text-center">
+        <div class="col">
+          <button class="btn btn-dark" type="submit">Login</button>
+        </div>
+      </div>
+    </form>
   </div>
 
-  <div>
-    <label for="password">Password:</label>
-    <input type="password" id="password" [(ngModel)]="user.password" name="password" required>
-  </div>
+  </div> <!-- center -->
 
-  <button type="submit">Login</button>
-</form>
+</div> <!-- container -->
