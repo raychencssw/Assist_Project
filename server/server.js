@@ -168,14 +168,13 @@ app.post('/posts/togglelike', async (req, res)=>{
     user.likedposts = user.likedposts.filter(postId=>{
       postId != req.body.postid
     })
-    if(post.likes > 0){
+    if (post.likes > 0) {
       const like = post.likes - 1
       post.likes = like
     }
   }
   await user.save()
   await post.save()
-  console.log("HEREEEEE")
   console.log(user, post)
   return res.status(201).json({ message: "Like toggled" });
 })
@@ -246,6 +245,7 @@ app.post("/login", passport.authenticate("local"), function (req, res) {
     token: token,
     user: req.user,
   });
+
 });
 
 app.get("/logout", (req, res) => {
@@ -261,8 +261,6 @@ app.get("/logout", (req, res) => {
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
-
-
 
 
 
@@ -309,8 +307,8 @@ app.get("/usersearch", (req, res) => {
 
 app.post('/createevent', async (req, res) => {
   //can't access DB, need debug
-  console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
-  console.log("req.body.Name: " + req.body.Name); //Great event
+  //console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
+  //console.log("req.body.Name: " + req.body.Name); //Great event
 
   //extract every property from req.body and store them to the variable defined inside const{ }
   //these variables can later be used directly. Warning: these variables have to be exactly the same
@@ -323,11 +321,11 @@ app.post('/createevent', async (req, res) => {
     description,
   } = req.body;
 
-  console.log("name: " + name);
+  /*console.log("name: " + name);
   console.log("date: " + date);
   console.log("time: " + time);
   console.log("location: " + location);
-  console.log("description: " + description);
+  console.log("description: " + description);*/
 
     // const imageurl = req.file.path;
     // console.log("incoming imageurl: " + imageurl);

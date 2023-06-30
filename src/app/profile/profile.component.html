@@ -14,7 +14,8 @@
             <p class="card-text" id="school">School: {{school}}</p>
             <p class="card-text" id="events">Events Attended: {{eventsAttended}}</p>
         </div>
-        <button (click)="editUserInfo(content)" type="button" class="btn btn-primary">Update</button>
+        <button (click)="editUserInfo(content)" *ngIf="isOwnProfile" type="button"
+            class="btn btn-primary">Update</button>
 
     </div>
     <ng-template #content let-modal>
