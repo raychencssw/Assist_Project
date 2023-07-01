@@ -73,30 +73,30 @@ mongoose
 
 // ROUTES
 
-app.get('/home/:page', verifyToken,  async(req, res) => {
-    page = req.params.page
-    const limit = 5
-    const allPosts = await Post.find({}).populate([{path: 'author', select: ' _id username firstname lastname profilepicture'}]).skip((page-1) * limit).limit(limit)
-    const postObjects = allPosts.map(post => {
-        return {
-          id: post._id,
-          userid: post.author._id,
-          username: post.author.username,
-          firstname: post.author.firstname,
-          lastname: post.author.lastname,
-          userprofilepic: post.author.profilepicture,
-          location: post.location,
-          date: post.date,
-          description: post.description,
-          likes: post.likes,
-          imageurl: post.imageurl
-        };
-    });
-    console.log(postObjects)
-    res.send({ posts: postObjects })
+app.get('/home/:page', verifyToken, async (req, res) => {
+  page = req.params.page
+  const limit = 5
+  const allPosts = await Post.find({}).populate([{ path: 'author', select: ' _id username firstname lastname profilepicture' }]).skip((page - 1) * limit).limit(limit)
+  const postObjects = allPosts.map(post => {
+    return {
+      id: post._id,
+      userid: post.author._id,
+      username: post.author.username,
+      firstname: post.author.firstname,
+      lastname: post.author.lastname,
+      userprofilepic: post.author.profilepicture,
+      location: post.location,
+      date: post.date,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl
+    };
+  });
+  console.log(postObjects)
+  res.send({ posts: postObjects })
 })
 
-app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), async(req, res) => {
+app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), async (req, res) => {
   console.log(req.body)
   foundUser = await User.findById(req.params.userid);
 
@@ -107,13 +107,13 @@ app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), async(req
   }
   const currentDate = Date.now();
   const post = new Post({
-      id: randomId,
-      author: foundUser,
-      description: req.body.description,
-      date: currentDate,
-      location: req.body.location,
-      likes: 0,
-      imageurl: req.file.path
+    id: randomId,
+    author: foundUser,
+    description: req.body.description,
+    date: currentDate,
+    location: req.body.location,
+    likes: 0,
+    imageurl: req.file.path
 
   })
   await post.save()
@@ -155,20 +155,20 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
 });
 
 
-app.post('/posts/togglelike', async (req, res)=>{
+app.post('/posts/togglelike', async (req, res) => {
 
   const user = await User.findById(req.body.userid)
   const post = await Post.findById(req.body.postid)
   // console.log(user, post)
-  if(req.body.addtoLike){
+  if (req.body.addtoLike) {
     user.likedposts.push(post._id)
     const like = post.likes + 1
     post.likes = like
-  }else{
-    user.likedposts = user.likedposts.filter(postId=>{
+  } else {
+    user.likedposts = user.likedposts.filter(postId => {
       postId != req.body.postid
     })
-    if(post.likes > 0){
+    if (post.likes > 0) {
       const like = post.likes - 1
       post.likes = like
     }
@@ -267,30 +267,26 @@ app.get("/qrscan", (req, res) => {
 
 
 app.get('/profile/:userid', verifyToken, async (req, res) => {
-    console.log(req.params.userid)
-    const user = await User.findById(req.params.userid)
-    res.send(user)
+  console.log(req.params.userid)
+  const user = await User.findById(req.params.userid)
+  res.send(user)
 })
 
-// app.get("/eventdetails/:eventid", (req, res) => {
-//   res.send("HERE WE HAVE EVENT DETAILS");
-// });
-
-app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
+app.post('/profileedit/:userid', verifyToken, upload.single("profilepicture"), async (req, res) => { // 
   const updatedData = req.body;
   const check_file = req.file;
   console.log("check_file ", check_file)
   const user = await User.findById(req.params.userid)
   user.username = req.body.username,
-  user.school = req.body.school,
-  user.firstname = req.body.firstname,
-  user.lastname = req.body.lastname,
-  user.email = req.body.email
-    if (check_file) {
-      user.profilepicture = req.file.path
-    }
-    await user.save()
-    res.status(201).json({ message: "profile updated created" });
+    user.school = req.body.school,
+    user.firstname = req.body.firstname,
+    user.lastname = req.body.lastname,
+    user.email = req.body.email
+  if (check_file) {
+    user.profilepicture = req.file.path
+  }
+  await user.save()
+  res.status(201).json({ message: "profile updated created" });
 })
 
 app.get("/eventsearch", (req, res) => {
@@ -329,39 +325,39 @@ app.post('/createevent', async (req, res) => {
   console.log("location: " + location);
   console.log("description: " + description);
 
-    // const imageurl = req.file.path;
-    // console.log("incoming imageurl: " + imageurl);
+  // const imageurl = req.file.path;
+  // console.log("incoming imageurl: " + imageurl);
 
-    //Check if username already exists, need check later for other mechanism???
-    const existingUser = await Event.findOne({ name });
-    if (existingUser) {
-        return res.status(409).json({ message: "Eventname already exists" });
-    }
+  //Check if username already exists, need check later for other mechanism???
+  const existingUser = await Event.findOne({ name });
+  if (existingUser) {
+    return res.status(409).json({ message: "Eventname already exists" });
+  }
 
-    // generating id
-    var id = "";
-    for (let i = 0; i < 10; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        id += characters.charAt(randomIndex);
-    }
+  // generating id
+  var id = "";
+  for (let i = 0; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    id += characters.charAt(randomIndex);
+  }
 
-    const newEvent = new Event({
-        id,
-        name,
-        // imageurl,
-        date,
-        time,
-        location:{
-            street,
-            city,
-            state,
-        },
-        description,
-    });
-    console.log("newEvent: " + newEvent);
-    await newEvent.save();
-    console.log("a new Event is sent to backend successfully!");
-    res.status(201).json({ message: "Event created" });
+  const newEvent = new Event({
+    id,
+    name,
+    // imageurl,
+    date,
+    time,
+    location: {
+      street,
+      city,
+      state,
+    },
+    description,
+  });
+  console.log("newEvent: " + newEvent);
+  await newEvent.save();
+  console.log("a new Event is sent to backend successfully!");
+  res.status(201).json({ message: "Event created" });
 })
 
 app.get("/events", async (req, res) => {
@@ -372,31 +368,72 @@ app.get("/events", async (req, res) => {
 });
 
 app.get("/event/:eventId", async (req, res) => {
-    const eventId = req.params.eventId;
-    console.log("eventID: " + eventId);
-    try {
-      // Find the event by eventId
-      // const event = await Event.findOne({ _id: eventId })
-      const event = await Event.findOne({ id: eventId });
-  
-      if (event) {
-        res.send(event);
-      } else {
-        res.status(404).json({ message: "Event not found" });
-      }
-    } catch (error) {
-      console.error("Error retrieving event: ", error);
-      res.status(500).json({ message: "Internal server error" });
+  const eventId = req.params.eventId;
+  console.log("eventID: " + eventId);
+  try {
+    // Find the event by eventId
+    // const event = await Event.findOne({ _id: eventId })
+    const event = await Event.findOne({ id: eventId });
+
+    if (event) {
+      res.send(event);
+    } else {
+      res.status(404).json({ message: "Event not found" });
     }
+  } catch (error) {
+    console.error("Error retrieving event: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
-app.get('/following', verifyToken, async(req, res)=>{
-  const user = await User.findOne({id: 1})
+app.get('/following', verifyToken, async (req, res) => {
+  const user = await User.findOne({ id: 1 })
   const follow = await user.populate([
     { path: "following", select: "username firstname lastname" },
   ]);
+  console.log(follow)
   res.send({ following: follow.following });
 });
+
+app.get('/following/:userid', verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid)
+  res.send(user);
+});
+
+
+app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
+  const isfollowing = req.params.isfollowing;
+  const myid = req.params.myid;
+  const userid = req.params.userid;
+
+
+  if (isfollowing == "true") {
+    //append myid to user's follower
+    const user = await User.findById(userid)
+    user.followers.push(myid)
+    // append userid to my following list
+    const myuser = await User.findById(myid)
+    myuser.following.push(userid)
+    await user.save()
+    await myuser.save()
+    res.status(201).json({ message: "follow updated" })
+  }
+
+  else {
+    //pop out myid from user's follower
+    const user = await User.findById(userid)
+    user.followers.pull(myid);
+
+    // append userid to my following list
+    const myuser = await User.findById(myid)
+    myuser.following.pull(userid)
+    await user.save()
+    await myuser.save()
+    res.status(201).json({ message: "unfollow updated" })
+  }
+
+
+})
 
 
 app.get("/searchuser/:username", async (req, res) => {

@@ -6,8 +6,10 @@ import { Router } from '@angular/router';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, debounceTime } from 'rxjs';
 import { PostServiceService } from '../services/post-service.service';
+import { FollowingService } from '../services/following.service';
+import { Console } from 'console';
 
 @Component({
 
@@ -18,6 +20,8 @@ import { PostServiceService } from '../services/post-service.service';
 
 
 export class ProfileComponent implements OnInit {
+  isFollowing: boolean = false;
+  getUserProfile!: any;
   username: string = '';
   name: string = '';
   firstname: string = '';
@@ -27,11 +31,13 @@ export class ProfileComponent implements OnInit {
   points: number | undefined;
   profilepicture: string = '';
   school: string = '';
+  isOwnProfile: boolean = false;
   eventsAttended: string[] = [];
-
+  following: string[] = [];
   id: any;
   closeResult!: string;
-  token: any
+  token: any;
+  followingSubscription: Subscription | undefined;
   private subscription?: Subscription;
   update_username: string = '';
   update_firstname: string = '';
@@ -60,7 +66,8 @@ export class ProfileComponent implements OnInit {
     private modalService: NgbModal,
     private auth: AuthService,
     private profile: ProfileService,
-    private postservice: PostServiceService
+    private postservice: PostServiceService,
+    private followingservice: FollowingService,
   ) {
 
 
@@ -72,12 +79,21 @@ export class ProfileComponent implements OnInit {
       console.log(this.id)
     })
 
+    //check if I followed this users
+    const myid = JSON.parse(localStorage.getItem("user")!).id
+    this.followingservice.checkMyfollowing(myid).subscribe(
+      (response) => {
+        this.following = response['following']
+        if (this.following.includes(this.id)) {
+          this.isFollowing = true
+        }
+      })
+
     this.token = this.auth.getAuthToken()
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.token }`
+      'Authorization': `Bearer ${this.token}`
     });
-
     const requestOptions = { headers: headers };
 
     console.log(this.token)
@@ -102,13 +118,18 @@ export class ProfileComponent implements OnInit {
       this.update_email = this.email;
       this.update_school = this.school;
       this.update_profilepicture = this.profilepicture;
-
       this.getPosts();
+
+      //check if the updated button is in need by comparing  user ids
+      var myid = JSON.parse(localStorage.getItem("user")!).id //get user own id from local storage
+      this.isOwnProfile = myid === this.id;
     })
+
+
   }
 
   getPosts() {
-    this.postservice.oneUserPostsResponse.subscribe(postResponse=>{
+    this.postservice.oneUserPostsResponse.subscribe(postResponse => {
       this.posts.push(...postResponse.posts)
       console.log(this.posts)
       for (let i = 0; i < this.posts.length; i++) {
@@ -118,27 +139,27 @@ export class ProfileComponent implements OnInit {
         const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
         const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
 
-        if(elapsedSeconds < 60){
+        if (elapsedSeconds < 60) {
           this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
-        }else if(elapsedSeconds < 3600){
+        } else if (elapsedSeconds < 3600) {
           const minutes = Math.floor(elapsedSeconds / 60);
-          if(minutes <= 1){
+          if (minutes <= 1) {
             this.posts[i]['date'] = `${minutes} minute ago`
-          }else{
+          } else {
             this.posts[i]['date'] = `${minutes} minutes ago`
           }
-        }else if(elapsedSeconds < 86400){
+        } else if (elapsedSeconds < 86400) {
           const hours = Math.floor(elapsedSeconds / 3600);
-          if(hours <= 1){
+          if (hours <= 1) {
             this.posts[i]['date'] = `${hours} hour ago`
-          }else{
+          } else {
             this.posts[i]['date'] = `${hours} hours ago`
           }
-        }else if (elapsedSeconds < 604800) {
+        } else if (elapsedSeconds < 604800) {
           const days = Math.floor(elapsedSeconds / 86400);
-          if(days <= 1){
+          if (days <= 1) {
             this.posts[i]['date'] = `${days} day ago`;
-          }else{
+          } else {
             this.posts[i]['date'] = `${days} days ago`;
           }
         }
@@ -166,6 +187,7 @@ export class ProfileComponent implements OnInit {
     } else {
       return `with: ${reason}`;
     }
+
   }
 
   onSubmit(f: NgForm) {
@@ -190,12 +212,14 @@ export class ProfileComponent implements OnInit {
     this.formData.append('email', f.value["email"]);
     this.formData.append('school', f.value["school"]);
 
-    this.profile.updateUser(this.formData, (response: any)=>{
+    this.profile.updateUser(this.formData, (response: any) => {
       console.log(response)
       this.ngOnInit(); //reload the table  
       this.modalService.dismissAll(); //dismiss the modal
       window.location.reload();//reload the page for data update
+
     })
+
 
   }
 
@@ -210,7 +234,19 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  onScroll(){
+
+  onScroll() {
     this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
+  }
+
+  async followUser() {
+    // users cannot follow themselves 
+    const myid = JSON.parse(localStorage.getItem("user")!).id
+    if (myid === this.id) {
+      this.isFollowing = true
+      this.modalService.open("You Cannot Follow Yourself");
+    }
+    this.isFollowing = !this.isFollowing;
+    this.followingservice.followButton(myid, this.id, this.isFollowing)
   }
 }
