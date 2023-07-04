@@ -2,30 +2,45 @@
 [infiniteScrollDistance]="2"
 [infiniteScrollThrottle]="50"
 (scrolled)="onScroll()">
+
   <div class="container posts-container" *ngIf="posts">
     <div class="row" style="width: 100%;" *ngFor="let post of posts">
       <div class="col col-lg-12 col-md-12 col-sm-12 justify-content-center" style="display: flex;">
         <div class="card">
+
+          <!-- card image & userprofilepic & userid & location -->
+
           <div class="position-relative">
-            <img src="{{post['imageurl']}}" class="card-img-top" alt="Image" style="height: 400px;">
+            <!-- <img src="{{post['imageurl']}}" class="card-img-top" alt="Image" style="height: 400px;"> -->
+            <img src="{{post['imageurl']}}" class="card-img-top image-height" alt="Image">
             <div class="profile-overlay" style="width: 100%;">
               <div class="row">
+
+                <!-- user profile picture & user id-->
                 <div class="col col-lg-6" style="display: flex; align-items: center;">
                   <img *ngIf="post['userprofilepic']" src="{{post['userprofilepic']}}" class="profile-img" alt="Profile Image">
                   <img *ngIf="!post['userprofilepic']" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" class="profile-img" alt="Profile Image">
                   <h4 class="{{post['userid']}}" routerLink="/profile/{{post['userid']}}" style="margin-right: 10px; margin-left: 10px; cursor: pointer; color: aqua;" appFollowListen>{{post['username']}}</h4>
                 </div>
+
+                <!-- location -->
                 <div class="col col-lg-6" style="display: flex; align-items: center;">
                   <p style="margin-left: auto; margin-right: 10%;">{{post['location']}}</p>
                 </div>
-              </div>
-            </div>
-          </div>
+              </div>  <!-- row -->
+            </div>  <!-- profile-overlay -->
+          </div>  <!-- position-relative -->
+
+          <!-- card body -->
           <div class="card-body">
             <div class="row">
+
+              <!-- user name-->
               <div class="col col-lg-6">
                 <p class="card-text">{{post['firstname']}} {{post['lastname']}}</p>
               </div>
+
+              <!-- date & time & like button-->
               <div class="col col-lg-6" style="display: flex; align-items: center; margin-left: auto;">
                 <p>{{post['date']}}</p>
                 <p style="margin-left: 10px;">{{post['time']}}</p>
@@ -34,13 +49,14 @@
                     <span (click)="toggleLike(post['id'])" style="cursor: pointer;" *ngIf="isLiked(post['id'])"><i class="fa-solid fa-heart" style="color: #ec1354; height: 50px;"></i></span>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+              
+            </div>  <!-- row -->
+          </div>  <!-- card-body -->
+        </div>  <!-- card -->
+      </div>  <!-- col col-lg-12 col-md-12 col-sm-12 justify-content-center -->
+    </div>  <!-- row -->
+  </div>  <!-- container posts-container -->
   
-</div>
+</div>  <!-- infiniteScroll -->
 
 <!-- https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" -->

@@ -3,20 +3,39 @@
     <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button> -->
-        <ul class="navbar-nav ms-auto flex-row">
-          <li class="nav-item">  <app-search></app-search> </li>
-          <li class="nav-item">
-            <div class = "home-div" routerLinkActive="surrounded"[routerLinkActiveOptions]="{exact: true}"><a class="nav-link" routerLink="/home">Home</a></div>
-          </li>
-          <li class="nav-item">
-            <div class = "events-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/events">Events</a></div>
-          </li>
-          <li class="nav-item">
-            <div class = "rankings-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/rankings">Rankings</a></div>
-          </li>
-          <li class="nav-item">
-            <div class = "rankings-div" routerLinkActive="surrounded" style="cursor: pointer;"><a class="nav-link" (click)="authLogout()" *ngIf="isLoggedin">Logout</a></div>
-          </li>
-        </ul>
-    </div>
+        <div class="row">
+          <div class="col-sm-10 mb-2">
+              <app-search></app-search> 
+          </div>
+          <div class="col-sm-2">
+          <ul class="navbar-nav ms-auto flex-row">
+
+            <!-- Search box -->
+            <!-- <li class="nav-item">  
+              <app-search></app-search> 
+            </li> -->
+
+            <!-- Home page -->
+            <li class="nav-item">
+              <div class = "home-div" routerLinkActive="surrounded"[routerLinkActiveOptions]="{exact: true}"><a class="nav-link" routerLink="/home">Home</a></div>
+            </li>
+
+            <!-- Events page -->
+            <li class="nav-item">
+              <div class = "events-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/events">Events</a></div>
+            </li>
+
+            <!-- Rankings page -->
+            <li class="nav-item">
+              <div class = "rankings-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/rankings">Rankings</a></div>
+            </li>
+
+            <!-- Logout -->
+            <li class="nav-item">
+              <div class = "rankings-div" routerLinkActive="surrounded" style="cursor: pointer;"><a class="nav-link" (click)="authLogout()" *ngIf="isLoggedin">Logout</a></div>
+            </li>
+          </ul>
+        </div>  <!-- col-sm-6 -->
+      </div>  <!-- row -->
+    </div>  <!-- container-fluid -->
 </nav>

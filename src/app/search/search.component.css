@@ -1,3 +1,23 @@
+@media only screen and (min-width: 1200px){
+    .textbox {
+        width:50rem;
+    }
+}
+
+@media only screen and (max-width: 1200px){
+    .textbox {
+        width:100%;
+    }
+    .fs-6{
+        font-size:14px !important;
+    }
+}
+
+.center{
+    margin:auto;
+    display:flex;
+}
+
 .container {
     display: flex;
     background-color: rgb(0, 81, 255);
@@ -21,7 +41,6 @@
 
 .radio-label {
     color: #ffffff;
-    ;
     position: relative;
     display: inline-block;
     cursor: pointer;
@@ -61,7 +80,7 @@
     margin: auto;
     border: 2px solid white;
     border-radius: 16px;
-    width: 50rem;
+    /* width: 50rem;    */
     font-size: 15px;
     transition: border-color 0.3s ease;
 
