@@ -317,7 +317,11 @@ app.post('/createevent', async (req, res) => {
     name,
     date,
     time,
-    location,
+    location:{
+      street,
+      city,
+      state,
+    },
     description,
   } = req.body;
 

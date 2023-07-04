@@ -2,12 +2,14 @@
     .image-height{
         height:400px;
     }
+
 }
 
 @media only screen and(max-width: 1200px){
     .image-height{
         height:100px;
     }
+
 }
 
 

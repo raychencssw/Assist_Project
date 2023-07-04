@@ -28,8 +28,8 @@ export class EventsComponent implements OnInit{
     this.eventService.loadEvent().subscribe((events) => {
       console.log("ngOninit loads!");
 
-      this.weeklyEvents = [];
-      this.monthlyEvents = [];
+      this.weeklyEvents = [];   
+      this.monthlyEvents = [];  
 
       //store the events from the MongoDB to this.events(not sorted yet)
       this.events = events;

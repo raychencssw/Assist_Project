@@ -18,7 +18,7 @@
 
                 <!-- user profile picture & user id-->
                 <div class="col col-lg-6" style="display: flex; align-items: center;">
-                  <img *ngIf="post['userprofilepic']" src="{{post['userprofilepic']}}" class="profile-img" alt="Profile Image">
+                  <img *ngIf="post['userprofilepic']" src="{{post['userprofilepic']}}" class="profile-img image-width" alt="Profile Image">
                   <img *ngIf="!post['userprofilepic']" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" class="profile-img" alt="Profile Image">
                   <h4 class="{{post['userid']}}" routerLink="/profile/{{post['userid']}}" style="margin-right: 10px; margin-left: 10px; cursor: pointer; color: aqua;" appFollowListen>{{post['username']}}</h4>
                 </div>

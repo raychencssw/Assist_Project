@@ -14,10 +14,10 @@ export class EventcreateComponent implements OnInit{
 
   datePickerStartAt:any;
 
-  selectedFile: File | null = null;
-  fileExtension: any = "";
-  fileName: any = "";
-  isWrongExtension: boolean = false;
+  // selectedFile: File | null = null;
+  // fileExtension: any = "";
+  // fileName: any = "";
+  // isWrongExtension: boolean = false;
 
 
   /**
@@ -34,7 +34,7 @@ export class EventcreateComponent implements OnInit{
 
   public eventForm = {
     name: '',
-    photo: null as File | null,
+    // photo: null as File | null,
     date:'',
     time: { hour: 13, minute: 30 },
     location:{
@@ -54,26 +54,26 @@ export class EventcreateComponent implements OnInit{
     this.datePickerStartAt = new Date();
   }
 
-  onFileSelected(event: any){
-    console.log("event: " + JSON.stringify(event));  //{"isTrusted":true}
-    console.log("event.target: " + JSON.stringify(event.target)); //event.target{"__ngContext__":45,"__zone_symbol__inputfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:input","zone":"angular","runCount":2}],"__zone_symbol__blurfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:blur","zone":"angular","runCount":2}],"__zone_symbol__compositionstartfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:compositionstart","zone":"angular","runCount":0}],"__zone_symbol__compositionendfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:compositionend","zone":"angular","runCount":0}],"__zone_symbol__changefalse":[{"type":"eventTask","state":"running","source":"HTMLInputElement.addEventListener:change","zone":"angular","runCount":2}]}
-    console.log("event.target.files: " + JSON.stringify(event.target.files)); //{"0":{}}
-    console.log("event.target.files[0].name: " + JSON.stringify(event.target.files[0].name));
+  // onFileSelected(event: any){
+  //   console.log("event: " + JSON.stringify(event));  //{"isTrusted":true}
+  //   console.log("event.target: " + JSON.stringify(event.target)); //event.target{"__ngContext__":45,"__zone_symbol__inputfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:input","zone":"angular","runCount":2}],"__zone_symbol__blurfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:blur","zone":"angular","runCount":2}],"__zone_symbol__compositionstartfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:compositionstart","zone":"angular","runCount":0}],"__zone_symbol__compositionendfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:compositionend","zone":"angular","runCount":0}],"__zone_symbol__changefalse":[{"type":"eventTask","state":"running","source":"HTMLInputElement.addEventListener:change","zone":"angular","runCount":2}]}
+  //   console.log("event.target.files: " + JSON.stringify(event.target.files)); //{"0":{}}
+  //   console.log("event.target.files[0].name: " + JSON.stringify(event.target.files[0].name));
     
-    this.selectedFile = event.target.files[0] as File
-    this.fileName = this.selectedFile.name
+  //   this.selectedFile = event.target.files[0] as File
+  //   this.fileName = this.selectedFile.name
 
-    console.log("this.fileName.split('.'): " + this.fileName.split('.'));
-    //pop removes and returns the last element of the array
-    this.fileExtension = this.fileName.split('.').pop();
-    console.log("file name: " + this.fileName);
-    console.log("file extension: " + this.fileExtension);
-    if(this.fileExtension !== 'jpeg' && this.fileExtension !== 'jpg' && this.fileExtension !== 'png'){
-      this.isWrongExtension = true
-    }else{
-      this.isWrongExtension = false
-    }
-  }
+  //   console.log("this.fileName.split('.'): " + this.fileName.split('.'));
+  //   //pop removes and returns the last element of the array
+  //   this.fileExtension = this.fileName.split('.').pop();
+  //   console.log("file name: " + this.fileName);
+  //   console.log("file extension: " + this.fileExtension);
+  //   if(this.fileExtension !== 'jpeg' && this.fileExtension !== 'jpg' && this.fileExtension !== 'png'){
+  //     this.isWrongExtension = true
+  //   }else{
+  //     this.isWrongExtension = false
+  //   }
+  // }
 
 
   submit(){
@@ -89,12 +89,16 @@ export class EventcreateComponent implements OnInit{
     this.eventForm.date = String(formattedDate);
     console.log("formattedDate: " + formattedDate);    //formattedDate: 4/7/2023
 
-    this.eventForm.photo = this.selectedFile;
+    // this.eventForm.photo = this.selectedFile;
 
     console.log("eventForm: " + JSON.stringify(this.eventForm));
 
     //call eventService and then store the event info to the MongoDB
-    this.eventService.addtoEvents(this.eventForm)
+    this.eventService.addtoEvents(this.eventForm).subscribe(() => {
+      // Close the modal
+      this.activeModal.close();
+    })
+
 
   }
 
