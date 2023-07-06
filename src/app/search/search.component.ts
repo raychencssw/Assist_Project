@@ -4,10 +4,7 @@ import { FormControl } from '@angular/forms';
 import { of, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { SearchServiceService } from '../services/search-service.service';
-import { ProfileService } from '../services/profile.service';
-
 import { Router } from '@angular/router';
-import { Console } from 'console';
 
 @Component({
   selector: 'app-search',
@@ -23,8 +20,9 @@ export class SearchComponent {
   searchControl = new FormControl();
   getUsersProfile: any;
   profileId: string = "";
-  constructor(private http: HttpClient, private router: Router, private searchService: SearchServiceService,
-    private profileService: ProfileService) { }
+  constructor(private http: HttpClient,
+    private router: Router,
+    private searchService: SearchServiceService) { }
 
   handleOptionChange() {
     this.searchControl.reset();
@@ -93,14 +91,15 @@ export class SearchComponent {
   navigateToProfile(result: any) {
     if (this.selectedOption === 'option1') {
       this.searchService.searchuser(result).subscribe(profile => {
-        this.getUsersProfile = profile
-        this.profileId = this.getUsersProfile["_id"]
-        this.profileService.getProfile(this.profileId)
-      });
+        this.getUsersProfile = profile;
+        this.profileId = this.getUsersProfile["_id"];
+        var profile_url = "profile/" + this.profileId
+        location.href = profile_url //browser perform a full page reload
 
+      });
     }
     else {
-      console.log('event profile not work yet');
+      this.router.navigate([`/events`])
     }
 
   }

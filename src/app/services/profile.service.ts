@@ -17,7 +17,7 @@ export class ProfileService {
     })
   }
 
-  getProfile(id: string) {
+  getProfile(id:string){
     this.router.navigate([`/profile/${id}`])
   }
   updateUser(formData: any, callback: (response: any) => void){

@@ -7,6 +7,10 @@
     margin: 3%;
 }
 
+#follow {
+    display: block;
+}
+
 .profile-img {
     display: block;
     flex-direction: column;

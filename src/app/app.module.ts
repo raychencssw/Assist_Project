@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms'
 import { HttpClientModule } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-import { MatListModule } from '@angular/material/list';
+import {MatListModule} from '@angular/material/list';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -41,9 +41,9 @@ import { AuthGuard } from './auth.guard';
 import { SearchComponent } from './search/search.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 const appRoutes: Routes = [
-  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-  { path: 'events', component: EventsComponent, canActivate: [AuthGuard] },
-  { path: 'rankings', component: RankingsComponent, canActivate: [AuthGuard] },
+  { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
+  { path: 'events', component: EventsComponent, canActivate:[AuthGuard]},
+  { path: 'rankings', component: RankingsComponent, canActivate:[AuthGuard]},
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
   { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]},
@@ -82,13 +82,14 @@ const appRoutes: Routes = [
     MatTabsModule,
     InfiniteScrollModule,
     MatListModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatDatepickerModule, 
     MatNativeDateModule,
     NgbTimepickerModule,
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
+    
     MatAutocompleteModule,
     MatInputModule,
   ],

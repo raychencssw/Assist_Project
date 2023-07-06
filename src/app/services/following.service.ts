@@ -14,16 +14,39 @@ export class FollowingService {
   constructor(private http: HttpClient, private auth: AuthService) { }
 
 
-  getFollowers(){
+  getFollowers() {
     this.token = this.auth.getAuthToken()
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.token }`
+      'Authorization': `Bearer ${this.token}`
     });
     const requestOptions = { headers: headers };
-    this.http.get<any>(`http://localhost:3080/following`, requestOptions).subscribe((response)=>{
+    this.http.get<any>(`http://localhost:3080/following`, requestOptions).subscribe((response) => {
       this.follow = response['following']
-      console.log(this.follow)
+      //console.log(this.follow)
       this.sendFollowing.next(this.follow)
     })
+
   }
+
+  followButton(myid: string, userid: string, isFollowing: boolean) {
+    this.token = this.auth.getAuthToken()
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = { headers: headers };
+    var url = `http://localhost:3080/follow/${myid}/${userid}/${isFollowing}`
+    this.http.post<any>(url, requestOptions).subscribe()
+
+  }
+
+  checkMyfollowing(id: string) {
+    this.token = this.auth.getAuthToken()
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = { headers: headers };
+    var url = `http://localhost:3080/following/${id}`
+    return this.http.get<any>(url, requestOptions)
+  }
+
 }

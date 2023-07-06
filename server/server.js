@@ -155,17 +155,17 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
 });
 
 
-app.post('/posts/togglelike', async (req, res)=>{
+app.post('/posts/togglelike', async (req, res) => {
 
   const user = await User.findById(req.body.userid)
   const post = await Post.findById(req.body.postid)
   // console.log(user, post)
-  if(req.body.addtoLike){
+  if (req.body.addtoLike) {
     user.likedposts.push(post._id)
     const like = post.likes + 1
     post.likes = like
-  }else{
-    user.likedposts = user.likedposts.filter(postId=>{
+  } else {
+    user.likedposts = user.likedposts.filter(postId => {
       postId != req.body.postid
     })
     if (post.likes > 0) {
@@ -245,7 +245,6 @@ app.post("/login", passport.authenticate("local"), function (req, res) {
     token: token,
     user: req.user,
   });
-
 });
 
 app.get("/logout", (req, res) => {
@@ -261,6 +260,8 @@ app.get("/logout", (req, res) => {
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
+
+
 
 
 
@@ -280,15 +281,15 @@ app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, re
   console.log("check_file ", check_file)
   const user = await User.findById(req.params.userid)
   user.username = req.body.username,
-  user.school = req.body.school,
-  user.firstname = req.body.firstname,
-  user.lastname = req.body.lastname,
-  user.email = req.body.email
-    if (check_file) {
-      user.profilepicture = req.file.path
-    }
-    await user.save()
-    res.status(201).json({ message: "profile updated created" });
+    user.school = req.body.school,
+    user.firstname = req.body.firstname,
+    user.lastname = req.body.lastname,
+    user.email = req.body.email
+  if (check_file) {
+    user.profilepicture = req.file.path
+  }
+  await user.save()
+  res.status(201).json({ message: "profile updated created" });
 })
 
 app.get("/eventsearch", (req, res) => {
@@ -307,8 +308,8 @@ app.get("/usersearch", (req, res) => {
 
 app.post('/createevent', async (req, res) => {
   //can't access DB, need debug
-  //console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
-  //console.log("req.body.Name: " + req.body.Name); //Great event
+  console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
+  console.log("req.body.Name: " + req.body.Name); //Great event
 
   //extract every property from req.body and store them to the variable defined inside const{ }
   //these variables can later be used directly. Warning: these variables have to be exactly the same
@@ -321,45 +322,45 @@ app.post('/createevent', async (req, res) => {
     description,
   } = req.body;
 
-  /*console.log("name: " + name);
+  console.log("name: " + name);
   console.log("date: " + date);
   console.log("time: " + time);
   console.log("location: " + location);
-  console.log("description: " + description);*/
+  console.log("description: " + description);
 
-    // const imageurl = req.file.path;
-    // console.log("incoming imageurl: " + imageurl);
+  // const imageurl = req.file.path;
+  // console.log("incoming imageurl: " + imageurl);
 
-    //Check if username already exists, need check later for other mechanism???
-    const existingUser = await Event.findOne({ name });
-    if (existingUser) {
-        return res.status(409).json({ message: "Eventname already exists" });
-    }
+  //Check if username already exists, need check later for other mechanism???
+  const existingUser = await Event.findOne({ name });
+  if (existingUser) {
+    return res.status(409).json({ message: "Eventname already exists" });
+  }
 
-    // generating id
-    var id = "";
-    for (let i = 0; i < 10; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        id += characters.charAt(randomIndex);
-    }
+  // generating id
+  var id = "";
+  for (let i = 0; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    id += characters.charAt(randomIndex);
+  }
 
-    const newEvent = new Event({
-        id,
-        name,
-        // imageurl,
-        date,
-        time,
-        location:{
-            street,
-            city,
-            state,
-        },
-        description,
-    });
-    console.log("newEvent: " + newEvent);
-    await newEvent.save();
-    console.log("a new Event is sent to backend successfully!");
-    res.status(201).json({ message: "Event created" });
+  const newEvent = new Event({
+    id,
+    name,
+    // imageurl,
+    date,
+    time,
+    location: {
+      street,
+      city,
+      state,
+    },
+    description,
+  });
+  console.log("newEvent: " + newEvent);
+  await newEvent.save();
+  console.log("a new Event is sent to backend successfully!");
+  res.status(201).json({ message: "Event created" });
 })
 
 app.get("/events", async (req, res) => {
@@ -370,32 +371,72 @@ app.get("/events", async (req, res) => {
 });
 
 app.get("/event/:eventId", async (req, res) => {
-    const eventId = req.params.eventId;
-    console.log("eventID: " + eventId);
-    try {
-      // Find the event by eventId
-      // const event = await Event.findOne({ _id: eventId })
-      const event = await Event.findOne({ id: eventId });
-  
-      if (event) {
-        res.send(event);
-      } else {
-        res.status(404).json({ message: "Event not found" });
-      }
-    } catch (error) {
-      console.error("Error retrieving event: ", error);
-      res.status(500).json({ message: "Internal server error" });
+  const eventId = req.params.eventId;
+  console.log("eventID: " + eventId);
+  try {
+    // Find the event by eventId
+    // const event = await Event.findOne({ _id: eventId })
+    const event = await Event.findOne({ id: eventId });
+
+    if (event) {
+      res.send(event);
+    } else {
+      res.status(404).json({ message: "Event not found" });
     }
+  } catch (error) {
+    console.error("Error retrieving event: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
-app.get('/following', verifyToken, async(req, res)=>{
-  const user = await User.findOne({id: 1})
+app.get('/following', verifyToken, async (req, res) => {
+  const user = await User.findOne({ id: 1 })
   const follow = await user.populate([
     { path: "following", select: "username firstname lastname" },
   ]);
+  console.log(follow)
   res.send({ following: follow.following });
 });
 
+app.get('/following/:userid', verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid)
+  res.send(user);
+});
+
+
+app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
+  const isfollowing = req.params.isfollowing;
+  const myid = req.params.myid;
+  const userid = req.params.userid;
+
+
+  if (isfollowing == "true") {
+    //append myid to user's follower
+    const user = await User.findById(userid)
+    user.followers.push(myid)
+    // append userid to my following list
+    const myuser = await User.findById(myid)
+    myuser.following.push(userid)
+    await user.save()
+    await myuser.save()
+    res.status(201).json({ message: "follow updated" })
+  }
+
+  else {
+    //pop out myid from user's follower
+    const user = await User.findById(userid)
+    user.followers.pull(myid);
+
+    // append userid to my following list
+    const myuser = await User.findById(myid)
+    myuser.following.pull(userid)
+    await user.save()
+    await myuser.save()
+    res.status(201).json({ message: "unfollow updated" })
+  }
+
+
+})
 
 
 app.get("/searchuser/:username", async (req, res) => {
