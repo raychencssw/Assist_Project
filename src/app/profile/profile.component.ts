@@ -7,6 +7,7 @@ import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng
 import { NgForm, FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
+import { FollowingService } from '../services/following.service';
 import { PostServiceService } from '../services/post-service.service';
 
 @Component({
@@ -41,6 +42,9 @@ export class ProfileComponent implements OnInit {
   update_school: string = '';
   update_profilepicture: string = '';
 
+
+  followers: any = []
+  showFollowers = false;
   posts: any = []
   times = []
   pageNumber: any = 1
@@ -63,7 +67,8 @@ export class ProfileComponent implements OnInit {
     private auth: AuthService,
     private profile: ProfileService,
     private postservice: PostServiceService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private following: FollowingService
   ) {
 
   }
@@ -72,9 +77,11 @@ export class ProfileComponent implements OnInit {
 
     this.route.paramMap.subscribe(params => {
       this.id = params.get("id")
+      console.log("my id changes to: " + this.id)
     })
-    this.profileService.getUserProfile(this.id).subscribe(
+    this.profileService.profileResponse.subscribe(
       (data) => {
+        console.log("my name is now: " + this.lastname)
         this.getUserProfile = data
         this.email = this.getUserProfile['email'];
         this.username = this.getUserProfile['username'];
@@ -97,11 +104,16 @@ export class ProfileComponent implements OnInit {
         console.log("profile error", error)
         // Handle any errors that occur during the API call
       }
-
     )
+    this.profileService.getUserProfile(this.id)
     this.myid = JSON.parse(localStorage.getItem("user")!).id
     this.isOwnProfile = this.myid === this.id;
-    this.getPosts()
+    //this.getPosts()
+    this.following.following$.subscribe((response)=>{
+      this.followers = response
+      console.log(this.followers)
+    })
+    this.following.getFollowers()
   }
 
   getPosts() {

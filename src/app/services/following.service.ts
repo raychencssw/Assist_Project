@@ -26,4 +26,14 @@ export class FollowingService {
       this.sendFollowing.next(this.follow)
     })
   }
+
+  //Get the following users
+  getFollowing() {
+    this.token = this.auth.getAuthToken()
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = {headers : headers};
+    
+  }
 }
