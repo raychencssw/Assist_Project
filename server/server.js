@@ -397,6 +397,7 @@ app.get('/following', verifyToken, async(req, res)=>{
 });
 
 
+
 app.get("/searchuser/:username", async (req, res) => {
   // Retrieve user with the specified ID from the data source
   const username = req.params.username;
