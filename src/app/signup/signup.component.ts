@@ -24,7 +24,6 @@ export class SignupComponent {
     firstname: '',
     lastname: '',
     school: '',
-    role: '',
     profilepicture: ''
   };
 
