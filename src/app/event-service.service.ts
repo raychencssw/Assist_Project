@@ -26,7 +26,6 @@ export class EventServiceService {
       console.log("event: " + JSON.stringify(event));
       //event: {"Event":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
       return this.http.post(`http://localhost:3080/createevent`, event, requestOptions).subscribe(()=>{
-        this.router.navigate(['/events']);  //redirect the user back to their events page
       })
     }
 

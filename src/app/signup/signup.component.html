@@ -1,49 +1,94 @@
-<h2>Signup</h2>
 
-<form (ngSubmit)="onSubmit()">
-  <div>
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" [(ngModel)]="user.email" required>
-  </div>
-  <div>
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" [(ngModel)]="user.username" required>
-  </div>
-  <div>
-    <label for="password">Password:</label>
-    <input type="text" id="password" name="password" [(ngModel)]="user.password" required>
-  </div>
+<div class="container mt-3">
+  <div class="center">
+  <div class="card">
+    <div class="card-body">
 
+    <!-- Signup header -->
+    <div class="row h2 mt-2 text-primary text-center">
+      <div class="col">
+        Signup
+      </div>
+    </div>
 
-  <div>
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstname" name="firstname" [(ngModel)]="user.firstname" required>
-  </div>
+    <form (ngSubmit)="onSubmit()" class="form-center">
 
-  <div>
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastname" name="lastname" [(ngModel)]="user.lastname" required>
-  </div>
+      <!-- Email -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="email">Email: </label>
+          <input type="email" id="email" name="email" [(ngModel)]="user.email" required>
+        </div>
+      </div>
 
+      <!-- Username -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="username">Username: </label>
+          <input type="text" id="username" name="username" [(ngModel)]="user.username" required>
+        </div>
+      </div>
 
-  <div>
-    <label for="role">Role:</label>
-    <input type="text" id="role" name="role" [(ngModel)]="user.role" required>
-  </div>
+      <!-- Password -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="password">Password: </label>
+          <input type="text" id="password" name="password" [(ngModel)]="user.password" required>
+        </div>
+      </div>
 
-  
-  <div>
-    <label for="school">School:</label>
-    <select id="school" name="school" [(ngModel)]="user.school">
-      <option value="">Select a school</option>
-      <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
-    </select>
-  </div>
+      <!-- First Name -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="firstName">First Name: </label>
+          <input type="text" id="firstname" name="firstname" [(ngModel)]="user.firstname" required>
+        </div>
+      </div>
 
-  <div>
-    <label for="profilePicture">Profile Picture:</label>
-    <input type="file" id="profilePicture" name="profilePicture" (change)="onFileChange($event)" accept="image/*" required>
-  </div>
+      <!-- Last Name -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="lastName">Last Name: </label>
+          <input type="text" id="lastname" name="lastname" [(ngModel)]="user.lastname" required>
+        </div>
+      </div>
 
-  <button type="submit">Signup</button>
-</form>
+      <!-- Role -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="role">Role: </label>
+          <input type="text" id="role" name="role" [(ngModel)]="user.role" required>
+        </div>
+      </div>
+
+      <!-- School selection -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="school">School: </label>
+          <select id="school" name="school" [(ngModel)]="user.school">
+            <option value="">Select a school</option>
+            <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Profile Picture -->
+      <div class="row mt-2">
+        <div class="col">
+          <label for="profilePicture">Profile Picture:</label>
+          <input type="file" id="profilePicture" name="profilePicture" (change)="onFileChange($event)" accept="image/*" required>
+        </div>
+      </div>
+
+      <!-- Signup button -->
+      <div class="row mt-3 text-center">
+        <div class="col">
+          <button class="btn btn-dark" type="submit">Signup</button>
+        </div>
+      </div>
+    </form>
+
+    </div>  <!-- card-body -->
+  </div>  <!-- card -->
+</div>
+</div>  <!-- container mt-3 -->

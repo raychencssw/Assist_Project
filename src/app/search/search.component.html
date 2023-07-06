@@ -1,25 +1,25 @@
-<div class="container">
-    <div class="options">
+<div class="container container-sm">
+    <div class="center">
+        <div class="options mt-2">
+            <label class="radio-label">
+                <input type="radio" name="options" [(ngModel)]="selectedOption" value="option1"
+                    (change)="handleOptionChange()"><span class="checkmark"></span>
+                <p class="fs-6 mb-1">Search for Users</p>
+            </label>
+        </div>
 
-        <label class="radio-label">
-            <input type="radio" name="options" [(ngModel)]="selectedOption" value="option1"
-                (change)="handleOptionChange()">
-            <span class="checkmark"></span>
-            Search for Users
-        </label>
-    </div>
-
-    <div>
-        <label class="radio-label">
-            <input type="radio" name="options" [(ngModel)]="selectedOption" value="option2"
-                (change)="handleOptionChange()"><span class="checkmark"></span>
-            Search for Events
-        </label>
+        <div class="options mt-2">
+            <label class="radio-label">
+                <input type="radio" name="options" [(ngModel)]="selectedOption" value="option2"
+                    (change)="handleOptionChange()"><span class="checkmark"></span>
+                    <p class="fs-6 mb-1">Search for Events</p>
+            </label>
+        </div>
     </div>
 </div>
 
 
-<div class="autocomplete_box">
+<div class="autocomplete_box container-sm">
     <input type="text" class="textbox" [formControl]="searchControl" [matAutocomplete]="auto">
     <mat-autocomplete #auto="matAutocomplete">
         <mat-option *ngFor="let result of searchResults" (click)="navigateToProfile(result)" [value]="result">
