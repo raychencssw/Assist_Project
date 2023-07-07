@@ -109,5 +109,14 @@
   </div>
 
   <!-- https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" -->
-
+    <button (click)="showFollowers = !showFollowers">Show Followers ({{ followers.length }})</button>
+    <ul *ngIf="showFollowers">
+  <li *ngFor="let f of followers"><div class="fw-bold">
+    {{f.firstname}} {{f.lastname}}
 </div>
+<p class="{{f._id}}"routerLink="/profile/{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">@{{f.username}}</p></li>
+    </ul>
+    </div>
+<!-- https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" -->
+
+

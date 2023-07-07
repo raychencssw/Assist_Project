@@ -5,6 +5,7 @@ import { of, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { SearchServiceService } from '../services/search-service.service';
 import { Router } from '@angular/router';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search',
@@ -66,7 +67,7 @@ export class SearchComponent {
 
   }
 
-  /*fetchAutocompleteData1(value: string): Observable<string[]> {
+  fetchAutocompleteData1(value: string): Observable<string[]> {
     const backendUrl1 = 'http://localhost:3080/usersearch';
     return this.http.get<string[]>(backendUrl1).pipe(
       map(response => response.map(item => item.toString()) //the response data array converted to a string. 
@@ -87,7 +88,7 @@ export class SearchComponent {
       )
     );
 
-  }*/
+  }
   navigateToProfile(result: any) {
     if (this.selectedOption === 'option1') {
       this.searchService.searchuser(result).subscribe(profile => {

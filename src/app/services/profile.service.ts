@@ -37,7 +37,10 @@ export class ProfileService {
       'Authorization': `Bearer ${this.token}`
     });
     const requestOptions = { headers: headers };
-    return this.http.get(backendUrl, requestOptions);
+    this.http.get(backendUrl, requestOptions).subscribe((response)=>{
+      console.log(response)
+      this.profileResponse.next(response)
+    })
   }
   // editUserProfile(id: string, username: string, formData: any) {
   //   this.token = this.auth.getAuthToken()

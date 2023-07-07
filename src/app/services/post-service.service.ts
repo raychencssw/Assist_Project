@@ -67,9 +67,7 @@ export class PostServiceService implements OnInit{
   }
   //load posts for one user
   loadOneUserPosts(pageNumber: Number, userId: string){
-    const sub = this.auth.getUser().subscribe((response: any)=>{
-      this.token = response['token']
-    })
+    this.token = this.auth.getAuthToken()
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token }`
     });

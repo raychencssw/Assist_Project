@@ -7,8 +7,8 @@ import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Subscription, debounceTime } from 'rxjs';
-import { PostServiceService } from '../services/post-service.service';
 import { FollowingService } from '../services/following.service';
+import { PostServiceService } from '../services/post-service.service';
 import { Console } from 'console';
 
 @Component({
@@ -46,6 +46,9 @@ export class ProfileComponent implements OnInit {
   update_school: string = '';
   update_profilepicture: string = '';
 
+
+  followers: any = []
+  showFollowers = false;
   posts: any = []
   times = []
   pageNumber: any = 1
@@ -69,6 +72,7 @@ export class ProfileComponent implements OnInit {
     private postservice: PostServiceService,
     private profileService: ProfileService,
     private followingservice: FollowingService,
+    // private following: FollowingService
   ) {
 
 
@@ -77,61 +81,43 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.id = params.get("id")
-      console.log(this.id)
+      console.log("my id changes to: " + this.id)
     })
-
-    
+    this.profileService.profileResponse.subscribe(
+      (data) => {
+        console.log("my name is now: " + this.lastname)
+        this.getUserProfile = data
+        this.email = this.getUserProfile['email'];
+        this.username = this.getUserProfile['username'];
+        this.firstname = this.getUserProfile['firstname'];
+        this.lastname = this.getUserProfile['lastname'];
+        this.role = this.getUserProfile['role'];
+        this.points = this.getUserProfile['points']
+        this.school = this.getUserProfile['school']
+        this.eventsAttended = this.getUserProfile['eventsAttended']
+        this.profilepicture = this.getUserProfile['profilepicture']
+        this.name = this.firstname + " " + this.lastname
+        // Process the retrieved profile data
+        this.update_username = this.username
+        this.update_firstname = this.firstname;
+        this.update_lastname = this.lastname;
+        this.update_email = this.email;
+        this.update_school = this.school;
+        this.update_profilepicture = this.profilepicture;
+      }, (error) => {
+        console.log("profile error", error)
+        // Handle any errors that occur during the API call
+      }
+    )
+    this.profileService.getUserProfile(this.id)
     this.myid = JSON.parse(localStorage.getItem("user")!).id
     this.isOwnProfile = this.myid === this.id;
-    this.getPosts()
-    
-    //check if I followed this users
-    const myid = JSON.parse(localStorage.getItem("user")!).id
-    this.followingservice.checkMyfollowing(myid).subscribe(
-      (response) => {
-        this.following = response['following']
-        if (this.following.includes(this.id)) {
-          this.isFollowing = true
-        }
-      })
-
-    this.token = this.auth.getAuthToken()
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.token}`
-    });
-    const requestOptions = { headers: headers };
-
-    console.log(this.token)
-    var backendUrl = 'http://localhost:3080/profile/'
-    const userid = this.id
-    backendUrl = backendUrl + userid
-    this.http.get<any>(backendUrl, requestOptions).subscribe((data) => {
-      this.email = data['email'];
-      this.username = data['username'];
-      this.firstname = data['firstname'];
-      this.lastname = data['lastname'];
-      this.role = data['role'];
-      this.points = data['points']
-      this.school = data['school']
-      this.eventsAttended = data['eventsAttended']
-      this.profilepicture = data['profilepicture']
-      this.name = this.firstname + " " + this.lastname
-      //get default values
-      this.update_username = this.username
-      this.update_firstname = this.firstname;
-      this.update_lastname = this.lastname;
-      this.update_email = this.email;
-      this.update_school = this.school;
-      this.update_profilepicture = this.profilepicture;
-      this.getPosts();
-
-      //check if the updated button is in need by comparing  user ids
-      var myid = JSON.parse(localStorage.getItem("user")!).id //get user own id from local storage
-      this.isOwnProfile = myid === this.id;
+    //this.getPosts()
+    this.followingservice.following$.subscribe((response)=>{
+      this.followers = response
+      console.log(this.followers)
     })
-
-
+    this.followingservice.getFollowers()
   }
 
   getPosts() {

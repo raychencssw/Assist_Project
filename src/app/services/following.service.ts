@@ -48,5 +48,13 @@ export class FollowingService {
     var url = `http://localhost:3080/following/${id}`
     return this.http.get<any>(url, requestOptions)
   }
+  getFollowing() {
+    this.token = this.auth.getAuthToken()
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = {headers : headers};
+    
+  }
 
 }
