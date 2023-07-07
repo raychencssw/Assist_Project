@@ -1,49 +1,92 @@
-<h2>Signup</h2>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <h3>Sign up</h3>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" formControlName="username" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && f['username'].errors }" maxlength=20 />
+          <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
+            <div *ngIf="f['username'].errors['required']">Username is required</div>
+            <div *ngIf="f['username'].errors?.['pattern']"> Username can only contain letters numbers and underscores.
+            </div>
 
-<form (ngSubmit)="onSubmit()">
-  <div>
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" [(ngModel)]="user.email" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" formControlName="firstname" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && f['firstname'].errors }" />
+          <div *ngIf="submitted && f['firstname'].errors" class="invalid-feedback" maxlength=20>
+            <div *ngIf="f['firstname'].errors['required']">First Name is required</div>
+            <div *ngIf="f['firstname'].errors['pattern']"> First name can only contain letters numbers and underscores.
+            </div>
+
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" formControlName="lastname" class="form-control" [pattern]="unamePattern"
+            [ngClass]="{ 'is-invalid': submitted && f['lastname'].errors }" maxlength=20 />
+          <div *ngIf="submitted && f['lastname'].errors" class="invalid-feedback">
+            <div *ngIf="f['lastname'].errors['required']">Last Name is required</div>
+            <div *ngIf="f['lastname'].errors['pattern']"> Last name can only contain letters numbers and underscores.
+            </div>
+
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="text" formControlName="email" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" maxlength=50 />
+          <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+            <div *ngIf="f['email'].errors['required']">Email is required</div>
+            <div *ngIf="f['email'].errors['email']">Email must be a valid email address</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" formControlName="password" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && f['password'].errors }" maxlength=20 />
+          <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+            <div *ngIf="f['password'].errors['required']">Password is required</div>
+            <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+          </div>
+        </div>
+
+        <!---- <div class="form-group">
+            <label for="role">Role:</label>
+            <input type="text" formControlName="role" class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['role'].errors }">
+
+            <div *ngIf="submitted && f['role'].errors" class="invalid-feedback">
+              <div *ngIf="f['role'].errors['required']">Role is required</div>
+            </div>
+          </div> --->
+
+        <div class="form-group">
+          <label for="school">School:</label>
+          <select id="school" formControlName="school" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && f['school'].errors }">
+            <option value="">Select a school</option>>
+            <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
+          </select>
+          <div *ngIf="submitted && f['school'].errors" class="invalid-feedback">
+            <div *ngIf="f['school'].errors['required']">School is required</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="profilePicture">Profile Picture:</label>
+          <input type="file" id="profilePicture" name="profilePicture" class="form-control"
+            (change)="onFileChange($event)" accept="image/*" required>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Signup</button>
+        </div>
+      </form>
+    </div>
   </div>
-  <div>
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" [(ngModel)]="user.username" required>
-  </div>
-  <div>
-    <label for="password">Password:</label>
-    <input type="text" id="password" name="password" [(ngModel)]="user.password" required>
-  </div>
-
-
-  <div>
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstname" name="firstname" [(ngModel)]="user.firstname" required>
-  </div>
-
-  <div>
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastname" name="lastname" [(ngModel)]="user.lastname" required>
-  </div>
-
-
-  <div>
-    <label for="role">Role:</label>
-    <input type="text" id="role" name="role" [(ngModel)]="user.role" required>
-  </div>
-
-  
-  <div>
-    <label for="school">School:</label>
-    <select id="school" name="school" [(ngModel)]="user.school">
-      <option value="">Select a school</option>
-      <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
-    </select>
-  </div>
-
-  <div>
-    <label for="profilePicture">Profile Picture:</label>
-    <input type="file" id="profilePicture" name="profilePicture" (change)="onFileChange($event)" accept="image/*" required>
-  </div>
-
-  <button type="submit">Signup</button>
-</form>
+</div>

@@ -7,11 +7,11 @@ const middleware = (schema) => {
 
 
         if (error) {
-            console.log("NOT VALID DATA FORMAT")
-            const errorMessage = error.details.map((detail) => detail.message).join(', ');
 
+            const errorMessage = error.details.map((detail) => detail.message).join(', ');
+            console.log('error message', errorMessage)
             return res.status(422).json({
-                message: 'Invalid request',
+                message: 'Invalid request from Joi middleware',
                 data: error
             });
         }

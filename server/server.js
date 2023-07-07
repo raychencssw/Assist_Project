@@ -96,7 +96,8 @@ app.get('/home/:page', verifyToken, async (req, res) => {
   res.send({ posts: postObjects })
 })
 
-app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), async (req, res) => {
+
+app.post('/posts/submit/:userid', verifyToken, upload.single('photo'), middleware(schemas.postPOST), async (req, res) => {
   console.log(req.body)
   foundUser = await User.findById(req.params.userid);
 
@@ -181,13 +182,21 @@ app.post('/posts/togglelike', async (req, res) => {
 })
 
 
-app.post("/signup", upload.single("profilePicture"), async (req, res) => {
+app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPost), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
-  console.log("receive signup notification");
+
+
+  //check if a file uploaded. if no profilepicture uploaded, gave a default user picture
+  if (req.file) {
+    var profilePicture = req.file.path;
+  }
+  else {
+    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
+  }
+
+
   try {
     const { username, email, firstname, lastname, school } = req.body;
-
-    const profilePicture = req.file.path;
 
     //Check if username already exists
     const existingUsername = await User.findOne({ username });
@@ -197,7 +206,6 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
     }
 
     //Check if email already exists
-    //Check if username already exists
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       console.log("email already exists");
@@ -206,7 +214,7 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
 
     //Find school id from school name
     const schoolDocument = await School.findOne({ name: school });
-    const schoolID = schoolDocument.id;
+    const schoolID = schoolDocument._id;
 
     const newUser = new User({
       username,
@@ -216,9 +224,7 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
       profilePicture,
       schoolID,
     });
-    if (req.body.password == null) {
-      console.log("No password");
-    }
+
     newUser.password = newUser.generateHash(req.body.password);
     await newUser.save();
     console.log("user saved");
@@ -237,7 +243,9 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
 //   })
 // );
 
-app.post("/login", passport.authenticate("local"), function (req, res) {
+app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost), function (req, res) {
+  console.log("requser", req.user)
+  console.log("requser", req.body)
   const token = jwt.sign({ id: req.user._id }, config.secretKey, {
     expiresIn: config.expiresIn,
   });
@@ -265,20 +273,38 @@ app.get("/qrscan", (req, res) => {
 
 
 
-
-app.get('/profile/:userid', verifyToken, async (req, res) => {
+app.get('/profile/:userid', async (req, res) => {
   console.log(req.params.userid)
   const user = await User.findById(req.params.userid)
   res.send(user)
 })
 
-app.post('/profileedit/:userid', verifyToken, upload.single("profilepicture"), async (req, res) => { // 
+app.get('/profile/school/:userid', verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid).populate('schoolID');
+
+  if (user && user.schoolID) {
+    const school = await School.findById(user.schoolID);
+    if (school) {
+      const schoolName = school.name;
+      res.send({ 'School': schoolName })
+      // You can use schoolName as needed
+    }
+  }
+
+})
+
+app.post('/profileedit/:userid', upload.single("profilepicture"), middleware(schemas.profilePOST), async (req, res) => { // 
   const updatedData = req.body;
+  console.log("Profile will change to", updatedData)
   const check_file = req.file;
-  console.log("check_file ", check_file)
+
+  //find school id by school name
+  const schoolDocument = await School.findOne({ name: req.body.school });
+  const schoolID = schoolDocument._id;
+
   const user = await User.findById(req.params.userid)
   user.username = req.body.username,
-    user.school = req.body.school,
+    user.schoolID = schoolID,
     user.firstname = req.body.firstname,
     user.lastname = req.body.lastname,
     user.email = req.body.email
@@ -303,10 +329,10 @@ app.get("/usersearch", (req, res) => {
   })
 });
 
-app.post('/createevent', async (req, res) => {
+app.post('/createevent', verifyToken, middleware(schemas.eventPOST), async (req, res) => {
   //can't access DB, need debug
   console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
-  console.log("req.body.Name: " + req.body.Name); //Great event
+  console.log("req.body.Name: " + req.body.name); //Great event
 
   //extract every property from req.body and store them to the variable defined inside const{ }
   //these variables can later be used directly. Warning: these variables have to be exactly the same
@@ -314,16 +340,17 @@ app.post('/createevent', async (req, res) => {
   const {
     name,
     date,
-    time,
-    location,
+    time: {
+      hour,
+      minute,
+    },
+    location: {
+      street,
+      city,
+      state,
+    },
     description,
   } = req.body;
-
-  console.log("name: " + name);
-  console.log("date: " + date);
-  console.log("time: " + time);
-  console.log("location: " + location);
-  console.log("description: " + description);
 
   // const imageurl = req.file.path;
   // console.log("incoming imageurl: " + imageurl);
@@ -340,13 +367,17 @@ app.post('/createevent', async (req, res) => {
     const randomIndex = Math.floor(Math.random() * characters.length);
     id += characters.charAt(randomIndex);
   }
+  console.log("new event ")
 
   const newEvent = new Event({
     id,
     name,
     // imageurl,
     date,
-    time,
+    time: {
+      hour,
+      minute,
+    },
     location: {
       street,
       city,
@@ -360,12 +391,13 @@ app.post('/createevent', async (req, res) => {
   res.status(201).json({ message: "Event created" });
 })
 
-app.get("/events", async (req, res) => {
+app.get("/events", verifyToken, async (req, res) => {
   //await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
   const events = await Event.find();
   console.log("events: " + events);
   res.send(events);
 });
+
 
 app.get("/event/:eventId", async (req, res) => {
   const eventId = req.params.eventId;
@@ -444,6 +476,17 @@ app.get("/searchuser/:username", async (req, res) => {
     res.json(user);
   } else {
     res.status(500).json({ message: "No such user" });
+  }
+});
+
+app.get("/searchevent/:name", async (req, res) => {
+  // Retrieve user with the specified ID from the data source
+  const eventname = req.params.name;
+  const events = await Event.findOne({ name: eventname }); //promise
+  if (events) {
+    res.json(events);
+  } else {
+    res.status(500).json({ message: "No such event" });
   }
 });
 
