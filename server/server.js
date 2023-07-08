@@ -385,7 +385,7 @@ app.get("/event/:eventId", async (req, res) => {
   try {
     // Find the event by eventId
     // const event = await Event.findOne({ _id: eventId })
-    const event = await Event.findOne({ id: eventId });
+    const event = await Event.findById(eventId);
 
     if (event) {
       res.send(event);
@@ -398,8 +398,9 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-app.get('/following', verifyToken, async (req, res) => {
-  const user = await User.findOne({ id: 1 })
+app.get('/following/:userid', verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid)
+  console.log(req.params.id)
   const follow = await user.populate([
     { path: "following", select: "username firstname lastname" },
   ]);
@@ -419,8 +420,8 @@ app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
   const userid = req.params.userid;
 
 
-  if (isfollowing == "true") {
-    //append myid to user's follower
+  if (isfollowing == "false") {
+    //append myid to user's follower  
     const user = await User.findById(userid)
     user.followers.push(myid)
     // append userid to my following list
@@ -466,6 +467,15 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
+app.get('/searchevent/:eventname', async(req, res)=>{
+  const event = await Event.findOne({name: req.params.eventname})
+  if(event){
+    res.json(event)
+  }else{
+    res.status(500).json({message: 'no such event'})
+  }
+})
+
 app.get("/ranking/student", async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
@@ -493,6 +503,33 @@ app.get("/ranking/school", async (req, res) => {
       .json({ error: "An error occurred while retrieving the top schools" });
   }
 });
+
+app.post('/api/checkin', async (req, res) => {
+  try {
+    const { userId, eventId } = req.body;
+    const existingCheckIn = await CheckIn.findOne({
+      userId: userId,
+      eventId: eventId,
+      checkOutTime: null,
+    });
+
+    if (existingCheckIn) {
+      return res.status(400).json({ error: 'User is already checked in.' });
+    }
+    const newCheckIn = new CheckIn({
+      userId: userId,
+      eventId: eventId,
+    });
+
+    await newCheckIn.save();
+
+    res.json({ message: 'User checked in successfully!!!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred!!!' });
+  }
+});
+
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {

@@ -33,7 +33,7 @@ export class ProfileComponent implements OnInit {
   school: string = '';
   isOwnProfile: boolean = false;
   eventsAttended: string[] = [];
-  following: string[] = [];
+  following: any = [];
   id: any;
   closeResult!: string;
   token: any;
@@ -45,6 +45,7 @@ export class ProfileComponent implements OnInit {
   update_email: string = '';
   update_school: string = '';
   update_profilepicture: string = '';
+  currentUser: any
 
 
   followers: any = []
@@ -83,6 +84,9 @@ export class ProfileComponent implements OnInit {
       this.id = params.get("id")
       console.log("my id changes to: " + this.id)
     })
+
+    this.following = this.auth.getFollowing()
+    console.log(this.following)
     this.profileService.profileResponse.subscribe(
       (data) => {
         console.log("my name is now: " + this.lastname)
@@ -112,10 +116,9 @@ export class ProfileComponent implements OnInit {
     this.profileService.getUserProfile(this.id)
     this.myid = JSON.parse(localStorage.getItem("user")!).id
     this.isOwnProfile = this.myid === this.id;
-    //this.getPosts()
+    this.getPosts()
     this.followingservice.following$.subscribe((response)=>{
       this.followers = response
-      console.log(this.followers)
     })
     this.followingservice.getFollowers()
   }
@@ -232,12 +235,36 @@ export class ProfileComponent implements OnInit {
 
   async followUser() {
     // users cannot follow themselves 
+    console.log('THis is follow user', this.id)
+    // const myid = JSON.parse(localStorage.getItem("user")!).id
+    // if (myid === this.id) {
+    //   this.isFollowing = true
+    //   this.modalService.open("You Cannot Follow Yourself");
+    // }
+    // this.isFollowing = !this.isFollowing;
+    // this.followingservice.followButton(myid, this.id, this.isFollowing)
+
     const myid = JSON.parse(localStorage.getItem("user")!).id
-    if (myid === this.id) {
-      this.isFollowing = true
-      this.modalService.open("You Cannot Follow Yourself");
+    if(this.following.includes(this.id)){
+      const filteredFollowers = this.followers.filter((filterid: any)=>{
+        filterid != this.id
+      })
+      this.following = filteredFollowers
+      this.auth.setFollowing(this.followers)
+      this.followingservice.followButton(myid, this.id, true)
+    }else{
+      this.following.push(this.id)
+      this.auth.setFollowing(this.id)
+      this.followingservice.followButton(myid, this.id, false)
+      console.log(this.following)
     }
-    this.isFollowing = !this.isFollowing;
-    this.followingservice.followButton(myid, this.id, this.isFollowing)
   }
+  checkFollow(){
+    if(this.following.includes(this.id)){
+      return true
+    }
+    return false
+  }
+
+
 }

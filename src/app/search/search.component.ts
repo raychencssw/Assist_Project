@@ -12,12 +12,12 @@ import { map } from 'rxjs/operators';
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit{
   searchText!: string;
   searchResults: string[] = [];
   events: string[] = [];
   users: string[] = [];
-  selectedOption!: string;
+  selectedOption: string = 'option1';
   searchControl = new FormControl();
   getUsersProfile: any;
   profileId: string = "";
@@ -25,7 +25,9 @@ export class SearchComponent {
     private router: Router,
     private searchService: SearchServiceService) { }
 
-  handleOptionChange() {
+    
+
+  ngOnInit() {
     this.searchControl.reset();
     this.searchResults = [];
 
@@ -38,6 +40,7 @@ export class SearchComponent {
             this.searchResults = [];
             return ([]);
           } else {
+            console.log(value)
             return this.searchService.fetchAutocompleteData1(value); //changed
           }
         }

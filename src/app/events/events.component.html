@@ -1,5 +1,13 @@
 <div class="container-xl event-page-bottom">
     <!-- nav bar -->
+    <div class="autocomplete_box container-sm">
+        <input type="text" class="textbox" [formControl]="eventKeyword" [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let result of searchResults" [value]="result" (click) = "navigateToEvent(result)">
+                {{ result }}
+            </mat-option>
+        </mat-autocomplete>
+    </div>
     <mat-tab-group class="custom-tab-group"> <!-- how do I adjust the spacing between tabs? -->
 
         <!-- events in a week -->
@@ -20,7 +28,7 @@
                                     <!-- <a routerLink="/event-detail/{{event._id}}"> -->
 
                                     <!-- <a [routerLink]="'/event-detail/' + event._id"> -->
-                                    <a [routerLink]="'/event-detail/' + event.id">
+                                    <a [routerLink]="'/event-detail/' + event._id">
                                         <i class="fa-solid fa-chevron-right"></i>
                                     </a>
                                 </td> 

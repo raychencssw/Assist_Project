@@ -13,6 +13,7 @@ export class SearchServiceService {
   private usersearch = 'http://localhost:3080/usersearch';
   private eventsearch = 'http://localhost:3080/eventsearch';
   private searchusers = "http://localhost:3080/searchuser/"
+  private searchevents = "http://localhost:3080/searchevent/"
   token: any;
   constructor(private http: HttpClient, private router: Router, private auth: AuthService) {
     this.auth.authResponse.subscribe((response) => {
@@ -40,13 +41,17 @@ export class SearchServiceService {
     );
   }
   searchuser(username: string): Observable<string[]> {
-
     return this.http.get<string[]>(this.searchusers + username).pipe(
       debounceTime(300) // Add debounceTime operator with the desired delay
     );
 
   }
 
+  searchevent(eventname: string): Observable<any>{
+    return this.http.get(this.searchevents + eventname).pipe(
+      debounceTime(300)
+    )
+  }
 
 
 }

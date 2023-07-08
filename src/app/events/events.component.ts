@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-//import { Event } from '../type'
-//import { weeklyEvents } from '../fake-data'
-//import { monthlyEvents } from '../fake-data'
 import { EventcreateComponent } from '../eventcreate/eventcreate.component';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
 import { Router } from '@angular/router';
+import {FormGroup, FormControl, Validators} from '@angular/forms';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { SearchServiceService } from '../services/search-service.service';
 
 
 @Component({
@@ -18,10 +18,14 @@ export class EventsComponent implements OnInit{
   events: any = [];             //store the events fetched from the backend
   weeklyEvents: any = [];       //store the events within 1 week
   monthlyEvents: any = [];      //store the events withing that month
+  eventKeyword = new FormControl()
+  searchResults: any = []
+  eventId: any
 
   constructor(private modalService: NgbModal,                   //open a modal when "create event" button is clicked
               private eventService: EventServiceService,        //load events from DB when the page is first-time loaded or after a new event is created
-              private router: Router){};                        //for the routerLink that direct to event deatil page
+              private router: Router,
+              private searchService: SearchServiceService){};                        //for the routerLink that direct to event deatil page
 
   ngOnInit():void{
     //loadEvent() returns Observable, so subscribe here
@@ -45,7 +49,38 @@ export class EventsComponent implements OnInit{
       // console.log("this.weeklyEvents: " + JSON.stringify(this.weeklyEvents));
       // console.log("this.monthlyEvents: " + JSON.stringify(this.monthlyEvents));
 
+    this.eventKeyword.reset();
+    this.searchResults = [];
+
+      this.eventKeyword.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((value) => {
+          if (!value) {
+            this.searchResults = [];
+            return ([]);
+          } else {
+            console.log(value)
+            return this.searchService.fetchAutocompleteData2(value); //changed
+          }
+        }
+        )
+
+      ).subscribe((data) => {
+        this.searchResults = data
+      });
+
     });
+
+  }
+
+  navigateToEvent(result: any) {
+    this.searchService.searchevent(result).subscribe(foundEvent=>{
+      console.log(foundEvent)
+      this.eventId = foundEvent['_id']
+      console.log(this.eventId)
+      this.router.navigate([`/event-detail/${this.eventId}`])
+    })
 
   }
 

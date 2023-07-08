@@ -21,11 +21,8 @@ export class EventDetailsComponent implements OnInit {
       console.log("eventDetail!");
 
       const id:any = this.route.snapshot.paramMap.get('id');
-      console.log("This event deatil with id: " + id + " is called!");
-
       this.eventService.getEventById(id).subscribe((data) => {
         this.event = data;
-        console.log("eventDetail: " + JSON.stringify(this.event));
       });
     }
 }

@@ -1,21 +1,27 @@
 <!-- back button -->
-<a routerLink="/events">
-    <button>Back</button>
-</a>
-
-<div class="card mt-3">
-    <img src="assets/ASSIST.jpeg" class="card-img-top rounded" style="width:300px;">
-    <div class="card-body">
-        <p class="card-title fs-3 fw-bold">{{event.name}}</p>
-        <hr>
-        <div class="card-subtitle mb-2 mt-3 text-muted">
-            <p class="fs-4 text-black">Location</p>
-            <p class="mb-0">{{event.location.street}}</p>
-            <p class="mt-0">{{event.location.city}}, {{event.location.state}}</p>
-        </div>
-
-        <p class="fs-4 mt-3">Description</p>
-        <p class="card-text">{{event.description}}</p>
-    </div>  
+<div class="container">
+    <a routerLink="/events">
+        <button>Back</button>
+    </a>
+    
+    <div class="card mt-3" *ngIf="event; else elseBlock">
+        <img src="assets/ASSIST.jpeg" class="card-img-top rounded" style="width:300px;">
+        <div class="card-body">
+            <p class="card-title fs-3 fw-bold">{{event.name}}</p>
+            <hr>
+            <div class="card-subtitle mb-2 mt-3 text-muted">
+                <p class="fs-4 text-black">Location</p>
+                <p class="mb-0">{{event.location.street}}</p>
+                <p class="mt-0">{{event.location.city}}, {{event.location.state}}</p>
+            </div>
+    
+            <p class="fs-4 mt-3">Description</p>
+            <p class="card-text">{{event.description}}</p>
+        </div>  
+    </div>
+    <ng-template #elseBlock>
+        <h1>No Such event exist</h1>
+    </ng-template>
 </div>
+
 
