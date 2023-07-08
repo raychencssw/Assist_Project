@@ -2,7 +2,8 @@
   <div class="user-profile container" id="profile">
     <div class="imgcontainer">
       <img src="{{profilepicture||'assets/user.jpg'}}" class="profile-img" alt="Profile picture">
-      <button type="button" id="follow" class="btn btn-primary" (click)="followUser()">{{
+
+      <button type="button" id="follow" class="btn btn-primary" *ngIf="!isOwnProfile" (click)="followUser()">{{
         isFollowing ? 'Unfollow' : 'Follow'}}</button>
 
     </div>

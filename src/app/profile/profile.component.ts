@@ -10,7 +10,7 @@ import { Subscription, debounceTime } from 'rxjs';
 import { PostServiceService } from '../services/post-service.service';
 import { FollowingService } from '../services/following.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
+import { ElementRef, Renderer2 } from '@angular/core';
 @Component({
 
   selector: 'app-profile',
@@ -43,6 +43,7 @@ export class ProfileComponent implements OnInit {
   submitted = false;
   posts: any = []
   times = []
+  buttonVisible = true;
   pageNumber: any = 1
   schools: string[] = ['Los Al', 'Valley Christian', 'Orangewood Academy', 'King Drew', 'Leuzinger',
     'Poly High', 'Carson', 'Rancho Dominguez', 'South East Gate', 'Washington Prep', 'Da Vinci Schools', 'Not above'];
@@ -79,6 +80,8 @@ export class ProfileComponent implements OnInit {
     private postservice: PostServiceService,
     private followingservice: FollowingService,
     private formBuilder: FormBuilder,
+    private elementRef: ElementRef,
+    private renderer: Renderer2
   ) {
     this.registerForm = this.formBuilder.group({
 
@@ -272,8 +275,11 @@ export class ProfileComponent implements OnInit {
     // users cannot follow themselves 
     const myid = JSON.parse(localStorage.getItem("user")!).id
     if (myid === this.id) {
-      this.isFollowing = true
-      alert("You Cannot Follow Yourself");
+      //this.isFollowing = true
+      const buttonElement = this.elementRef.nativeElement.querySelector('#follow');
+      this.renderer.setStyle(buttonElement, 'visibility', 'hidden');
+
+      return;
     }
     this.isFollowing = !this.isFollowing;
     this.followingservice.followButton(myid, this.id, this.isFollowing)

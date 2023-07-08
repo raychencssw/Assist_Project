@@ -329,7 +329,7 @@ app.get("/usersearch", (req, res) => {
   })
 });
 
-app.post('/createevent', verifyToken, middleware(schemas.eventPOST), async (req, res) => {
+app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
   //can't access DB, need debug
   console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
   console.log("req.body.Name: " + req.body.name); //Great event

@@ -96,6 +96,9 @@ export class SignupComponent implements OnInit {
             else if (error.status == 200) {
               alert("You have been signed up.")
             }
+            else if (error.status == 401) {
+              alert("HttpErrorResponse: No token provided")
+            }
             console.error("There is an error ", error.status, error); // Handle any error that occurs during the request
             this.router.navigate(['/signup'])
           }
