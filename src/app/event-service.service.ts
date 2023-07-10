@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Subject } from "rxjs";
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -45,8 +47,16 @@ export class EventServiceService {
     return this.http.get(`http://localhost:3080/events`);
   }
 
+
   getEventById(eventId: string): Observable<any> {
-    return this.http.get(`http://localhost:3080/event/${eventId}`);
+    return this.http.get(`http://localhost:3080/event/${eventId}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        // Handle the error here
+        console.error('An error occurred:', error);
+        // Return the error as part of the Observable stream
+        return throwError(() => error);
+      })
+    );
   }
 
 }

@@ -12,6 +12,7 @@ export class AuthService implements OnInit {
   private token: any
   userJson: any
   postJson: any
+  followingJson: any
   loginResponse = new BehaviorSubject<any>(this.user['token'])
   authResponse = new Subject<any>()
 
@@ -83,6 +84,7 @@ export class AuthService implements OnInit {
     const userString = JSON.stringify(userDetails)
     localStorage.setItem('user', userString)
     this.setLikedPosts(tempUser.likedposts)
+    this.setFollowing(tempUser.following)
   }
   private setAuthToken(token: string): void {
     localStorage.setItem('token', token);
@@ -99,6 +101,17 @@ export class AuthService implements OnInit {
       this.postJson = JSON.parse(likedString)
     }
     return this.postJson
+  }
+  setFollowing(following: any){
+    const followingString = JSON.stringify(following)
+    localStorage.setItem('following', followingString)
+  }
+  getFollowing(){
+    const followingString = localStorage.getItem('following')
+    if(followingString){
+      this.followingJson = JSON.parse(followingString)
+    }
+    return this.followingJson
   }
 
 

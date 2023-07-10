@@ -7,10 +7,11 @@ import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng
 import { FormControl, NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Subscription, debounceTime } from 'rxjs';
-import { PostServiceService } from '../services/post-service.service';
 import { FollowingService } from '../services/following.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ElementRef, Renderer2 } from '@angular/core';
+import { PostServiceService } from '../services/post-service.service';
+
 @Component({
 
   selector: 'app-profile',
@@ -31,16 +32,27 @@ export class ProfileComponent implements OnInit {
   points: number | undefined;
   profilepicture: string = '';
   schoolID: string = '';
+  school: string = '';
   isOwnProfile: boolean = false;
   eventsAttended: string[] = [];
-  following: string[] = [];
+  following: any = [];
   id: any;
   closeResult!: string;
   token: any;
   followingSubscription: Subscription | undefined;
   registerForm!: FormGroup;
   private subscription?: Subscription;
+  update_username: string = '';
+  update_firstname: string = '';
+  update_lastname: string = '';
+  update_email: string = '';
+  update_school: string = '';
+  update_profilepicture: string = '';
+  currentUser: any
   submitted = false;
+
+  followers: any = []
+  showFollowers = false;
   posts: any = []
   times = []
   buttonVisible = true;
@@ -69,6 +81,7 @@ export class ProfileComponent implements OnInit {
   fileName: any = "";
   formData: any;
   unamePattern = '^[A-Za-z0-9_]+$'
+  myid: any;
 
   constructor(
     private http: HttpClient,
@@ -78,10 +91,12 @@ export class ProfileComponent implements OnInit {
     private auth: AuthService,
     private profile: ProfileService,
     private postservice: PostServiceService,
+    private profileService: ProfileService,
     private followingservice: FollowingService,
     private formBuilder: FormBuilder,
     private elementRef: ElementRef,
     private renderer: Renderer2
+    // private following: FollowingService
   ) {
     this.registerForm = this.formBuilder.group({
 
@@ -101,55 +116,45 @@ export class ProfileComponent implements OnInit {
 
     this.route.paramMap.subscribe(params => {
       this.id = params.get("id")
-      console.log(this.id)
+      console.log("my id changes to: " + this.id)
     })
 
-    //check if I followed this users
-    const myid = JSON.parse(localStorage.getItem("user")!).id
-    this.followingservice.checkMyfollowing(myid).subscribe(
-      (response) => {
-        this.following = response['following']
-        if (this.following.includes(this.id)) {
-          this.isFollowing = true
-        }
-      })
-
-    this.token = this.auth.getAuthToken()
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.token}`
-    });
-    const requestOptions = { headers: headers };
-
-    //console.log(this.token)
-    var backendUrl = 'http://localhost:3080/profile/'
-    const userid = this.id
-    backendUrl = backendUrl + userid
-
-    var schoolurl = 'http://localhost:3080/profile/school/' + userid
-    this.http.get<any>(schoolurl, requestOptions).subscribe((data) => {
-      this.schoolID = data['School']
+    this.following = this.auth.getFollowing()
+    console.log(this.following)
+    this.profileService.profileResponse.subscribe(
+      (data) => {
+        console.log("my name is now: " + this.lastname)
+        this.getUserProfile = data
+        this.email = this.getUserProfile['email'];
+        this.username = this.getUserProfile['username'];
+        this.firstname = this.getUserProfile['firstname'];
+        this.lastname = this.getUserProfile['lastname'];
+        this.role = this.getUserProfile['role'];
+        this.points = this.getUserProfile['points']
+        this.school = this.getUserProfile['school']
+        this.eventsAttended = this.getUserProfile['eventsAttended']
+        this.profilepicture = this.getUserProfile['profilepicture']
+        this.name = this.firstname + " " + this.lastname
+        // Process the retrieved profile data
+        this.update_username = this.username
+        this.update_firstname = this.firstname;
+        this.update_lastname = this.lastname;
+        this.update_email = this.email;
+        this.update_school = this.school;
+        this.update_profilepicture = this.profilepicture;
+      }, (error) => {
+        console.log("profile error", error)
+        // Handle any errors that occur during the API call
+      }
+    )
+    this.profileService.getUserProfile(this.id)
+    this.myid = JSON.parse(localStorage.getItem("user")!).id
+    this.isOwnProfile = this.myid === this.id;
+    this.getPosts()
+    this.followingservice.following$.subscribe((response) => {
+      this.followers = response
     })
-
-    this.http.get<any>(backendUrl, requestOptions).subscribe((data) => {
-      this.email = data['email'];
-      this.username = data['username'];
-      this.firstname = data['firstname'];
-      this.lastname = data['lastname'];
-      this.role = data['role'];
-      this.points = data['points']
-      this.eventsAttended = data['eventsAttended']
-      this.profilepicture = data['profilepicture']
-      this.name = this.firstname + " " + this.lastname
-
-      this.getPosts();
-
-      //check if the updated button is in need by comparing  user ids
-      var myid = JSON.parse(localStorage.getItem("user")!).id //get user own id from local storage
-      this.isOwnProfile = myid === this.id;
-    })
-
-
+    this.followingservice.getFollowers()
   }
   get f() { return this.registerForm.controls; }
   getPosts() {
@@ -191,8 +196,14 @@ export class ProfileComponent implements OnInit {
     })
     this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
   }
-
+  checkFollow() {
+    if (this.following.includes(this.id)) {
+      return true
+    }
+    return false
+  }
   modalOption: NgbModalOptions = {};
+
 
   editUserInfo(content: any) {
     // this.router.navigate(['/profileedit'])
@@ -247,12 +258,13 @@ export class ProfileComponent implements OnInit {
     this.formData.append('school', this.updateduser["school"]);
 
     this.profile.updateUser(this.formData, (response: any) => {
-      //console.log(response)
+      console.log(response)
       this.ngOnInit(); //reload the table  
       this.modalService.dismissAll(); //dismiss the modal
       window.location.reload();//reload the page for data update
 
     })
+
   }
 
 
@@ -271,17 +283,37 @@ export class ProfileComponent implements OnInit {
     this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
   }
 
+
   async followUser() {
     // users cannot follow themselves 
-    const myid = JSON.parse(localStorage.getItem("user")!).id
-    if (myid === this.id) {
-      //this.isFollowing = true
-      const buttonElement = this.elementRef.nativeElement.querySelector('#follow');
-      this.renderer.setStyle(buttonElement, 'visibility', 'hidden');
+    console.log('THis is follow user', this.id)
+    // const myid = JSON.parse(localStorage.getItem("user")!).id
+    // if (myid === this.id) {
+    //   this.isFollowing = true
+    //   const buttonElement = this.elementRef.nativeElement.querySelector('#follow');
+    //  this.renderer.setStyle(buttonElement, 'visibility', 'hidden');
+    // }
+    // this.isFollowing = !this.isFollowing;
+    // this.followingservice.followButton(myid, this.id, this.isFollowing)
 
-      return;
+    const myid = JSON.parse(localStorage.getItem("user")!).id
+    if (this.following.includes(this.id)) {
+      const filteredFollowers = this.followers.filter((filterid: any) => {
+        filterid != this.id
+      })
+      this.following = filteredFollowers
+      this.auth.setFollowing(this.followers)
+      this.followingservice.followButton(myid, this.id, true)
+    } else {
+      this.following.push(this.id)
+      this.auth.setFollowing(this.id)
+      this.followingservice.followButton(myid, this.id, false)
+      console.log(this.following)
+
     }
-    this.isFollowing = !this.isFollowing;
-    this.followingservice.followButton(myid, this.id, this.isFollowing)
+
+
+
+
   }
 }

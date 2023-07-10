@@ -1,3 +1,23 @@
-.form {
-    margin: 20px 20px 20px 20px;
+@media only screen and (min-width: 1200px){
+    .center{
+        width: 80%;
+    }
+    .form-center{
+        width:18%;
+        margin:auto;
+    }
 }
+
+@media only screen and (max-width: 1200px){
+    .center{
+        width: 90%;
+    }
+}
+
+
+.center {
+    margin: auto;
+    /* border: 3px solid green; */
+    padding: 10px;
+}
+

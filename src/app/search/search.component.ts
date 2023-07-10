@@ -5,18 +5,19 @@ import { of, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { SearchServiceService } from '../services/search-service.service';
 import { Router } from '@angular/router';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit{
   searchText!: string;
   searchResults: string[] = [];
   events: string[] = [];
   users: string[] = [];
-  selectedOption!: string;
+  selectedOption: string = 'option1';
   searchControl = new FormControl();
   getUsersProfile: any;
   profileId: string = "";
@@ -25,7 +26,9 @@ export class SearchComponent {
     private router: Router,
     private searchService: SearchServiceService) { }
 
-  handleOptionChange() {
+    
+
+  ngOnInit() {
     this.searchControl.reset();
     this.searchResults = [];
 
@@ -38,6 +41,7 @@ export class SearchComponent {
             this.searchResults = [];
             return ([]);
           } else {
+            console.log(value)
             return this.searchService.fetchAutocompleteData1(value); //changed
           }
         }
@@ -67,7 +71,7 @@ export class SearchComponent {
 
   }
 
-  /*fetchAutocompleteData1(value: string): Observable<string[]> {
+  fetchAutocompleteData1(value: string): Observable<string[]> {
     const backendUrl1 = 'http://localhost:3080/usersearch';
     return this.http.get<string[]>(backendUrl1).pipe(
       map(response => response.map(item => item.toString()) //the response data array converted to a string. 
@@ -88,7 +92,7 @@ export class SearchComponent {
       )
     );
 
-  }*/
+  }
   navigateToProfile(result: any) {
     if (this.selectedOption === 'option1') {
       this.searchService.searchuser(result).subscribe(profile => {
