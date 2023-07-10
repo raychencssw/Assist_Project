@@ -1,5 +1,5 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -14,7 +14,7 @@ export class EventcreateComponent implements OnInit {
 
   datePickerStartAt: any;
 
-  unamePattern = '^[A-Za-z0-9_]+$'
+  unamePattern = '^[A-Za-z0-9\\s_]*$'
   selectedFile: File | null = null;
   fileExtension: any = "";
   fileName: any = "";
@@ -49,6 +49,8 @@ export class EventcreateComponent implements OnInit {
 
   //A reference to the currently opened (active) modal.
   constructor(public activeModal: NgbActiveModal,
+
+    private modalService: NgbModal,
     private eventService: EventServiceService) { };
 
   ngOnInit() {
@@ -99,6 +101,8 @@ export class EventcreateComponent implements OnInit {
 
     //call eventService and then store the event info to the MongoDB
     this.eventService.addtoEvents(this.eventForm)
+    this.ngOnInit(); //reload the table  
+    this.modalService.dismissAll(); //dismiss the modal
 
   }
 

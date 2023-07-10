@@ -36,7 +36,7 @@ export class FormComponent implements OnInit {
   isWrongExtension: boolean = false
   formData: any
   postForm: FormGroup;
-  unamePattern = '^[A-Za-z0-9_]+$'
+  unamePattern = '^[A-Za-z0-9\\s_]*$'
   constructor(private postservice: PostServiceService, private renderer: Renderer2, private http: HttpClient, private toastr: ToastrService) {
     this.postForm = new FormGroup({
       'posttext': new FormControl('', Validators.required),

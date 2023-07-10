@@ -32,7 +32,6 @@ export class ProfileComponent implements OnInit {
   points: number | undefined;
   profilepicture: string = '';
   schoolID: string = '';
-  school: string = '';
   isOwnProfile: boolean = false;
   eventsAttended: string[] = [];
   following: any = [];
@@ -42,12 +41,12 @@ export class ProfileComponent implements OnInit {
   followingSubscription: Subscription | undefined;
   registerForm!: FormGroup;
   private subscription?: Subscription;
-  update_username: string = '';
+  /*update_username: string = '';
   update_firstname: string = '';
   update_lastname: string = '';
   update_email: string = '';
   update_school: string = '';
-  update_profilepicture: string = '';
+  update_profilepicture: string = '';*/
   currentUser: any
   submitted = false;
 
@@ -66,12 +65,14 @@ export class ProfileComponent implements OnInit {
   } = {
       email: '',
       username: '',
-      //password: '',
       firstname: '',
       lastname: '',
       school: '',
-      //role: '',
     };
+
+  formData: any;
+  unamePattern = '^[A-Za-z0-9_]+$'
+  myid: any;
 
   //on selected File
   photoUrl: string = " ";
@@ -79,9 +80,8 @@ export class ProfileComponent implements OnInit {
   fileExtension: any = " ";
   isWrongExtension: boolean = false;
   fileName: any = "";
-  formData: any;
-  unamePattern = '^[A-Za-z0-9_]+$'
-  myid: any;
+
+
 
   constructor(
     private http: HttpClient,
@@ -119,11 +119,12 @@ export class ProfileComponent implements OnInit {
       console.log("my id changes to: " + this.id)
     })
 
+
     this.following = this.auth.getFollowing()
-    console.log(this.following)
+    //console.log(this.following)
+
     this.profileService.profileResponse.subscribe(
       (data) => {
-        console.log("my name is now: " + this.lastname)
         this.getUserProfile = data
         this.email = this.getUserProfile['email'];
         this.username = this.getUserProfile['username'];
@@ -131,30 +132,33 @@ export class ProfileComponent implements OnInit {
         this.lastname = this.getUserProfile['lastname'];
         this.role = this.getUserProfile['role'];
         this.points = this.getUserProfile['points']
-        this.school = this.getUserProfile['school']
         this.eventsAttended = this.getUserProfile['eventsAttended']
         this.profilepicture = this.getUserProfile['profilepicture']
         this.name = this.firstname + " " + this.lastname
-        // Process the retrieved profile data
-        this.update_username = this.username
-        this.update_firstname = this.firstname;
-        this.update_lastname = this.lastname;
-        this.update_email = this.email;
-        this.update_school = this.school;
-        this.update_profilepicture = this.profilepicture;
+        this.profile.getSchool(this.id).subscribe((data) => {
+          console.log("schooldata ", data)
+          this.schoolID = data['School']
+        })
       }, (error) => {
-        console.log("profile error", error)
         // Handle any errors that occur during the API call
+        if (error.status == 401) {
+          alert("Unauthorized")
+        }
+        console.error("There is an error ", error.status, error);
       }
     )
+
+    var myid = JSON.parse(localStorage.getItem("user")!).id //get user own id from local storage
+    this.isOwnProfile = myid === this.id;
+
+
     this.profileService.getUserProfile(this.id)
-    this.myid = JSON.parse(localStorage.getItem("user")!).id
-    this.isOwnProfile = this.myid === this.id;
     this.getPosts()
     this.followingservice.following$.subscribe((response) => {
       this.followers = response
     })
     this.followingservice.getFollowers()
+
   }
   get f() { return this.registerForm.controls; }
   getPosts() {
@@ -196,6 +200,7 @@ export class ProfileComponent implements OnInit {
     })
     this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
   }
+
   checkFollow() {
     if (this.following.includes(this.id)) {
       return true
@@ -227,6 +232,7 @@ export class ProfileComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
+
     if (this.registerForm.invalid) {
       console.log('The form is invalid')
       return;
@@ -236,16 +242,12 @@ export class ProfileComponent implements OnInit {
       this.updateduser[key] = control.value
     });
 
-
-    const url = 'http://localhost:3080/profileedit/' + String(this.id)
-
     this.formData = new FormData();
-
 
     if (this.selectedFile) {
       this.formData.append('profilepicture', this.selectedFile);
     }
-    if (!this.formData['profilepicture']) {
+    else {
       // No file selected, append old picture url
       this.formData.append('profilepicture', this.profilepicture);
       console.log("No change on profile picture")
@@ -255,10 +257,10 @@ export class ProfileComponent implements OnInit {
     this.formData.append('lastname', this.updateduser["lastname"]);
     this.formData.append('firstname', this.updateduser["firstname"]);
     this.formData.append('email', this.updateduser["email"]);
-    this.formData.append('school', this.updateduser["school"]);
 
+    this.formData.append('school', this.updateduser["school"]);
     this.profile.updateUser(this.formData, (response: any) => {
-      console.log(response)
+      //console.log(response)
       this.ngOnInit(); //reload the table  
       this.modalService.dismissAll(); //dismiss the modal
       window.location.reload();//reload the page for data update
@@ -287,14 +289,6 @@ export class ProfileComponent implements OnInit {
   async followUser() {
     // users cannot follow themselves 
     console.log('THis is follow user', this.id)
-    // const myid = JSON.parse(localStorage.getItem("user")!).id
-    // if (myid === this.id) {
-    //   this.isFollowing = true
-    //   const buttonElement = this.elementRef.nativeElement.querySelector('#follow');
-    //  this.renderer.setStyle(buttonElement, 'visibility', 'hidden');
-    // }
-    // this.isFollowing = !this.isFollowing;
-    // this.followingservice.followButton(myid, this.id, this.isFollowing)
 
     const myid = JSON.parse(localStorage.getItem("user")!).id
     if (this.following.includes(this.id)) {

@@ -2,8 +2,10 @@
   <div class="user-profile container" id="profile">
     <div class="imgcontainer">
       <img src="{{profilepicture||'assets/user.jpg'}}" class="profile-img" alt="Profile picture">
-      <button type="button" id="follow" class="btn btn-primary" (click)="followUser()" *ngIf="!checkFollow()">Follow</button>
-      <button type="button" id="follow" class="btn btn-primary" (click)="followUser()" *ngIf="checkFollow()">Unfollow</button>
+      <button type="button" id="follow" class="btn btn-primary" (click)="followUser()"
+        *ngIf="!checkFollow() && !isOwnProfile">Follow</button>
+      <button type="button" id="follow" class="btn btn-primary" (click)="followUser()"
+        *ngIf="checkFollow() && !isOwnProfile ">Unfollow</button>
 
     </div>
 
@@ -14,7 +16,7 @@
       <p class="card-text" id="email">Email: {{email}}</p>
       <p class="card-text" id="role">Role: {{role}}</p>
       <p class="card-text" id="points">Points: {{points}}</p>
-      <p class="card-text" id="school">School: {{school}}</p>
+      <p class="card-text" id="school">School: {{schoolID}}</p>
       <p class="card-text" id="events">Events Attended: {{eventsAttended}}</p>
     </div>
     <button (click)="editUserInfo(content)" *ngIf="isOwnProfile" type="button" class="btn btn-primary">Update</button>
@@ -29,36 +31,67 @@
     </div>
     <div class="modal-body">
 
-      <form #myForm="ngForm" class="form-control" (ngSubmit)="onSubmit(myForm)" name="f">
-
-        <label for="username">User Name: </label>
-        <input type="text" class="form-control" id="username" [value]="username" name="username" ngModel
-          #username="ngModel" [ngModel]="update_username">
+      <form #myForm="ngForm" class="form-control" [formGroup]="registerForm" (ngSubmit)="onSubmit( )">
+        <div class="form-group">
+          <label for="username">User Name: </label>
+          <input type="text" class="form-control" id="username" formControlName="username" name="username" ngModel
+            [pattern]="unamePattern" [ngModel]="username"
+            [ngClass]="{ 'is-invalid': submitted && f['username'].errors }" maxlength=20>
+          <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
+            <div *ngIf="f['username'].errors['required']">Username is required</div>
+            <div *ngIf="f['username'].errors?.['pattern']"> Username can only contain letters numbers and underscores.
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <br>
+          <label for="name">Last Name:</label>
+          <input type="text" class="form-control" id="lastname" formControlName="lastname" name="lastname" ngModel
+            [pattern]="unamePattern" [ngModel]="lastname"
+            [ngClass]="{ 'is-invalid': submitted && f['lastname'].errors }" maxlength=20>
+          <div *ngIf="submitted && f['lastname'].errors" class="invalid-feedback">
+            <div *ngIf="f['lastname'].errors['required']">Last Name is required</div>
+            <div *ngIf="f['lastname'].errors['pattern']"> Last name can only contain letters numbers and underscores.
+            </div>
+          </div>
+          <div class="form-group">
+            <br>
+            <label for="name">First Name:</label>
+            <input type="text" class="form-control" id="firstname" formControlName="firstname" name="firstname" ngModel
+              [ngModel]="firstname" [ngClass]="{ 'is-invalid': submitted && f['firstname'].errors }" maxlength=20>
+            <div *ngIf="submitted && f['firstname'].errors" class="invalid-feedback">
+              <div *ngIf="f['firstname'].errors['required']">Last Name is required</div>
+              <div *ngIf="f['firstname'].errors['pattern']"> First name can only contain letters numbers and
+                underscores.
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <br>
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" formControlName="email" name="email" ngModel
+              [ngModel]="email" [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" maxlength=50>
+            <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+              <div *ngIf="f['email'].errors['required']">Email is required</div>
+              <div *ngIf="f['email'].errors['email']">Email must be a valid email address</div>
+            </div>
+          </div>
+          <br>
+          <label for="school">School:</label>
+          <select class="form-control" id="school" formControlName="school" name="school" ngModel>
+            <option value="">Select a school</option>
+            <option *ngFor="let school of schools" [value]="school">{{ school }}</option>
+          </select>
+          <div *ngIf="submitted && f['school'].errors" class="invalid-feedback">
+            <div *ngIf="f['school'].errors['required']">School is required</div>
+          </div>
+        </div>
         <br>
-        <label for="name">Last Name:</label>
-        <input type="text" class="form-control" [value]="lastname" id="lastname" name="lastname" ngModel
-          #lastname="ngModel" [ngModel]="update_lastname">
-        <br>
-        <label for="name">First Name:</label>
-        <input type="text" class="form-control" [value]="firstname" id="firstname" name="firstname" ngModel
-          #firstname="ngModel" [ngModel]="update_firstname">
-        <br>
-        <label for="email">Email:</label>
-        <input type="email" class="form-control" [value]="email" id="email" name="email" ngModel #email="ngModel"
-          [ngModel]="update_email">
-        <br>
-        <label for="school">School:</label>
-        <input class="form-control" id="school" [value]="school" name="school" ngModel #school="ngModel"
-          [ngModel]="update_school">
-        <br>
-        <!-- This is a comment
-                <input type="file" class="form-control" id="profilepicture" name="profilepicture"> -->
         <div>
           <label for="profilepicture">Profile Picture:</label>
-          <input type="file" id="profilepicture" name="profilepicture" (change)="onFileChange($event)" accept="image/*"
-            required>
+          <input class="form-control" type="file" id="profilepicture" name="profilepicture"
+            (change)="onFileChange($event)" accept="image/*">
         </div>
-
         <br>
         <button type="submit" class="btn btn-primary">Submit</button>
 
@@ -108,15 +141,14 @@
 
   </div>
 
-  <!-- https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" -->
-    <button (click)="showFollowers = !showFollowers">Show Followers ({{ followers.length }})</button>
-    <ul *ngIf="showFollowers">
-  <li *ngFor="let f of followers"><div class="fw-bold">
-    {{f.firstname}} {{f.lastname}}
+  <button (click)="showFollowers = !showFollowers">Show Followers ({{ followers.length }})</button>
+  <ul *ngIf="showFollowers">
+    <li *ngFor="let f of followers">
+      <div class="fw-bold">
+        {{f.firstname}} {{f.lastname}}
+      </div>
+      <p class="{{f._id}}" routerLink="/profile/{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">
+        @{{f.username}}</p>
+    </li>
+  </ul>
 </div>
-<p class="{{f._id}}"routerLink="/profile/{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">@{{f.username}}</p></li>
-    </ul>
-    </div>
-<!-- https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" -->
-
-

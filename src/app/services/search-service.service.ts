@@ -53,10 +53,5 @@ export class SearchServiceService {
 
   }
 
-  searchevent(eventname: string): Observable<any>{
-    return this.http.get(this.searchevents + eventname).pipe(
-      debounceTime(300)
-    )
-  }
 
 }

@@ -185,12 +185,9 @@ app.post('/posts/togglelike', async (req, res) => {
   console.log(user, post);
   return res.status(201).json({ message: "Like toggled" });
 });
-
 app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPost), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
-
-
-  //check if a file uploaded. if no profilepicture uploaded, gave a default user picture
+  console.log("receive signup notification");
   if (req.file) {
     var profilePicture = req.file.path;
   }
@@ -198,18 +195,19 @@ app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPo
     var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
   }
 
-
   try {
     const { username, email, firstname, lastname, school } = req.body;
 
     //Check if username already exists
     const existingUsername = await User.findOne({ username });
+
     if (existingUsername) {
       console.log("username already exists");
       return res.status(409).json({ message: "Username already exists" });
     }
 
     //Check if email already exists
+    //Check if username already exists
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       console.log("email already exists");
@@ -218,7 +216,7 @@ app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPo
 
     //Find school id from school name
     const schoolDocument = await School.findOne({ name: school });
-    const schoolID = schoolDocument._id;
+    const schoolID = schoolDocument.id;
 
     const newUser = new User({
       username,
@@ -229,6 +227,9 @@ app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPo
       schoolID,
     });
 
+    if (req.body.password == null) {
+      console.log("No password");
+    }
     newUser.password = newUser.generateHash(req.body.password);
     newUser.role = 0;
     await newUser.save();
@@ -248,9 +249,15 @@ app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPo
 //   })
 // );
 
+// app.post(
+//   "/login",
+//   passport.authenticate("local", {
+//     successRedirect: "/",
+//     failureRedirect: "/login",
+//   })
+// );
+
 app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost), function (req, res) {
-  console.log("requser", req.user)
-  console.log("requser", req.body)
   const token = jwt.sign({ id: req.user._id }, config.secretKey, {
     expiresIn: config.expiresIn,
   });
@@ -279,8 +286,9 @@ app.get("/qrscan", (req, res) => {
 
 
 app.get('/profile/:userid', verifyToken, async (req, res) => {
-  console.log(req.params.userid)
+  console.log("req.params.userid", req.params.userid)
   const user = await User.findById(req.params.userid)
+  console.log(" user", user)
   res.send(user)
 })
 
@@ -290,13 +298,10 @@ app.get('/profile/:userid', verifyToken, async (req, res) => {
 
 app.post('/profileedit/:userid', upload.single("profilepicture"), middleware(schemas.profilePOST), async (req, res) => { // 
   const updatedData = req.body;
-  console.log("Profile will change to", updatedData)
   const check_file = req.file;
-
   //find school id by school name
   const schoolDocument = await School.findOne({ name: req.body.school });
   const schoolID = schoolDocument._id;
-
   const user = await User.findById(req.params.userid)
   user.username = req.body.username,
     user.schoolID = schoolID,
@@ -308,21 +313,10 @@ app.post('/profileedit/:userid', upload.single("profilepicture"), middleware(sch
   }
   await user.save()
   res.status(201).json({ message: "profile updated created" });
+  res.status(401).json({ message: "Unauthorized" });
 })
 
-app.get('/profile/school/:userid', verifyToken, async (req, res) => {
-  const user = await User.findById(req.params.userid).populate('schoolID');
 
-  if (user && user.schoolID) {
-    const school = await School.findById(user.schoolID);
-    if (school) {
-      const schoolName = school.name;
-      res.send({ 'School': schoolName })
-      // You can use schoolName as needed
-    }
-  }
-
-})
 app.get("/eventsearch", (req, res) => {
   const getEvents = Event.distinct("name"); //.toArray()//OBJECT
   getEvents.then(function (result) {
@@ -348,8 +342,9 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
     name,
     date,
     time: {
-      hour,
       minute,
+      hour,
+      second,
     },
     location: {
       street,
@@ -380,7 +375,6 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
     const randomIndex = Math.floor(Math.random() * characters.length);
     id += characters.charAt(randomIndex);
   }
-  console.log("new event ")
 
   const newEvent = new Event({
     id,
@@ -388,8 +382,9 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
     // imageurl,
     date,
     time: {
-      hour,
       minute,
+      hour,
+      second,
     },
     location: {
       street,
@@ -404,13 +399,12 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
   res.status(201).json({ message: "Event created" });
 });
 
-app.get("/events", verifyToken, async (req, res) => {
+app.get("/events", async (req, res) => {
   //await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
   const events = await Event.find();
   console.log("events: " + events);
   res.send(events);
 });
-
 
 app.get("/event/:eventId", async (req, res) => {
   const eventId = req.params.eventId;
@@ -522,6 +516,18 @@ app.get("/ranking/student", async (req, res) => {
       .json({ error: "An error occurred while retrieving the top users" });
   }
 });
+
+app.get('/profile/school/:userid', verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid).populate('schoolID');
+  if (user && user.schoolID) {
+    const school = await School.findById(user.schoolID);
+    if (school) {
+      const schoolName = school.name;
+      res.send({ 'School': schoolName })
+      // You can use schoolName as needed
+    }
+  }
+})
 
 app.get("/ranking/school", async (req, res) => {
   try {
