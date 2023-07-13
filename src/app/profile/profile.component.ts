@@ -51,6 +51,7 @@ export class ProfileComponent implements OnInit {
   followers: any = []
   showFollowers = false;
   posts: any = []
+  userLikedPosts: any
   times = []
   pageNumber: any = 1
 
@@ -89,7 +90,6 @@ export class ProfileComponent implements OnInit {
     console.log(this.following)
     this.profileService.profileResponse.subscribe(
       (data) => {
-        console.log("my name is now: " + this.lastname)
         this.getUserProfile = data
         this.email = this.getUserProfile['email'];
         this.username = this.getUserProfile['username'];
@@ -123,7 +123,9 @@ export class ProfileComponent implements OnInit {
     this.followingservice.getFollowers()
   }
 
+  //Gets the posts created by this user
   getPosts() {
+    this.userLikedPosts = this.auth.getLikedPosts()
     this.postservice.oneUserPostsResponse.subscribe(postResponse => {
       this.posts.push(...postResponse.posts)
       console.log(this.posts)
@@ -134,30 +136,38 @@ export class ProfileComponent implements OnInit {
         const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
         const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
 
-        if (elapsedSeconds < 60) {
+        if(elapsedSeconds < 60){
           this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
-        } else if (elapsedSeconds < 3600) {
+        }else if(elapsedSeconds < 3600){
           const minutes = Math.floor(elapsedSeconds / 60);
-          if (minutes <= 1) {
+          if(minutes <= 1){
             this.posts[i]['date'] = `${minutes} minute ago`
-          } else {
+          }else{
             this.posts[i]['date'] = `${minutes} minutes ago`
           }
-        } else if (elapsedSeconds < 86400) {
+        }else if(elapsedSeconds < 86400){
           const hours = Math.floor(elapsedSeconds / 3600);
-          if (hours <= 1) {
+          if(hours <= 1){
             this.posts[i]['date'] = `${hours} hour ago`
-          } else {
+          }else{
             this.posts[i]['date'] = `${hours} hours ago`
           }
-        } else if (elapsedSeconds < 604800) {
+        }else if (elapsedSeconds < 604800) {
           const days = Math.floor(elapsedSeconds / 86400);
-          if (days <= 1) {
+          if(days <= 1){
             this.posts[i]['date'] = `${days} day ago`;
-          } else {
+          }else{
             this.posts[i]['date'] = `${days} days ago`;
           }
+        }else if(elapsedSeconds > 604800){
+          const formattedDate = uploadDate.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+          this.posts[i]['date'] = formattedDate;
         }
+
       }
     })
     this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
@@ -266,5 +276,26 @@ export class ProfileComponent implements OnInit {
     return false
   }
 
-
+  isLiked(id: any): boolean{
+    // console.log(this.userLikedPosts)
+    // console.log(id)
+    // console.log(this.userLikedPosts.includes(id))
+    return this.userLikedPosts.includes(id)
+  }
+  toggleLike(postId: any){
+    if(this.userLikedPosts.includes(postId)){
+      const filteredLikes = this.userLikedPosts.filter((id: any)=>{
+        return id != postId
+      })
+      this.userLikedPosts = filteredLikes
+      const user = this.auth.findUser()
+      this.postservice.addRemoveLike(user['id'], postId, false)
+      this.auth.setLikedPosts(this.userLikedPosts)
+    }else{
+      this.userLikedPosts.push(postId)
+      const user = this.auth.findUser()
+      this.postservice.addRemoveLike(user['id'], postId, true)
+      this.auth.setLikedPosts(this.userLikedPosts)
+    }
+  }
 }

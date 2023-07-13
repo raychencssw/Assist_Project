@@ -102,6 +102,44 @@ app.get("/home/:page", verifyToken, async (req, res) => {
   res.send({ posts: postObjects });
 });
 
+app.get("/profile/:page/:userId", verifyToken, async (req, res) => {
+  console.log("Receive call to get profile posts");
+  page = req.params.page;
+  let userId = req.params.userId;
+  let query = {};
+  if (userId !== undefined) {
+    console.log("Get post for this user: " + userId);
+    query = { author: userId };
+  }
+  const limit = 5;
+  const allPosts = await Post.find(query)
+    .populate([
+      {
+        path: "author",
+        select: " _id username firstname lastname profilepicture",
+      },
+    ])
+    .skip((page - 1) * limit)
+    .limit(limit);
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post._id,
+      userid: post.author._id,
+      username: post.author.username,
+      firstname: post.author.firstname,
+      lastname: post.author.lastname,
+      userprofilepic: post.author.profilepicture,
+      location: post.location,
+      date: post.date,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
+  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
+
 app.post(
   "/posts/submit/:userid",
   verifyToken,
@@ -131,50 +169,18 @@ app.post(
   }
 );
 
-app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
-  console.log("Receive call to get posts");
-  page = req.params.page;
-  let userId = req.params.userId;
-  let query = {};
-  if (userId !== undefined) {
-    console.log("Get post for this user: " + userId);
-    query = { author: userId };
-  }
-  const limit = 5;
-  const allPosts = await Post.find(query)
-    .populate("author", "username")
-    .skip((page - 1) * limit)
-    .limit(limit);
-  const postObjects = allPosts.map((post) => {
-    return {
-      id: post.id,
-      author: post.author.username,
-      location: post.location,
-      date: post.date,
-      time: post.time,
-      description: post.description,
-      likes: post.likes,
-      imageurl: post.imageurl,
-    };
-  });
-  console.log(postObjects);
-  res.send({ posts: postObjects });
-});
-
-
-app.post('/posts/togglelike', async (req, res) => {
-
-  const user = await User.findById(req.body.userid)
-  const post = await Post.findById(req.body.postid)
+app.post("/posts/togglelike", async (req, res) => {
+  const user = await User.findById(req.body.userid);
+  const post = await Post.findById(req.body.postid);
   // console.log(user, post)
   if (req.body.addtoLike) {
-    user.likedposts.push(post._id)
-    const like = post.likes + 1
-    post.likes = like
+    user.likedposts.push(post._id);
+    const like = post.likes + 1;
+    post.likes = like;
   } else {
-    user.likedposts = user.likedposts.filter(postId => {
-      postId != req.body.postid
-    })
+    user.likedposts = user.likedposts.filter((postId) => {
+      postId != req.body.postid;
+    });
     if (post.likes > 0) {
       const like = post.likes - 1;
       post.likes = like;
@@ -267,36 +273,37 @@ app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
-
-
-
-
-app.get('/profile/:userid', verifyToken, async (req, res) => {
-    console.log(req.params.userid)
-    const user = await User.findById(req.params.userid)
-    res.send(user)
-})
+app.get("/profile/:userid", verifyToken, async (req, res) => {
+  console.log(req.params.userid);
+  const user = await User.findById(req.params.userid);
+  res.send(user);
+});
 
 // app.get("/eventdetails/:eventid", (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
-  const updatedData = req.body;
-  const check_file = req.file;
-  console.log("check_file ", check_file)
-  const user = await User.findById(req.params.userid)
-  user.username = req.body.username,
-    user.school = req.body.school,
-    user.firstname = req.body.firstname,
-    user.lastname = req.body.lastname,
-    user.email = req.body.email
-  if (check_file) {
-    user.profilepicture = req.file.path
+app.post(
+  "/profileedit/:userid",
+  upload.single("profilepicture"),
+  async (req, res) => {
+    //
+    const updatedData = req.body;
+    const check_file = req.file;
+    console.log("check_file ", check_file);
+    const user = await User.findById(req.params.userid);
+    (user.username = req.body.username),
+      (user.school = req.body.school),
+      (user.firstname = req.body.firstname),
+      (user.lastname = req.body.lastname),
+      (user.email = req.body.email);
+    if (check_file) {
+      user.profilepicture = req.file.path;
+    }
+    await user.save();
+    res.status(201).json({ message: "profile updated created" });
   }
-  await user.save()
-  res.status(201).json({ message: "profile updated created" });
-})
+);
 
 app.get("/eventsearch", (req, res) => {
   const getEvents = Event.distinct("name"); //.toArray()//OBJECT
@@ -312,7 +319,7 @@ app.get("/usersearch", (req, res) => {
   });
 });
 
-app.post('/createevent', async (req, res) => {
+app.post("/createevent", async (req, res) => {
   //console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
   //console.log("req.body.Name: " + req.body.Name); //Great event
 
@@ -323,11 +330,7 @@ app.post('/createevent', async (req, res) => {
     name,
     date,
     time,
-    location:{
-      street,
-      city,
-      state,
-    },
+    location: { street, city, state },
     description,
   } = req.body;
 
@@ -398,55 +401,49 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-app.get('/following/:userid', verifyToken, async (req, res) => {
-  const user = await User.findById(req.params.userid)
-  console.log(req.params.id)
+app.get("/following/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
+  console.log(req.params.id);
   const follow = await user.populate([
     { path: "following", select: "username firstname lastname" },
   ]);
-  console.log(follow)
+  console.log(follow);
   res.send({ following: follow.following });
 });
 
-app.get('/following/:userid', verifyToken, async (req, res) => {
-  const user = await User.findById(req.params.userid)
+app.get("/following/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
   res.send(user);
 });
 
-
-app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
+app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
   const isfollowing = req.params.isfollowing;
   const myid = req.params.myid;
   const userid = req.params.userid;
 
-
   if (isfollowing == "false") {
-    //append myid to user's follower  
-    const user = await User.findById(userid)
-    user.followers.push(myid)
+    //append myid to user's follower
+    const user = await User.findById(userid);
+    user.followers.push(myid);
     // append userid to my following list
-    const myuser = await User.findById(myid)
-    myuser.following.push(userid)
-    await user.save()
-    await myuser.save()
-    res.status(201).json({ message: "follow updated" })
-  }
-
-  else {
+    const myuser = await User.findById(myid);
+    myuser.following.push(userid);
+    await user.save();
+    await myuser.save();
+    res.status(201).json({ message: "follow updated" });
+  } else {
     //pop out myid from user's follower
-    const user = await User.findById(userid)
+    const user = await User.findById(userid);
     user.followers.pull(myid);
 
     // append userid to my following list
-    const myuser = await User.findById(myid)
-    myuser.following.pull(userid)
-    await user.save()
-    await myuser.save()
-    res.status(201).json({ message: "unfollow updated" })
+    const myuser = await User.findById(myid);
+    myuser.following.pull(userid);
+    await user.save();
+    await myuser.save();
+    res.status(201).json({ message: "unfollow updated" });
   }
-
-
-})
+});
 
 app.get("/follower", verifyToken, async (req, res) => {
   const user = await User.findOne({ id: 1 });
@@ -467,14 +464,14 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get('/searchevent/:eventname', async(req, res)=>{
-  const event = await Event.findOne({name: req.params.eventname})
-  if(event){
-    res.json(event)
-  }else{
-    res.status(500).json({message: 'no such event'})
+app.get("/searchevent/:eventname", async (req, res) => {
+  const event = await Event.findOne({ name: req.params.eventname });
+  if (event) {
+    res.json(event);
+  } else {
+    res.status(500).json({ message: "no such event" });
   }
-})
+});
 
 app.get("/ranking/student", async (req, res) => {
   try {
@@ -504,7 +501,7 @@ app.get("/ranking/school", async (req, res) => {
   }
 });
 
-app.post('/api/checkin', async (req, res) => {
+app.post("/api/checkin", async (req, res) => {
   try {
     const { userId, eventId } = req.body;
     const existingCheckIn = await CheckIn.findOne({
@@ -514,7 +511,7 @@ app.post('/api/checkin', async (req, res) => {
     });
 
     if (existingCheckIn) {
-      return res.status(400).json({ error: 'User is already checked in.' });
+      return res.status(400).json({ error: "User is already checked in." });
     }
     const newCheckIn = new CheckIn({
       userId: userId,
@@ -523,13 +520,12 @@ app.post('/api/checkin', async (req, res) => {
 
     await newCheckIn.save();
 
-    res.json({ message: 'User checked in successfully!!!' });
+    res.json({ message: "User checked in successfully!!!" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'An error occurred!!!' });
+    res.status(500).json({ error: "An error occurred!!!" });
   }
 });
-
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {

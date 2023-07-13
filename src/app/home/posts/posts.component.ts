@@ -92,6 +92,5 @@ export class PostsComponent implements OnInit{
       this.postservice.addRemoveLike(user['id'], postId, true)
       this.auth.setLikedPosts(this.userLikedPosts)
     }
-
   }
 }
