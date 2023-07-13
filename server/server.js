@@ -411,6 +411,15 @@ app.get("/following/:userid", verifyToken, async (req, res) => {
   res.send({ following: follow.following });
 });
 
+app.get("/follower/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
+  const follow = await user.populate([
+    { path: "followers", select: "username firstname lastname" },
+  ]);
+  console.log(follow);
+  res.send({ followers: follow.followers });
+});
+
 app.get("/following/:userid", verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid);
   res.send(user);
@@ -443,14 +452,6 @@ app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
     await myuser.save();
     res.status(201).json({ message: "unfollow updated" });
   }
-});
-
-app.get("/follower", verifyToken, async (req, res) => {
-  const user = await User.findOne({ id: 1 });
-  const follow = await user.populate([
-    { path: "followers", select: "username firstname lastname" },
-  ]);
-  res.send({ following: follow.followers });
 });
 
 app.get("/searchuser/:username", async (req, res) => {

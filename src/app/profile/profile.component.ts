@@ -11,6 +11,7 @@ import { FollowingService } from '../services/following.service';
 import { PostServiceService } from '../services/post-service.service';
 import { Console } from 'console';
 
+
 @Component({
 
   selector: 'app-profile',
@@ -117,10 +118,10 @@ export class ProfileComponent implements OnInit {
     this.myid = JSON.parse(localStorage.getItem("user")!).id
     this.isOwnProfile = this.myid === this.id;
     this.getPosts()
-    this.followingservice.following$.subscribe((response)=>{
+    this.followingservice.profileFollower$.subscribe((response)=>{
       this.followers = response
     })
-    this.followingservice.getFollowers()
+    this.followingservice.getFollower(this.id)
   }
 
   //Gets the posts created by this user
@@ -245,7 +246,7 @@ export class ProfileComponent implements OnInit {
 
   async followUser() {
     // users cannot follow themselves 
-    console.log('THis is follow user', this.id)
+    console.log('This is follow user', this.id)
     // const myid = JSON.parse(localStorage.getItem("user")!).id
     // if (myid === this.id) {
     //   this.isFollowing = true
@@ -296,6 +297,24 @@ export class ProfileComponent implements OnInit {
       const user = this.auth.findUser()
       this.postservice.addRemoveLike(user['id'], postId, true)
       this.auth.setLikedPosts(this.userLikedPosts)
+    }
+  }
+
+  openFollowersModal() {
+    const modalElement = document.getElementById('followersModal');
+    if (modalElement) {
+      modalElement.classList.add('show');
+      modalElement.style.display = 'block';
+      document.body.classList.add('modal-open');
+    }
+  }
+
+  closeFollowersModal() {
+    const modalElement = document.getElementById('followersModal');
+    if (modalElement) {
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+      document.body.classList.remove('modal-open');
     }
   }
 }
