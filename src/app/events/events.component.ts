@@ -6,14 +6,19 @@ import { Router } from '@angular/router';
 import {FormGroup, FormControl, Validators} from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { SearchServiceService } from '../services/search-service.service';
+import { NgbCarouselConfig, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 
 @Component({
   selector: 'app-events',
   templateUrl: './events.component.html',
-  styleUrls: ['./events.component.css']
+  styleUrls: ['./events.component.css'],
+  providers: [NgbCarouselConfig], // add NgbCarouselConfig to the component providers
 })
 export class EventsComponent implements OnInit{
+  showNavigationArrows = true;
+	showNavigationIndicators = false;
 
   events: any = [];             //store the events fetched from the backend
   weeklyEvents: any = [];       //store the events within 1 week
@@ -22,10 +27,15 @@ export class EventsComponent implements OnInit{
   searchResults: any = []
   eventId: any
 
+  weeklyEventsDisplay: any = [];
+
   constructor(private modalService: NgbModal,                   //open a modal when "create event" button is clicked
               private eventService: EventServiceService,        //load events from DB when the page is first-time loaded or after a new event is created
-              private router: Router,
-              private searchService: SearchServiceService){};                        //for the routerLink that direct to event deatil page
+              private router: Router,                           //for the routerLink that direct to event deatil page
+              private searchService: SearchServiceService,
+              config: NgbCarouselConfig){
+                config.showNavigationArrows = true;
+              };                        
 
   ngOnInit():void{
     //loadEvent() returns Observable, so subscribe here
@@ -45,12 +55,13 @@ export class EventsComponent implements OnInit{
 
       this.displayWeekly();
       this.displayMonthly();
+      this.displayWeeklyEvent();
 
       // console.log("this.weeklyEvents: " + JSON.stringify(this.weeklyEvents));
       // console.log("this.monthlyEvents: " + JSON.stringify(this.monthlyEvents));
 
-    this.eventKeyword.reset();
-    this.searchResults = [];
+      this.eventKeyword.reset();
+      this.searchResults = [];
 
       this.eventKeyword.valueChanges.pipe(
         debounceTime(300),
@@ -107,6 +118,7 @@ export class EventsComponent implements OnInit{
         this.weeklyEvents = [];
         this.monthlyEvents = [];
 
+
         //store the events from the MongoDB to this.events(not sorted yet)
         this.events = events;
         //console.log("this.events: " + JSON.stringify(this.events));
@@ -117,6 +129,7 @@ export class EventsComponent implements OnInit{
 
         this.displayWeekly();
         this.displayMonthly();
+        this.displayWeeklyEvent();
       });
     })
   }
@@ -222,6 +235,34 @@ export class EventsComponent implements OnInit{
         this.monthlyEvents.push(this.events[i]);
       }
     }
+  }
+
+  displayWeeklyEvent(){
+
+    // var templ = []
+    // for(let i = 0; i < this.weeklyEvents.length; i++){
+    //   if(i < 5){
+    //     templ.push(this.weeklyEvents[i])
+    //   }
+    // }
+    // this.weeklyEventsDisplay.push(templ)
+
+    let numGroup = Math.floor(this.weeklyEvents.length / 5);
+    console.log("numGroup: " + numGroup);
+
+    for(let i = 0; i < numGroup + 1; i++){
+      var templ = [];
+      for (let j = 0; j < 5; j++){
+        var index = i * 5 +j
+        if (index < this.weeklyEvents.length){
+          templ.push(this.weeklyEvents[index]);
+        }
+      }
+      this.weeklyEventsDisplay.push(templ);
+    }
+    
+    console.log("this.weeklyEventsDisplay.length: " + this.weeklyEventsDisplay.length)
+    console.log("this.weeklyEventsDisplay[0].length: " + this.weeklyEventsDisplay[0].length)
   }
 
 }
