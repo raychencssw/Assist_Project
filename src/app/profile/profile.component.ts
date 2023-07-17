@@ -77,16 +77,18 @@ export class ProfileComponent implements OnInit {
     private followingservice: FollowingService,
     // private following: FollowingService
   ) {
-
+    this.route.paramMap.subscribe(params => {
+      this.id = params.get("id")
+      this.getData()
+    })
 
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      this.id = params.get("id")
-      console.log("my id changes to: " + this.id)
-    })
+    
+  }
 
+  getData() {
     this.following = this.auth.getFollowing()
     console.log(this.following)
     this.profileService.profileResponse.subscribe(
@@ -220,7 +222,7 @@ export class ProfileComponent implements OnInit {
 
     this.profile.updateUser(this.formData, (response: any)=>{
       console.log(response)
-      this.ngOnInit(); //reload the table  
+      this.getData(); //reload the table  
       this.modalService.dismissAll(); //dismiss the modal
       window.location.reload();//reload the page for data update
 

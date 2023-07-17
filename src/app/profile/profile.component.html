@@ -31,7 +31,7 @@
           <div class="modal-body">
             <ul>
               <li *ngFor="let follower of followers">
-                <a routerLink="/profile/{{follower._id}}">{{ follower.username }}</a>
+                <a class="{{follower._id}}" (click)="closeFollowersModal()" routerLink="/profile/{{follower._id}}" appFollowListen>{{ follower.username }}</a>
               </li>
             </ul>
           </div>
