@@ -30,7 +30,7 @@ const userSchema = new Schema({
     type: Number,
     required: true,
   },
-  schoolID: {
+  school: {
     type: Schema.Types.ObjectId,
     ref: "School",
   },
@@ -69,6 +69,12 @@ const userSchema = new Schema({
     type: Number,
     default: 0,
   },
+  notifications:[
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Notification",
+    }
+  ]
 });
 
 //Methods

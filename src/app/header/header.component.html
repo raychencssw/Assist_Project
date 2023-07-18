@@ -1,22 +1,98 @@
-<nav class="navbar mb-5 navbar-dark bg-primary">
+<!-- <nav class="navbar mb-5 bg-primary" style="padding: 0; width: 100vw; position: fixed; padding: 0; z-index: 1;">
   <div class="container-fluid">
-    <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <a class="navbar-brand" routerLink="/home"><img src="../../assets/ASSIST.jpeg" alt="logo" style="width: 50px; height: 50px; border-radius: 50%;"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
-      </button> -->
-        <ul class="navbar-nav ms-auto flex-row">
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto flex-row" style="padding-right: 80px; display: flex; align-items: center;">
           <li class="nav-item">  <app-search></app-search> </li>
           <li class="nav-item">
-            <div class = "home-div" routerLinkActive="surrounded"[routerLinkActiveOptions]="{exact: true}"><a class="nav-link" routerLink="/home">Home</a></div>
+            <div class = "home-div" routerLinkActive="surrounded"[routerLinkActiveOptions]="{exact: true}"><a class="nav-link" routerLink="/home" routerLinkActive="active-link"><i class="fas fa-home"></i></a></div>
+          </li>
+          <li class="nav-item" >
+            <div class = "events-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/events" routerLinkActive="active-link" ><i class="fa fa-calendar" aria-hidden="true"></i></a></div>
           </li>
           <li class="nav-item">
-            <div class = "events-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/events">Events</a></div>
+            <div class = "rankings-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/rankings" routerLinkActive="active-link"><i class="fa-solid fa-chart-simple"></i></a></div>
           </li>
           <li class="nav-item">
-            <div class = "rankings-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/rankings">Rankings</a></div>
+            <button type="button" class="btn position-relative" (click)="toggleNotifications()">
+              <i class="fa-solid fa-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{count}}
+                <span class="visually-hidden">unread messages</span>
+              </span>
+            </button>
           </li>
           <li class="nav-item">
-            <div class = "rankings-div" routerLinkActive="surrounded" style="cursor: pointer;"><a class="nav-link" (click)="authLogout()" *ngIf="isLoggedin">Logout</a></div>
+            <div class = "logout-div" routerLinkActive="surrounded" style="cursor: pointer;"><a class="nav-link" (click)="authLogout()" *ngIf="isLoggedin" routerLinkActive="active-link"><i class="fa-solid fa-right-from-bracket"></i></a></div>
           </li>
         </ul>
+      </div>
     </div>
 </nav>
+<div class="notification-container" *ngIf="showNotifications">
+  <div class="notification-dropdown">
+    <ul>
+      <li *ngFor="let notification of notifications" style="display: flex; align-items: center; padding-right: 20px; padding-top: 10px; padding-bottom: 1 0px;" [ngClass]="{'not-read': notification.isRead == false}">
+        <img src="{{notification.follower.profilepicture}}" alt="user" style="height: 50px; width: 50px; border-radius: 50px; margin-left: 10px;">
+        <div *ngIf="notification.type == 'follow'" style="margin-left: auto;">
+          <p><a routerLink="/profile/{{notification.follower._id}}" (click)="toggleNotifications()" style="text-decoration: none;" (click)="makeRead(notification._id)">{{notification.follower.firstname}} {{notification.follower.lastname}} started following you.</a></p>
+          <span class="timestamp">{{ notification.date | date }}</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div> -->
+<nav class="navbar navbar-expand-lg mb-5 bg-primary" style="padding: 0; width: 100vw; position: fixed; z-index: 9999; margin-bottom: 100px;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#"><img src="../../assets/ASSIST.jpeg" alt="logo" style="width: 50px; height: 50px; border-radius: 50%;"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <div class = "home-div" routerLinkActive="surrounded"[routerLinkActiveOptions]="{exact: true}"><a class="nav-link" routerLink="/home" routerLinkActive="active-link"><i class="fas fa-home"></i></a></div>
+        </li>
+        <li class="nav-item">
+          <div class = "events-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/events" routerLinkActive="active-link" ><i class="fa fa-calendar" aria-hidden="true"></i></a></div>
+        </li>
+        <li class="nav-item">
+          <div class = "rankings-div" routerLinkActive="surrounded"><a class="nav-link" routerLink="/rankings" routerLinkActive="active-link"><i class="fa-solid fa-chart-simple"></i></a></div>
+        </li>
+        <li class="nav-item">
+          <div style="text-align: center; width: 80px; margin-top: 2px;">
+            <button type="button" class="btn position-relative" (click)="toggleNotifications()">
+              <i class="fa-solid fa-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{count}}
+                <span class="visually-hidden">unread messages</span>
+              </span>
+            </button>
+          </div>
+        </li>
+        <li class="nav-item">
+          <div class = "logout-div" routerLinkActive="surrounded" style="cursor: pointer;"><a class="nav-link" (click)="authLogout()" *ngIf="isLoggedin" routerLinkActive="active-link"><i class="fa-solid fa-right-from-bracket"></i></a></div>
+        </li>
+      </ul>
+      <app-search></app-search>
+    </div>
+  </div>
+</nav>
+<div class="notification-container" *ngIf="showNotifications">
+  <div class="notification-dropdown">
+    <ul>
+      <li *ngFor="let notification of notifications" style="display: flex; align-items: center; padding-right: 20px; padding-top: 10px; padding-bottom: 1 0px;" [ngClass]="{'not-read': notification.isRead == false}">
+        <img src="{{notification.follower.profilepicture}}" alt="user" style="height: 50px; width: 50px; border-radius: 50px; margin-left: 10px;">
+        <div *ngIf="notification.type == 'follow'" style="margin-left: auto;">
+          <p><a routerLink="/profile/{{notification.follower._id}}" (click)="toggleNotifications()" style="text-decoration: none;" (click)="makeRead(notification._id)">{{notification.follower.firstname}} {{notification.follower.lastname}} started following you.</a></p>
+          <span class="timestamp">{{ notification.date | date }}</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+

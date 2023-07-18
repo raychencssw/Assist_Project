@@ -24,7 +24,7 @@ export class FollowingService {
     const requestOptions = { headers: headers };
     this.http.get<any>(`http://localhost:3080/following/${currentUser.id}`, requestOptions).subscribe((response) => {
       this.follow = response['following']
-      //console.log(this.follow)
+      console.log(this.follow)
       this.sendFollowing.next(this.follow)
     })
 

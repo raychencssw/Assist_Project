@@ -29,7 +29,7 @@ export class ProfileComponent implements OnInit {
   email: string = '';
   role: number | undefined;
   points: number | undefined;
-  profilepicture: string = '';
+  profilepicture: any;
   school: string = '';
   isOwnProfile: boolean = false;
   eventsAttended: string[] = [];
@@ -62,6 +62,7 @@ export class ProfileComponent implements OnInit {
   fileName: any = "";
   formData: any;
   myid: any;
+  sameUser: boolean = false
 
   constructor(
     private http: HttpClient,
@@ -83,21 +84,29 @@ export class ProfileComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       this.id = params.get("id")
       console.log("my id changes to: " + this.id)
+      const user = this.auth.findUser()
+      if(user.id == this.id){
+        this.sameUser = true
+      }
+
     })
 
     this.following = this.auth.getFollowing()
     console.log(this.following)
     this.profileService.profileResponse.subscribe(
       (data) => {
-        console.log("my name is now: " + this.lastname)
+
         this.getUserProfile = data
+        console.log(this.getUserProfile)
         this.email = this.getUserProfile['email'];
         this.username = this.getUserProfile['username'];
         this.firstname = this.getUserProfile['firstname'];
         this.lastname = this.getUserProfile['lastname'];
         this.role = this.getUserProfile['role'];
         this.points = this.getUserProfile['points']
-        this.school = this.getUserProfile['school']
+        if(this.getUserProfile['school']){
+          this.school = this.getUserProfile['school']['name']
+        }
         this.eventsAttended = this.getUserProfile['eventsAttended']
         this.profilepicture = this.getUserProfile['profilepicture']
         this.name = this.firstname + " " + this.lastname
@@ -205,7 +214,6 @@ export class ProfileComponent implements OnInit {
     this.formData.append('lastname', f.value["lastname"]);
     this.formData.append('firstname', f.value["firstname"]);
     this.formData.append('email', f.value["email"]);
-    this.formData.append('school', f.value["school"]);
 
     this.profile.updateUser(this.formData, (response: any)=>{
       console.log(response)
@@ -246,17 +254,16 @@ export class ProfileComponent implements OnInit {
 
     const myid = JSON.parse(localStorage.getItem("user")!).id
     if(this.following.includes(this.id)){
-      const filteredFollowers = this.followers.filter((filterid: any)=>{
+      const filteredFollowers = this.following.filter((filterid: any)=>{
         filterid != this.id
       })
       this.following = filteredFollowers
-      this.auth.setFollowing(this.followers)
+      this.auth.setFollowing(this.following)
       this.followingservice.followButton(myid, this.id, true)
     }else{
       this.following.push(this.id)
       this.auth.setFollowing(this.id)
       this.followingservice.followButton(myid, this.id, false)
-      console.log(this.following)
     }
   }
   checkFollow(){

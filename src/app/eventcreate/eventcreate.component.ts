@@ -14,10 +14,10 @@ export class EventcreateComponent implements OnInit{
 
   datePickerStartAt:any;
 
-  selectedFile: File | null = null;
-  fileExtension: any = "";
-  fileName: any = "";
-  isWrongExtension: boolean = false;
+  // selectedFile: File | null = null;
+  // fileExtension: any = "";
+  // fileName: any = "";
+  // isWrongExtension: boolean = false;
 
 
   /**
@@ -34,7 +34,7 @@ export class EventcreateComponent implements OnInit{
 
   public eventForm = {
     name: '',
-    photo: null as File | null,
+    // photo: null as File | null,
     date:'',
     time: { hour: 13, minute: 30 },
     location:{
@@ -89,11 +89,16 @@ export class EventcreateComponent implements OnInit{
     this.eventForm.date = String(formattedDate);
     console.log("formattedDate: " + formattedDate);    //formattedDate: 4/7/2023
 
-    this.eventForm.photo = this.selectedFile;
+    // this.eventForm.photo = this.selectedFile;
+
     console.log("eventForm: " + JSON.stringify(this.eventForm));
 
     //call eventService and then store the event info to the MongoDB
-    this.eventService.addtoEvents(this.eventForm)
+    this.eventService.addtoEvents(this.eventForm).subscribe(() => {
+      // Close the modal
+      this.activeModal.close();
+    })
+
 
   }
 

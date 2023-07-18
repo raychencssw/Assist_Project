@@ -7,6 +7,7 @@ const User = require("./models/user");
 const Event = require("./models/event");
 const Post = require("./models/post");
 const School = require("./models/school");
+const Notification = require('./models/notification');
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
@@ -31,6 +32,7 @@ const db = mongoose.connection;
 const multer = require("multer");
 const { storage } = require("../cloudinary");
 const { cloudinary } = require("../cloudinary");
+const { verify } = require("crypto");
 
 // creating variables
 const characters =
@@ -126,7 +128,7 @@ app.post(
       imageurl: req.file.path,
     });
     await post.save();
-    foundUser.posts.push(post);
+    foundUser.posts.unshift(post);
     res.json({ success: true, message: "Data received" });
   }
 );
@@ -162,7 +164,7 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
 });
 
 
-app.post('/posts/togglelike', async (req, res) => {
+app.post('/posts/togglelike', verifyToken, async (req, res) => {
 
   const user = await User.findById(req.body.userid)
   const post = await Post.findById(req.body.postid)
@@ -188,6 +190,7 @@ app.post('/posts/togglelike', async (req, res) => {
 
 app.post("/signup", upload.single("profilePicture"), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
+  console.log(req.body)
   console.log("receive signup notification");
   try {
     const { username, email, firstname, lastname, school } = req.body;
@@ -202,7 +205,6 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
     }
 
     //Check if email already exists
-    //Check if username already exists
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       console.log("email already exists");
@@ -210,16 +212,14 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
     }
 
     //Find school id from school name
-    const schoolDocument = await School.findOne({ name: school });
-    const schoolID = schoolDocument.id;
-
+    const foundSchool = await School.findOne({ name: school });
     const newUser = new User({
-      username,
-      email,
-      firstname,
-      lastname,
-      profilePicture,
-      schoolID,
+      email: req.body.email,
+      username: req.body.username,
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      profilepicture: req.file.path,
+      school: foundSchool
     });
     if (req.body.password == null) {
       console.log("No password");
@@ -243,14 +243,37 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
 //   })
 // );
 
-app.post("/login", passport.authenticate("local"), function (req, res) {
+app.post("/login", passport.authenticate("local"), async function (req, res) {
   const token = jwt.sign({ id: req.user._id }, config.secretKey, {
     expiresIn: config.expiresIn,
   });
-  console.log(token);
+  const tempUser = await User.findById(req.user._id).populate([
+    {
+      path: "school",
+      select: "name",
+    },
+    {
+      path: "notifications",
+      select: 'type date isRead',
+      populate:[
+        {
+          path: 'follower',
+          select: 'firstname lastname profilepicture',
+        },
+        {
+          path: 'event',
+          select: 'name'
+        },
+        {
+          path: 'from',
+          select: 'firstname lastname',
+        }
+      ]
+    }
+  ])
   res.json({
     token: token,
-    user: req.user,
+    user: tempUser,
   });
 });
 
@@ -273,7 +296,7 @@ app.get("/qrscan", (req, res) => {
 
 app.get('/profile/:userid', verifyToken, async (req, res) => {
     console.log(req.params.userid)
-    const user = await User.findById(req.params.userid)
+    const user = await User.findById(req.params.userid).populate('school', 'name')
     res.send(user)
 })
 
@@ -281,13 +304,12 @@ app.get('/profile/:userid', verifyToken, async (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
+app.put('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
   const updatedData = req.body;
   const check_file = req.file;
   console.log("check_file ", check_file)
   const user = await User.findById(req.params.userid)
   user.username = req.body.username,
-    user.school = req.body.school,
     user.firstname = req.body.firstname,
     user.lastname = req.body.lastname,
     user.email = req.body.email
@@ -298,14 +320,14 @@ app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, re
   res.status(201).json({ message: "profile updated created" });
 })
 
-app.get("/eventsearch", (req, res) => {
+app.get("/eventsearch", async (req, res) => {
   const getEvents = Event.distinct("name"); //.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result);
   });
 });
 
-app.get("/usersearch", (req, res) => {
+app.get("/usersearch", async(req, res) => {
   const getEvents = User.distinct("username"); //.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result);
@@ -402,7 +424,7 @@ app.get('/following/:userid', verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid)
   console.log(req.params.id)
   const follow = await user.populate([
-    { path: "following", select: "username firstname lastname" },
+    { path: "following", select: "username firstname lastname profilepicture" },
   ]);
   console.log(follow)
   res.send({ following: follow.following });
@@ -424,11 +446,22 @@ app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
     //append myid to user's follower  
     const user = await User.findById(userid)
     user.followers.push(myid)
+    const notification = new Notification({
+      type: 'follow',
+      to: user._id,
+      from: myid,
+      follower: myid,
+      isRead: false
+    })
+    console.log("THE NOTIFICATION IS", notification)
+    user.notifications.unshift(notification)
+    await notification.save()
     // append userid to my following list
     const myuser = await User.findById(myid)
     myuser.following.push(userid)
     await user.save()
     await myuser.save()
+    console.log("THE USER IS", user)
     res.status(201).json({ message: "follow updated" })
   }
 
@@ -467,7 +500,7 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get('/searchevent/:eventname', async(req, res)=>{
+app.get('/searchevent/:eventname', verifyToken, async(req, res)=>{
   const event = await Event.findOne({name: req.params.eventname})
   if(event){
     res.json(event)
@@ -476,7 +509,7 @@ app.get('/searchevent/:eventname', async(req, res)=>{
   }
 })
 
-app.get("/ranking/student", async (req, res) => {
+app.get("/ranking/student", verifyToken, async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topUsers = await User.find().sort({ points: -1 }).limit(10);
@@ -490,7 +523,7 @@ app.get("/ranking/student", async (req, res) => {
   }
 });
 
-app.get("/ranking/school", async (req, res) => {
+app.get("/ranking/school", verifyToken, async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topSchools = await School.find().sort({ points: -1 }).limit(10);
@@ -529,6 +562,62 @@ app.post('/api/checkin', async (req, res) => {
     res.status(500).json({ error: 'An error occurred!!!' });
   }
 });
+
+app.get('/recommend/:userid', async (req, res)=>{
+  const userRes = []
+  const alreadyAdded = []
+  const user = await User.findById(req.params.userid)
+  const school = await School.findById(user.school)
+  const userBySchool = await User.find({school: school._id, _id: { $ne: req.params.userid }})//.populate('school')
+  for(i = 0; i <userBySchool.length; i ++){
+    if(user.following.includes(userBySchool[i]._id)){
+      continue;
+    }
+    const tempUser = {
+      id: userBySchool[i]._id,
+      username: userBySchool[i].username,
+      firstname: userBySchool[i].firstname,
+      lastname: userBySchool[i].lastname,
+      profilepicture: userBySchool[i].profilepicture,
+      //school: userBySchool[i].school.name,
+      points: userBySchool[i].points
+    }
+    alreadyAdded.push(tempUser.username)
+    userRes.push(tempUser)
+  }
+
+  const userByPoints = await User.find({points: user.points, _id: { $ne: req.params.userid }})//.populate('school')
+  for(i = 0; i <userByPoints.length; i ++){
+    if(user.following.includes(userByPoints[i]._id) || alreadyAdded.includes(userByPoints[i].username)){
+      continue;
+    }
+    const tempUser = {
+      id: userByPoints[i]._id,
+      username: userByPoints[i].username,
+      firstname: userByPoints[i].firstname,
+      lastname: userByPoints[i].lastname,
+      profilepicture: userByPoints[i].profilepicture,
+      //school: userByPoints[i].school.name,
+      points: userByPoints[i].points
+    }
+    userRes.push(tempUser)
+  }
+  console.log(userRes)
+  res.json(userRes)
+})
+
+app.put('/notifications/readnotification', verifyToken, async (req, res)=>{
+  try{
+    const id = req.body.id
+    const notification = await Notification.findById(id)
+    notification.isRead = true
+    notification.save()
+    res.status(200).json({ success: true, message: "Notification read saved" });
+  }catch(error){
+    res.status(500).json({ error: true, message: "Internal Server Error!!!" });
+  } 
+  
+})
 
 
 function checkAuthenticated(req, res, next) {

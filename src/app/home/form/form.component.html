@@ -1,39 +1,35 @@
-<div class="container">
+<div class="container" style="padding-top: 100px;">
     <form [formGroup]="postForm" ngNativeValidate (ngSubmit)="onSubmit()">
-        <div class="row" >
-            <div class="col col-lg-12">
-                <textarea id="postText" class="form-control" formControlName="posttext" rows="4" cols="12" placeholder = "Type Something..." required="" ></textarea>
-            </div>
-            <!-- <div *ngIf="postForm.get('posttext')?.errors?.['required']">
-                Description is required.
-            </div> -->
-        </div>
-        <div class="row" #locationDiv>
-            <div class="col col-lg-12 mt-2" #locationInput>
-                <input type="text" placeholder="Type your location.." class="form-control" formControlName="postlocation" required="">
+        <div class="row">
+            <div class="col-lg-12">
+                <textarea id="postText" class="form-control" formControlName="posttext" rows="4" cols="12" placeholder="Type Something..." required></textarea>
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col col-lg-12">
-                <input formControlName="autolocation" class="form-check-input" type="checkbox" id="flexCheckDefault" (change)="checkChecked()" #locationCheckBox >
+            <div class="col-lg-12">
+                <input type="text" placeholder="Type your location.." class="form-control" formControlName="postlocation" required>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-lg-12">
+                <input formControlName="autolocation" class="form-check-input" type="checkbox" id="flexCheckDefault" (change)="checkChecked()">
                 <label class="form-check-label" for="flexCheckDefault" style="margin-left: 20px;">
-                  Locate me
+                    Locate me
                 </label>
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col col-lg-12">
-                <input type="file" formControlName="photo" class="form-control" (change)="onFileSelected($event)" required="">
+            <div class="col-lg-12">
+                <input type="file" formControlName="photo" class="form-control" (change)="onFileSelected($event)" required>
                 <div *ngIf="isWrongExtension">
                     Only JPEG and PNG files are allowed.
                 </div>
             </div>
         </div>
         <div class="row text-end mt-2 pb-4">
-            <div class="col col-lg-12 col-sm-12 form-group mb-3">
+            <div class="col-lg-12">
                 <button class="btn btn-primary" type="submit" [routerLink]="">SUBMIT</button>
             </div>
         </div>
     </form>
 </div>
-

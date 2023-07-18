@@ -24,7 +24,7 @@ export class ProfileService {
     const user = this.auth.findUser()
     const id = user['id']
     console.log(id)
-    this.http.post(`http://localhost:3080/profileedit/${id}`, formData).subscribe(response=>{
+    this.http.put(`http://localhost:3080/profileedit/${id}`, formData).subscribe(response=>{
       console.log(response)
       callback(response)
     })

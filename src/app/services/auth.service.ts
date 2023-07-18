@@ -13,6 +13,7 @@ export class AuthService implements OnInit{
   userJson: any
   postJson: any
   followingJson: any
+  notificationJson: any
   loginResponse = new BehaviorSubject<any>(this.user['token'])
   authResponse = new Subject<any>()
 
@@ -38,6 +39,7 @@ export class AuthService implements OnInit{
         next: (response) => {
         // Stores the user object in auth service
           this.user = response;
+          console.log(this.user)
           this.token = this.user['token']
           this.setAuthToken(this.token);
           this.isLoggedIn = true
@@ -75,15 +77,19 @@ export class AuthService implements OnInit{
       eventsAttended: tempUser.eventsAttended,
       followers: tempUser.followers,
       following: tempUser.following,
+      notifications: tempUser.notifications,
       points: tempUser.points,
       userName: tempUser.username,
+      school: tempUser.school,
       posts: tempUser.posts,
-      likedPosts: tempUser.likedposts
+      likedPosts: tempUser.likedposts,
+      profilepicture: tempUser.profilepicture
     }
     const userString = JSON.stringify(userDetails)
     localStorage.setItem('user', userString)
     this.setLikedPosts(tempUser.likedposts)
     this.setFollowing(tempUser.following)
+    this.setNotifications(tempUser.notifications)
   }
   private setAuthToken(token: string): void {
     localStorage.setItem('token', token);
@@ -110,7 +116,19 @@ export class AuthService implements OnInit{
     if(followingString){
       this.followingJson = JSON.parse(followingString)
     }
-    return this.followingJson
+    return Array.isArray(this.followingJson) ? this.followingJson : [this.followingJson];
+  }
+  setNotifications(notifications: any){
+    const notString = JSON.stringify(notifications)
+    localStorage.setItem('notifications', notString)
+    console.log(localStorage)
+  }
+  getNotifications(){
+    const notString = localStorage.getItem('notifications')
+    if(notString){
+      this.notificationJson = JSON.parse(notString)
+    }
+    return Array.isArray(this.notificationJson) ? this.notificationJson : [this.notificationJson];
   }
 
 
@@ -128,7 +146,7 @@ export class AuthService implements OnInit{
   }
 
   getUser(): Observable<any> {
-    return of(this.user); // Retrieve the stored user object
+    return of(localStorage.getItem('token')); // Retrieve the stored user object
   }
 
   findUser(){

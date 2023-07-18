@@ -1,4 +1,4 @@
 module.exports = {
     secretKey: 'assistproject',
-    expiresIn: '1h' // Token expiration time
+    expiresIn: '2000h' // Token expiration time
 };

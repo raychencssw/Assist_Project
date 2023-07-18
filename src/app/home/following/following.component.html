@@ -1,18 +1,28 @@
 <div class="sidebar">
-    <!-- <mat-list role="list">
+    <mat-list role="list">
         <mat-list-item role="listitem" *ngFor="let f of follow">
-            <span></span>
-            {{f.username}}
+            <div class="follow-container" style="display: flex; align-items: center;">
+                <div style="margin-top: 20px; flex: 0 0 auto;">
+                    <img src="{{f.profilepicture ||'assets/user.jpg'}}" alt="userimg" style="height: 50px; width: 50px; border-radius: 50%;">
+                </div>
+                <div class="content" style="margin-top: 20px;">
+                    <p style="margin-bottom: 0px;">{{f.firstname}} {{f.lastname}}</p>
+                    <p class="{{f._id}}"routerLink="/profile/{{f._id}}" appFollowListen style="cursor: pointer; color: aqua; margin-bottom: 10px;">@{{f.username}}</p>
+                </div>
+            </div>
         </mat-list-item>
-    </mat-list> -->
-    <ul class="list-group">
+    </mat-list>
+    <!-- <ul class="list-group">
         <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let f of follow">
             <div class="ms-2 me-auto">
                 <div class="fw-bold">
+                    <div>
+                        <img src="{{f.profilepicture ||'assets/user.jpg'}}" alt="userimg" style="height: 50px; width: 50px; border-radius: 50%;">
+                    </div>
                     {{f.firstname}} {{f.lastname}}
                 </div>
                 <p class="{{f._id}}"routerLink="/profile/{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">@{{f.username}}</p>
             </div>
         </li>
-    </ul>
+    </ul> -->
 </div>

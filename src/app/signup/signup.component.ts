@@ -13,6 +13,10 @@ export class SignupComponent {
   fileName: any = ""
   isWrongExtension: boolean = false
   formData: any
+  isLoading: boolean = false
+  userNameError: boolean = false
+  emailError: boolean = false
+
 
   schools: string[] = ['Los Al', 'Valley Christian', 'Orangewood Academy', 'King Drew','Leuzinger',
   'Poly High', 'Carson', 'Rancho Dominguez', 'South East Gate', 'Washington Prep', 'Da Vinci Schools'];
@@ -30,13 +34,7 @@ export class SignupComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   onSubmit() {
-    //Check if user has selected a school
-    if (!this.user.school) {
-      // Display an error message or perform any other validation logic
-      alert('Please select a school.');
-      return;
-    }
-    
+
     if(this.isWrongExtension) {
       console.error("Incorrect file extension");
       this.router.navigate(['/signup']);
@@ -52,16 +50,26 @@ export class SignupComponent {
     if (this.selectedFile) {
       this.formData.append('profilePicture', this.selectedFile);
     }
+    this.isLoading = true
     const url = 'http://localhost:3080/signup';
+
     this.http.post(url, this.formData)
       .subscribe(
         (response) => {
           console.log(response); // Handle the response from the server
-          this.router.navigate(['/login'])
+          setTimeout(()=>{
+            this.isLoading = false
+            this.router.navigate(['/login'])
+          }, 5000)
         },
         (error) => {
-          console.error(error); // Handle any error that occurs during the request
-          this.router.navigate(['/signup'])
+          this.isLoading = false
+          console.error(error.error.message);
+          if(error.error.message == 'Username already exists'){
+            this.userNameError = true
+          }else if(error.error.message = 'Email already exists'){
+            this.emailError = true
+          }
         }
       );
   }

@@ -21,6 +21,10 @@ export class SearchComponent implements OnInit{
   searchControl = new FormControl();
   getUsersProfile: any;
   profileId: string = "";
+  isInputClicked: boolean = false
+  isClose: boolean = false
+
+
   constructor(private http: HttpClient,
     private router: Router,
     private searchService: SearchServiceService) { }
@@ -106,6 +110,10 @@ export class SearchComponent implements OnInit{
       this.router.navigate([`/events`])
     }
 
+  }
+  toggleClasses() {
+    this.isInputClicked = !this.isInputClicked;
+    this.isClose = !this.isClose;
   }
 
 }

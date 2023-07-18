@@ -40,7 +40,11 @@ import { AuthGuard } from './auth.guard';
 
 import { SearchComponent } from './search/search.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { LandingComponent } from './landing/landing.component';
+import { InfoComponent } from './home/info/info.component';
+import { RecommendationComponent } from './home/recommendation/recommendation.component';
 const appRoutes: Routes = [
+  { path: '', component: LandingComponent},
   { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
   { path: 'events', component: EventsComponent, canActivate:[AuthGuard]},
   { path: 'rankings', component: RankingsComponent, canActivate:[AuthGuard]},
@@ -70,6 +74,9 @@ const appRoutes: Routes = [
     ProfileComponent,
     EventDetailsComponent,
     SearchComponent,
+    InfoComponent,
+    RecommendationComponent,
+
   ],
   imports: [
     BrowserModule,
