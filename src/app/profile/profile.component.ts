@@ -120,6 +120,10 @@ export class ProfileComponent implements OnInit {
     this.myid = JSON.parse(localStorage.getItem("user")!).id
     this.isOwnProfile = this.myid === this.id;
     this.getPosts()
+    this.getFollower()
+  }
+
+  getFollower() {
     this.followingservice.profileFollower$.subscribe((response)=>{
       this.followers = response
     })
@@ -131,7 +135,6 @@ export class ProfileComponent implements OnInit {
     this.userLikedPosts = this.auth.getLikedPosts()
     this.postservice.oneUserPostsResponse.subscribe(postResponse => {
       this.posts.push(...postResponse.posts)
-      console.log(this.posts)
       for (let i = 0; i < this.posts.length; i++) {
         const tempDate = this.posts[i]['date']
         const uploadDate = new Date(tempDate)
@@ -256,20 +259,22 @@ export class ProfileComponent implements OnInit {
     // }
     // this.isFollowing = !this.isFollowing;
     // this.followingservice.followButton(myid, this.id, this.isFollowing)
-
     const myid = JSON.parse(localStorage.getItem("user")!).id
     if(this.following.includes(this.id)){
-      const filteredFollowers = this.followers.filter((filterid: any)=>{
-        filterid != this.id
+      console.log(this.following)
+      const filteredFollowing = this.following.filter((filterid: any)=>{
+        return filterid != this.id
       })
-      this.following = filteredFollowers
-      this.auth.setFollowing(this.followers)
-      this.followingservice.followButton(myid, this.id, true)
+      this.following = filteredFollowing
+      this.auth.setFollowing(this.following)
+      let promise = this.followingservice.followButton(myid, this.id, true)
+      promise.then(result => {this.getFollower()})
     }else{
       this.following.push(this.id)
       this.auth.setFollowing(this.id)
-      this.followingservice.followButton(myid, this.id, false)
+      let promise = this.followingservice.followButton(myid, this.id, false)
       console.log(this.following)
+      promise.then((response) => {this.getFollower()})
     }
   }
   checkFollow(){

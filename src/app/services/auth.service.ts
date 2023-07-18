@@ -2,6 +2,7 @@ import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject, Observable, of, BehaviorSubject } from 'rxjs';
+import { type } from 'os';
 
 @Injectable({
   providedIn: 'root'
@@ -115,7 +116,6 @@ export class AuthService implements OnInit{
 
 
   getAuthToken(): string | null {
-    console.log(localStorage.getItem('token'))
     return localStorage.getItem('token');
   }
   private clearAuthToken(): void {
