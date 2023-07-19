@@ -6,7 +6,7 @@ import { Subject, Observable, of, BehaviorSubject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService implements OnInit{
+export class AuthService implements OnInit {
   private user: any = []; // Define a private property to store the user object
   private isLoggedIn = false;
   private token: any
@@ -19,21 +19,21 @@ export class AuthService implements OnInit{
 
   constructor(private http: HttpClient, private router: Router) {
     this.isLoggedIn = this.checkAuthenticationStatus();
-   }
+  }
 
-   ngOnInit(): void {
-     if(!this.token){
+  ngOnInit(): void {
+    if (!this.token) {
       this.token = localStorage.getItem('token')
-     }
+    }
 
-   }
+  }
 
 
-  loginUser(userDetails: any): Promise<boolean>{
+  loginUser(userDetails: any): Promise<boolean> {
     // Define the endpoint URL
     const url = 'http://localhost:3080/login';
-    return new Promise((resolve, reject)=>{
-      setTimeout(()=>{
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
         // Send the POST request
         this.http.post(url, userDetails).subscribe({
         next: (response) => {
@@ -51,17 +51,18 @@ export class AuthService implements OnInit{
       error: (error) => {
         // Handle any errors
         console.error(error);
+        alert("Please enter a valid email and password");
         this.router.navigate(['/login']);
       }
 
-      });
-      resolve(true)
+        });
+        resolve(true)
       }, 1000)
     })
 
   }
 
-  startTokenExpiration(){
+  startTokenExpiration() {
     const expirationTime = 60 * 60 * 1000;
   }
 
@@ -71,7 +72,7 @@ export class AuthService implements OnInit{
     const tempUser = user.user
     const userDetails = {
       id: tempUser._id,
-      email : tempUser.email,
+      email: tempUser.email,
       firstName: tempUser.firstname,
       lastName: tempUser.lastname,
       eventsAttended: tempUser.eventsAttended,
@@ -95,14 +96,14 @@ export class AuthService implements OnInit{
     localStorage.setItem('token', token);
     console.log(localStorage)
   }
-  setLikedPosts(userPosts: any){
+  setLikedPosts(userPosts: any) {
     console.log(userPosts)
     const postString = JSON.stringify(userPosts)
     localStorage.setItem('likedposts', postString)
   }
-  getLikedPosts(){
+  getLikedPosts() {
     const likedString = localStorage.getItem('likedposts')
-    if(likedString){
+    if (likedString) {
       this.postJson = JSON.parse(likedString)
     }
     return this.postJson
@@ -149,17 +150,17 @@ export class AuthService implements OnInit{
     return of(localStorage.getItem('token')); // Retrieve the stored user object
   }
 
-  findUser(){
+  findUser() {
     const userString = localStorage.getItem('user')
-    if(userString){
+    if (userString) {
       this.userJson = JSON.parse(userString)
     }
     return this.userJson
   }
-  findUserLikedPosts(){
+  findUserLikedPosts() {
 
     const userString = localStorage.getItem('user')
-    if(userString){
+    if (userString) {
       this.userJson = JSON.parse(userString)
       console.log(this.userJson)
     }
@@ -173,7 +174,7 @@ export class AuthService implements OnInit{
   }
   isAuthenticated(): boolean {
     var getToken = this.getAuthToken()
-    if(getToken){
+    if (getToken) {
       this.loginResponse.next(true)
       return true
     }
@@ -181,14 +182,14 @@ export class AuthService implements OnInit{
     return false;
   }
 
-  isLoggedInUser(){
+  isLoggedInUser() {
     return this.user
-  }  
+  }
 
 
 
   logout(): void {
-    this.http.get(`http://localhost:3080/logout`).subscribe((response)=>{
+    this.http.get(`http://localhost:3080/logout`).subscribe((response) => {
       this.isLoggedIn = false;
       this.router.navigate(['/login']);
       this.clearAuthToken();

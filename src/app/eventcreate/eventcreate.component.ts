@@ -11,25 +11,8 @@ import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./eventcreate.component.css'],
 })
 export class EventcreateComponent implements OnInit{
-
+  unamePattern = '^[A-Za-z0-9\\s_]*$'
   datePickerStartAt:any;
-
-  // selectedFile: File | null = null;
-  // fileExtension: any = "";
-  // fileName: any = "";
-  // isWrongExtension: boolean = false;
-
-
-  /**
-   *   Date handling: The user's input was string originally and was assigned to formDate. Then it is passed
-   *                  to Date object to allow further operation. A method toLocaleDateString() is applied to
-   *                  the Date object to transform it to local string format. In the end, the whole form along
-   *                  with the transformed date is sent to backend through eventService.addtoEvents()
-   **/
-
-
-  //used to receive from the user input, then it'll be passed into Date object and be 
-  //transformed to local string format before sending to backend.
   public formDate = "";
 
   public eventForm = {

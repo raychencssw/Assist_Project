@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms'
 import { HttpClientModule } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-import {MatListModule} from '@angular/material/list';
+import { MatListModule } from '@angular/material/list';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -35,7 +35,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { AuthGuard } from './auth.guard';
 
 import { SearchComponent } from './search/search.component';
@@ -50,10 +49,11 @@ const appRoutes: Routes = [
   { path: 'rankings', component: RankingsComponent, canActivate:[AuthGuard]},
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]},
-  { path: 'search', component: SearchComponent, canActivate:[AuthGuard]},
-  { path: 'event-detail/:id', component: EventDetailsComponent, canActivate:[AuthGuard] },
-  
+  { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'search', component: SearchComponent, canActivate: [AuthGuard] },
+  { path: 'event-detail/:id', component: EventDetailsComponent, canActivate: [AuthGuard] },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+
 ]
 
 
@@ -89,14 +89,14 @@ const appRoutes: Routes = [
     MatTabsModule,
     InfiniteScrollModule,
     MatListModule,
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatDatepickerModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
     MatNativeDateModule,
     NgbTimepickerModule,
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
-    
+
     MatAutocompleteModule,
     MatInputModule,
   ],

@@ -23,8 +23,7 @@ export class SearchComponent implements OnInit{
   profileId: string = "";
   isInputClicked: boolean = false
   isClose: boolean = false
-
-
+  getEventProfile: any;
   constructor(private http: HttpClient,
     private router: Router,
     private searchService: SearchServiceService) { }
@@ -106,8 +105,19 @@ export class SearchComponent implements OnInit{
 
       });
     }
-    else {
-      this.router.navigate([`/events`])
+    else if (this.selectedOption === 'option2') {
+      this.searchService.searchevent(result).subscribe(profile => {
+        this.getEventProfile = profile;
+        var profile_url = "event-detail/" + this.getEventProfile["id"];
+        if (this.getEventProfile["id"]) {
+          location.href = profile_url //browser perform a full page reload
+        }
+        else {
+          this.router.navigate(["/events"])
+        }
+
+
+      });
     }
 
   }

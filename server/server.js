@@ -105,9 +105,9 @@ app.get("/home/:page", verifyToken, async (req, res) => {
 });
 
 app.post(
-  "/posts/submit/:userid",
+  "/posts/submit/:userid", middleware(schemas.postPOST),
   verifyToken,
-  upload.single("photo"),
+  upload.single("photo"), middleware(schemas.postPOST),
   async (req, res) => {
     console.log(req.body);
     foundUser = await User.findById(req.params.userid);
@@ -187,18 +187,23 @@ app.post('/posts/togglelike', verifyToken, async (req, res) => {
   console.log(user, post);
   return res.status(201).json({ message: "Like toggled" });
 });
-
-app.post("/signup", upload.single("profilePicture"), async (req, res) => {
+app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPost), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
   console.log(req.body)
   console.log("receive signup notification");
+  if (req.file) {
+    var profilePicture = req.file.path;
+  }
+  else {
+    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
+  }
+
   try {
     const { username, email, firstname, lastname, school } = req.body;
 
-    const profilePicture = req.file.path;
-
     //Check if username already exists
     const existingUsername = await User.findOne({ username });
+
     if (existingUsername) {
       console.log("username already exists");
       return res.status(409).json({ message: "Username already exists" });
@@ -221,6 +226,7 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
       profilepicture: req.file.path,
       school: foundSchool
     });
+
     if (req.body.password == null) {
       console.log("No password");
     }
@@ -243,7 +249,15 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
 //   })
 // );
 
-app.post("/login", passport.authenticate("local"), async function (req, res) {
+// app.post(
+//   "/login",
+//   passport.authenticate("local", {
+//     successRedirect: "/",
+//     failureRedirect: "/login",
+//   })
+// );
+
+app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost), async function (req, res) {
   const token = jwt.sign({ id: req.user._id }, config.secretKey, {
     expiresIn: config.expiresIn,
   });
@@ -304,10 +318,12 @@ app.get('/profile/:userid', verifyToken, async (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-app.put('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
+app.put('/profileedit/:userid', upload.single("profilepicture"), middleware(schemas.profilePOST), async (req, res) => { // 
   const updatedData = req.body;
   const check_file = req.file;
-  console.log("check_file ", check_file)
+  //find school id by school name
+  const schoolDocument = await School.findOne({ name: req.body.school });
+  const schoolID = schoolDocument._id;
   const user = await User.findById(req.params.userid)
   user.username = req.body.username,
     user.firstname = req.body.firstname,
@@ -318,6 +334,7 @@ app.put('/profileedit/:userid', upload.single("profilepicture"), async (req, res
   }
   await user.save()
   res.status(201).json({ message: "profile updated created" });
+  res.status(401).json({ message: "Unauthorized" });
 })
 
 app.get("/eventsearch", async (req, res) => {
@@ -334,7 +351,7 @@ app.get("/usersearch", async(req, res) => {
   });
 });
 
-app.post('/createevent', async (req, res) => {
+app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
   //console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
   //console.log("req.body.Name: " + req.body.Name); //Great event
 
@@ -344,8 +361,12 @@ app.post('/createevent', async (req, res) => {
   const {
     name,
     date,
-    time,
-    location:{
+    time: {
+      minute,
+      hour,
+      second,
+    },
+    location: {
       street,
       city,
       state,
@@ -380,7 +401,11 @@ app.post('/createevent', async (req, res) => {
     name,
     // imageurl,
     date,
-    time,
+    time: {
+      minute,
+      hour,
+      second,
+    },
     location: {
       street,
       city,
@@ -504,8 +529,8 @@ app.get('/searchevent/:eventname', verifyToken, async(req, res)=>{
   const event = await Event.findOne({name: req.params.eventname})
   if(event){
     res.json(event)
-  }else{
-    res.status(500).json({message: 'no such event'})
+  } else {
+    res.status(500).json({ message: 'no such event' })
   }
 })
 

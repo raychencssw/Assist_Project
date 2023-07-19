@@ -13,7 +13,7 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    // required: true,
+    required: true,
   },
   firstname: {
     type: String,
@@ -28,7 +28,6 @@ const userSchema = new Schema({
   },
   role: {
     type: Number,
-    required: true,
   },
   school: {
     type: Schema.Types.ObjectId,
