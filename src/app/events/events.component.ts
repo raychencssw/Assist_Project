@@ -6,14 +6,19 @@ import { Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { SearchServiceService } from '../services/search-service.service';
+import { NgbCarouselConfig, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 
 @Component({
   selector: 'app-events',
   templateUrl: './events.component.html',
-  styleUrls: ['./events.component.css']
+  styleUrls: ['./events.component.css'],
+  providers: [NgbCarouselConfig], // add NgbCarouselConfig to the component providers
 })
-export class EventsComponent implements OnInit {
+export class EventsComponent implements OnInit{
+  showNavigationArrows = true;
+	showNavigationIndicators = false;
 
   events: any = [];             //store the events fetched from the backend
   weeklyEvents: any = [];       //store the events within 1 week
@@ -23,18 +28,35 @@ export class EventsComponent implements OnInit {
   eventId: any
   events_data: any
 
+  weeklyEventsDisplay: any = [];
+  monthlyEventsDisplay: any = [];
+
+  public screenWidth: any;  
+
+  smallDev:boolean = false;
+
   constructor(private modalService: NgbModal,                   //open a modal when "create event" button is clicked
-    private eventService: EventServiceService,        //load events from DB when the page is first-time loaded or after a new event is created
-    private router: Router,
-    private searchService: SearchServiceService) { };                        //for the routerLink that direct to event deatil page
+              private eventService: EventServiceService,        //load events from DB when the page is first-time loaded or after a new event is created
+              private router: Router,                           //for the routerLink that direct to event deatil page
+              private searchService: SearchServiceService,
+              config: NgbCarouselConfig){
+                config.showNavigationArrows = true;
+              };                        
 
   ngOnInit(): void {
     //loadEvent() returns Observable, so subscribe here
     this.eventService.loadEvent().subscribe((events) => {
       console.log("ngOninit loads!");
 
-      this.weeklyEvents = [];
-      this.monthlyEvents = [];
+      this.screenWidth = window.innerWidth; 
+      console.log("screenWidth: " + this.screenWidth);
+      if(this.screenWidth < 700){
+        this.smallDev = true;
+      }
+      console.log("smallDev: " + this.smallDev);
+
+      this.weeklyEvents = [];   
+      this.monthlyEvents = [];  
 
       //store the events from the MongoDB to this.events(not sorted yet)
       this.events = events;
@@ -46,6 +68,8 @@ export class EventsComponent implements OnInit {
 
       this.displayWeekly();
       this.displayMonthly();
+      this.displayWeeklyEvent();
+      this.displayMonthlyEvent();
 
       // console.log("this.weeklyEvents: " + JSON.stringify(this.weeklyEvents));
       // console.log("this.monthlyEvents: " + JSON.stringify(this.monthlyEvents));
@@ -109,6 +133,7 @@ export class EventsComponent implements OnInit {
         this.weeklyEvents = [];
         this.monthlyEvents = [];
 
+
         //store the events from the MongoDB to this.events(not sorted yet)
         this.events = events;
         //console.log("this.events: " + JSON.stringify(this.events));
@@ -119,6 +144,7 @@ export class EventsComponent implements OnInit {
 
         this.displayWeekly();
         this.displayMonthly();
+        this.displayWeeklyEvent();
       });
     })
   }
@@ -193,6 +219,47 @@ export class EventsComponent implements OnInit {
       // console.log("period: " + period);
       if (period <= WEEK && period >= 0) {
         // console.log("event with name " + this.events[i].name + " and period " + period + " is within one week!" );
+        let date = this.events[i].date.split("/");
+        console.log("date[0]: " + date[0]);
+        switch(date[0]){
+          case '1':
+            this.events[i].month = 'Jan';
+            break;
+          case '2':
+            this.events[i].month = 'Feb';
+            break;
+          case '3':
+            this.events[i].month = 'Mar';
+            break;
+          case '4':
+            this.events[i].month = 'Apr';
+            break;
+          case '5':
+            this.events[i].month = 'May';
+            break;
+          case '6':
+            this.events[i].month = 'Jun';
+            break;          
+          case '7':
+            this.events[i].month = 'Jul';
+            break;
+          case '8':
+            this.events[i].month = 'Aug';
+            break;
+          case '9':
+            this.events[i].month = 'Sep';
+            break;
+          case '10':
+            this.events[i].month = 'Oct';
+            break;
+          case '11':
+            this.events[i].month = 'Nov';
+            break;
+          case '12':
+            this.events[i].month = 'Dec';
+            break;
+        }
+        this.events[i].dOfmonth = date[1];
         this.weeklyEvents.push(this.events[i]);
       }
     }
@@ -221,9 +288,118 @@ export class EventsComponent implements OnInit {
 
       if (period >= 0 && eventYear == todayYear && eventMonth == todayMonth) {
         // console.log("event with name " + this.events[i].name + " and period " + period + " is within this month!" );
+        let date = this.events[i].date.split("/");
+        console.log("date[0]: " + date[0]);
+        switch(date[0]){
+          case '1':
+            this.events[i].month = 'Jan';
+            break;
+          case '2':
+            this.events[i].month = 'Feb';
+            break;
+          case '3':
+            this.events[i].month = 'Mar';
+            break;
+          case '4':
+            this.events[i].month = 'Apr';
+            break;
+          case '5':
+            this.events[i].month = 'May';
+            break;
+          case '6':
+            this.events[i].month = 'Jun';
+            break;          
+          case '7':
+            this.events[i].month = 'Jul';
+            break;
+          case '8':
+            this.events[i].month = 'Aug';
+            break;
+          case '9':
+            this.events[i].month = 'Sep';
+            break;
+          case '10':
+            this.events[i].month = 'Oct';
+            break;
+          case '11':
+            this.events[i].month = 'Nov';
+            break;
+          case '12':
+            this.events[i].month = 'Dec';
+            break;
+        }
+        this.events[i].dOfmonth = date[1];
         this.monthlyEvents.push(this.events[i]);
       }
     }
+  }
+
+  displayWeeklyEvent(){
+
+    // var templ = []
+    // for(let i = 0; i < this.weeklyEvents.length; i++){
+    //   if(i < 5){
+    //     templ.push(this.weeklyEvents[i])
+    //   }
+    // }
+    // this.weeklyEventsDisplay.push(templ)
+
+    let numCal = 5  //the number of events on the screen
+    if(this.smallDev){
+      numCal = 3;
+    }
+    console.log("numCal: " + numCal);
+
+    let numGroup = Math.floor(this.weeklyEvents.length / numCal) + 1;  //the number of groups of events
+    console.log("numGroup: " + numGroup);
+
+    for(let i = 0; i < numGroup; i++){
+      var templ = [];
+      for (let j = 0; j < numCal; j++){
+        var index = i * numCal +j
+        if (index < this.weeklyEvents.length){
+          templ.push(this.weeklyEvents[index]);
+        }
+      }
+      this.weeklyEventsDisplay.push(templ);
+    }
+    
+    console.log("this.weeklyEventsDisplay.length: " + this.weeklyEventsDisplay.length)
+    console.log("this.weeklyEventsDisplay[0].length: " + this.weeklyEventsDisplay[0].length)
+  }
+
+  displayMonthlyEvent(){
+
+    // var templ = []
+    // for(let i = 0; i < this.weeklyEvents.length; i++){
+    //   if(i < 5){
+    //     templ.push(this.weeklyEvents[i])
+    //   }
+    // }
+    // this.weeklyEventsDisplay.push(templ)
+
+    let numCal = 5  //the number of events on the screen
+    if(this.smallDev){
+      numCal = 3;
+    }
+    console.log("numCal: " + numCal);
+
+    let numGroup = Math.floor(this.monthlyEvents.length / numCal) + 1;  //the number of groups of events
+    console.log("numGroup: " + numGroup);
+
+    for(let i = 0; i < numGroup; i++){
+      var templ = [];
+      for (let j = 0; j < numCal; j++){
+        var index = i * numCal +j
+        if (index < this.monthlyEvents.length){
+          templ.push(this.monthlyEvents[index]);
+        }
+      }
+      this.monthlyEventsDisplay.push(templ);
+    }
+    
+    console.log("this.monthlyEventsDisplay.length: " + this.monthlyEventsDisplay.length)
+    console.log("this.monthlyEventsDisplay[0].length: " + this.monthlyEventsDisplay[0].length)
   }
 
 }
