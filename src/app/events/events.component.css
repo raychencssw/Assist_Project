@@ -1,5 +1,6 @@
 .assist-blue{
-    color: rgb(55,88,227);
+    /* color: rgb(55,88,227); */
+    color: rgb(49,108,244);
 }
 
 .assist-oragne{
@@ -21,7 +22,9 @@
 
 
 .event-page-bottom{
-    background-color:rgb(246,248,254);
+    /* background-color:rgb(246,248,254); */
+    background-color: rgb(49,108,244);
+    backdrop-filter: blur(5px);
     height:100%;
     width:100%;
     border-radius:20px;
@@ -43,9 +46,13 @@
 }
 
 .create-event{
-    background-color:rgb(238,129,80);
+    /* background-color:rgb(238,129,80); */
+    background-color:rgb(49,108,244);
     color:white;
     border-radius:25px;
+    border-style:solid;
+    border-width:1px;
+    border-color:black;
     width:95%;
     margin:10px auto 10px;
     padding:10px;

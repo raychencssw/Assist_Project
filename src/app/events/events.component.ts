@@ -143,6 +143,7 @@ export class EventsComponent implements OnInit{
         this.displayWeekly();
         this.displayMonthly();
         this.displayWeeklyEvent();
+        this.displayMonthlyEvent();
       });
     })
   }
@@ -341,8 +342,9 @@ export class EventsComponent implements OnInit{
     //   }
     // }
     // this.weeklyEventsDisplay.push(templ)
+    this.weeklyEventsDisplay = [];
 
-    let numCal = 5  //the number of events on the screen
+    let numCal = 6  //the number of events on the screen
     if(this.smallDev){
       numCal = 3;
     }
@@ -376,7 +378,8 @@ export class EventsComponent implements OnInit{
     // }
     // this.weeklyEventsDisplay.push(templ)
 
-    let numCal = 5  //the number of events on the screen
+    this.monthlyEventsDisplay = [];
+    let numCal = 6  //the number of events on the screen
     if(this.smallDev){
       numCal = 3;
     }
