@@ -21,7 +21,7 @@ const verifyToken = require("./verifyToken");
 const Joi = require("joi");
 const schemas = require("./schemas");
 const middleware = require("./middleware");
-const { async } = require("rxjs");
+
 
 const db = mongoose.connection;
 //const passport = require("passport");
@@ -44,6 +44,9 @@ const upload = multer({ storage: storage });
 
 initializePassport(passport);
 const app = express();
+const httpServer = require('http').createServer(app);
+const io = require('socket.io')(httpServer);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
 app.use(bodyParser.json({ limit: "25mb" }));
@@ -104,11 +107,57 @@ app.get("/home/:page", verifyToken, async (req, res) => {
   res.send({ posts: postObjects });
 });
 
+app.get("/profile/:page/:userId", verifyToken, async (req, res) => {
+  console.log("Receive call to get profile posts");
+  page = req.params.page;
+  let userId = req.params.userId;
+  let query = {};
+  if (userId !== undefined) {
+    console.log("Get post for this user: " + userId);
+    query = { author: userId };
+  }
+  const limit = 5;
+  const allPosts = await Post.find(query)
+    .populate([
+      {
+        path: "author",
+        select: " _id username firstname lastname profilepicture",
+      },
+    ])
+    .skip((page - 1) * limit)
+    .limit(limit);
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post._id,
+      userid: post.author._id,
+      username: post.author.username,
+      firstname: post.author.firstname,
+      lastname: post.author.lastname,
+      userprofilepic: post.author.profilepicture,
+      location: post.location,
+      date: post.date,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
+  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
+
 app.post(
-  "/posts/submit/:userid", middleware(schemas.postPOST),
-  verifyToken,
-  upload.single("photo"), middleware(schemas.postPOST),
-  async (req, res) => {
+  "/posts/submit/:userid", verifyToken, upload.single("photo"),async (req, res) => {
+    const postSchema = Joi.object({
+      description: Joi.string().required().min(4).max(1000),
+      location: Joi.string().max(200).required(),
+      photo: Joi.string().max(200).optional().allow(null).allow(''),
+    });
+  
+    const validationResult = postSchema.validate(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error.details[0].message });
+    }
+  
     console.log(req.body);
     foundUser = await User.findById(req.params.userid);
 
@@ -170,13 +219,13 @@ app.post('/posts/togglelike', verifyToken, async (req, res) => {
   const post = await Post.findById(req.body.postid)
   // console.log(user, post)
   if (req.body.addtoLike) {
-    user.likedposts.push(post._id)
-    const like = post.likes + 1
-    post.likes = like
+    user.likedposts.push(post._id);
+    const like = post.likes + 1;
+    post.likes = like;
   } else {
-    user.likedposts = user.likedposts.filter(postId => {
-      postId != req.body.postid
-    })
+    user.likedposts = user.likedposts.filter((postId) => {
+      postId != req.body.postid;
+    });
     if (post.likes > 0) {
       const like = post.likes - 1;
       post.likes = like;
@@ -445,31 +494,39 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-app.get('/following/:userid', verifyToken, async (req, res) => {
-  const user = await User.findById(req.params.userid)
-  console.log(req.params.id)
+app.get("/following/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
+  console.log(req.params.id);
   const follow = await user.populate([
     { path: "following", select: "username firstname lastname profilepicture" },
   ]);
-  console.log(follow)
+  console.log(follow);
   res.send({ following: follow.following });
 });
 
-app.get('/following/:userid', verifyToken, async (req, res) => {
-  const user = await User.findById(req.params.userid)
+app.get("/follower/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
+  const follow = await user.populate([
+    { path: "followers", select: "username firstname lastname" },
+  ]);
+  console.log(follow);
+  res.send({ followers: follow.followers });
+});
+
+app.get("/following/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
   res.send(user);
 });
 
-
-app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
+app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
   const isfollowing = req.params.isfollowing;
   const myid = req.params.myid;
   const userid = req.params.userid;
 
-
   if (isfollowing == "false") {
     //append myid to user's follower  
     const user = await User.findById(userid)
+    const me = await User.findById(myid)
     user.followers.push(myid)
     const notification = new Notification({
       type: 'follow',
@@ -486,32 +543,42 @@ app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
     myuser.following.push(userid)
     await user.save()
     await myuser.save()
-    console.log("THE USER IS", user)
+    console.log("THE USER IS", user)  
+    const newNotification = {
+      type: 'follow',
+      date: Date.now(),
+      follower: {
+        _id: myid,
+        firstname: me.firstname,
+        lastname: me.lastname,
+        profilepicture: me.profilepicture
+      },
+      from: {
+        firstname: me.firstname,
+        lastname: me.lastname,
+        _id: myid
+      },
+      isRead: false,
+      _id: notification._id
+    }
+    io.to(userid).emit('newFollower', newNotification);
+    io.to(myid).emit('followUpdated');
     res.status(201).json({ message: "follow updated" })
   }
 
   else {
     //pop out myid from user's follower
-    const user = await User.findById(userid)
+    const user = await User.findById(userid);
     user.followers.pull(myid);
 
     // append userid to my following list
-    const myuser = await User.findById(myid)
-    myuser.following.pull(userid)
-    await user.save()
-    await myuser.save()
-    res.status(201).json({ message: "unfollow updated" })
+    const myuser = await User.findById(myid);
+    myuser.following.pull(userid);
+    await user.save();
+    await myuser.save();
+    io.to(myid).emit('followUpdated');
+    res.status(201).json({ message: "unfollow updated" });
   }
-
-
-})
-
-app.get("/follower", verifyToken, async (req, res) => {
-  const user = await User.findOne({ id: 1 });
-  const follow = await user.populate([
-    { path: "followers", select: "username firstname lastname" },
-  ]);
-  res.send({ following: follow.followers });
 });
 
 app.get("/searchuser/:username", async (req, res) => {
@@ -532,7 +599,7 @@ app.get('/searchevent/:eventname', verifyToken, async(req, res)=>{
   } else {
     res.status(500).json({ message: 'no such event' })
   }
-})
+});
 
 app.get("/ranking/student", verifyToken, async (req, res) => {
   try {
@@ -562,7 +629,7 @@ app.get("/ranking/school", verifyToken, async (req, res) => {
   }
 });
 
-app.post('/api/checkin', async (req, res) => {
+app.post("/api/checkin", async (req, res) => {
   try {
     const { userId, eventId } = req.body;
     const existingCheckIn = await CheckIn.findOne({
@@ -572,7 +639,7 @@ app.post('/api/checkin', async (req, res) => {
     });
 
     if (existingCheckIn) {
-      return res.status(400).json({ error: 'User is already checked in.' });
+      return res.status(400).json({ error: "User is already checked in." });
     }
     const newCheckIn = new CheckIn({
       userId: userId,
@@ -581,10 +648,10 @@ app.post('/api/checkin', async (req, res) => {
 
     await newCheckIn.save();
 
-    res.json({ message: 'User checked in successfully!!!' });
+    res.json({ message: "User checked in successfully!!!" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'An error occurred!!!' });
+    res.status(500).json({ error: "An error occurred!!!" });
   }
 });
 
@@ -665,6 +732,6 @@ app.use((req, res) => {
 
 const port = process.env.PORT || 3080;
 
-app.listen(port, () => {
-  console.log(`Server started at ${port}`);
+httpServer.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });

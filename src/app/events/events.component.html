@@ -102,68 +102,6 @@
         </ng-template>
     </ngb-carousel>
 
-    <mat-tab-group class="custom-tab-group">
-
-        <!-- events in a week -->
-        <mat-tab label="Week">
-            <div class="events-wrap">
-                <table>
-                    <tbody>
-                        <tr *ngFor="let event of weeklyEvents">
-                            <div class="assist-blue">{{event.date}}</div>
-                                <div>
-                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
-                                <td class="vertical"></td>
-                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
-                                    {{event.location.city}}, {{event.location.state}}
-                                </td>                       
-                                <td class="text-end">
-                                    <!-- only valid for static route -->
-                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
-
-                                    <!-- <a [routerLink]="'/event-detail/' + event._id"> -->
-                                    <a [routerLink]="'/event-detail/' + event._id">
-                                        <span class="material-icons">chevron_right</span>
-                                    </a>
-                                </td> 
-                            </div>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </mat-tab>
-
-        <!-- events in a month -->
-        <mat-tab label="Month">
-            <div class="events-wrap">
-                <table>
-                    <tbody>
-                        <tr *ngFor="let event of monthlyEvents">
-                            <div class="assist-blue">{{event.date}}</div>
-                                <div>
-                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
-                                <td class="vertical"></td>
-                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
-                                    {{event.location.city}}, {{event.location.state}}
-                                </td>
-                                <td class="text-end">
-                                    <!-- only valid for static route -->
-                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
-
-                                    <!-- <a [routerLink]="'/event-detail/' + event._id"> -->
-                                    <a [routerLink]="'/event-detail/' + event._id">
-                                        <span class="material-icons">chevron_right</span>
-                                    </a>
-                                </td> 
-                            </div>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </mat-tab>
-
-    </mat-tab-group>
-
     <!-- Create Event button -->
     <div class="fs-5 text-center create-event" (click)="createEvent()">Create Event</div>
 

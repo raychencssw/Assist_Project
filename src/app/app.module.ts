@@ -36,6 +36,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthGuard } from './auth.guard';
+// import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+
+// const config: SocketIoConfig = { url: 'http://localhost:3080', options: {} };
 
 import { SearchComponent } from './search/search.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -96,7 +99,6 @@ const appRoutes: Routes = [
     NgbTimepickerModule,
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
-
     MatAutocompleteModule,
     MatInputModule,
   ],

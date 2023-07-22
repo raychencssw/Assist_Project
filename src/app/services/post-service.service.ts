@@ -72,12 +72,11 @@ export class PostServiceService implements OnInit{
       'Authorization': `Bearer ${this.token }`
     });
     const requestOptions = { headers: headers };
-    let url = `http://localhost:3080/home/${pageNumber}/${userId}`;
+    let url = `http://localhost:3080/profile/${pageNumber}/${userId}`;
     this.http.get(url, requestOptions).subscribe((response)=>{
       console.log(response)
       this.oneUserPostsResponse.next(response)
     })
-    
   }
 }
 
