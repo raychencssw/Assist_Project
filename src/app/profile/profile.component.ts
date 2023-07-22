@@ -85,12 +85,12 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.id = params.get("id")
+      const user = this.auth.findUser()
+      if(user.id == this.id){
+        this.sameUser = true
+      }
       this.getData()
     })
-    const user = this.auth.findUser()
-    if(user.id == this.id){
-      this.sameUser = true
-    }
 
   }
 
