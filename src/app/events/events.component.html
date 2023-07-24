@@ -1,4 +1,4 @@
-<div class="container-xl event-page-bottom" style="margin-top: 80px;">
+<div class="container-xl event-page-bottom">
     <!-- nav bar -->
     <div class="autocomplete_box container-sm">
         <input type="text" class="textbox" [formControl]="eventKeyword" [matAutocomplete]="auto">
@@ -10,7 +10,7 @@
     </div>
 
     <!-- week  -->
-    <p class="fs-3 mt-3">Week</p>
+    <p class="fs-3 mt-3 text-center">Week</p>
     <ngb-carousel
     [interval]="0"
     [showNavigationArrows]="showNavigationArrows"
@@ -44,6 +44,7 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
+                            <div class="calendar-overlay-top">{{each.month}}</div>
                             <div class="calendar-overlay">
                                 <a [routerLink]="'/event-detail/' + each._id">
                                     {{each.dOfmonth}}
@@ -57,7 +58,7 @@
     </ngb-carousel>
 
     <!-- month  -->
-    <p class="fs-3 mt-3">Month</p>
+    <p class="fs-3 mt-3 text-center">Month</p>
     <ngb-carousel
     [interval]="0"
     [showNavigationArrows]="showNavigationArrows"
@@ -90,6 +91,7 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
+                            <div class="calendar-overlay-top">{{each.month}}</div>
                             <div class="calendar-overlay">
                                 <a [routerLink]="'/event-detail/' + each._id">
                                     {{each.dOfmonth}}
@@ -102,10 +104,69 @@
         </ng-template>
     </ngb-carousel>
 
+    <!-- <mat-tab-group class="custom-tab-group"> -->
+
+        <!-- events in a week -->
+        <!-- <mat-tab label="Week">
+            <div class="events-wrap">
+                <table>
+                    <tbody>
+                        <tr *ngFor="let event of weeklyEvents">
+                            <div class="assist-blue">{{event.date}}</div>
+                                <div>
+                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
+                                <td class="vertical"></td>
+                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
+                                    {{event.location.city}}, {{event.location.state}}
+                                </td>                       
+                                <td class="text-end"> -->
+                                    <!-- only valid for static route -->
+                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
+
+                                    <!-- <a [routerLink]="'/event-detail/' + event._id">
+                                        <span class="material-icons">chevron_right</span>
+                                    </a>
+                                </td> 
+                            </div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </mat-tab> -->
+
+        <!-- events in a month -->
+        <!-- <mat-tab label="Month">
+            <div class="events-wrap">
+                <table>
+                    <tbody>
+                        <tr *ngFor="let event of monthlyEvents">
+                            <div class="assist-blue">{{event.date}}</div>
+                                <div>
+                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
+                                <td class="vertical"></td>
+                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
+                                    {{event.location.city}}, {{event.location.state}}
+                                </td>
+                                <td class="text-end"> -->
+                                    <!-- only valid for static route -->
+                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
+
+                                    <!-- <a [routerLink]="'/event-detail/' + event._id">
+                                        <span class="material-icons">chevron_right</span>
+                                    </a>
+                                </td> 
+                            </div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group> -->
+
     <!-- Create Event button -->
-    <div class="fs-5 text-center create-event" (click)="createEvent()">Create Event</div>
-
-
+    <div class="fs-5 text-center create-event mt-3 mb-3" (click)="createEvent()">Create Event</div>
+    
     <div class="info-wrap">
         <p class="fs-5 fw-bold text-center assist-blue mb-1">Need More Points?</p>
         <p class="fs-6 text-center text-secondary">We are here to help.</p>

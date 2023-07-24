@@ -145,6 +145,7 @@ export class EventsComponent implements OnInit{
         this.displayWeekly();
         this.displayMonthly();
         this.displayWeeklyEvent();
+        this.displayMonthlyEvent();
       });
     })
   }
@@ -328,6 +329,7 @@ export class EventsComponent implements OnInit{
             this.events[i].month = 'Dec';
             break;
         }
+        console.log("this.events[" + i + "].month: " + this.events[i].month);
         this.events[i].dOfmonth = date[1];
         this.monthlyEvents.push(this.events[i]);
       }
@@ -343,8 +345,10 @@ export class EventsComponent implements OnInit{
     //   }
     // }
     // this.weeklyEventsDisplay.push(templ)
+    this.weeklyEventsDisplay = [];
 
-    let numCal = 5  //the number of events on the screen
+
+    let numCal = 6  //the number of events on the screen
     if(this.smallDev){
       numCal = 3;
     }
@@ -359,6 +363,7 @@ export class EventsComponent implements OnInit{
         var index = i * numCal +j
         if (index < this.weeklyEvents.length){
           templ.push(this.weeklyEvents[index]);
+          console.log("temp[0].month: " + templ[0].month)
         }
       }
       this.weeklyEventsDisplay.push(templ);
@@ -377,8 +382,10 @@ export class EventsComponent implements OnInit{
     //   }
     // }
     // this.weeklyEventsDisplay.push(templ)
+    this.monthlyEventsDisplay = [];
 
-    let numCal = 5  //the number of events on the screen
+
+    let numCal = 6  //the number of events on the screen
     if(this.smallDev){
       numCal = 3;
     }
