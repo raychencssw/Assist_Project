@@ -1,0 +1,61 @@
+.r-container{
+    width: 20%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    margin-left: 20px;
+    margin-top: 20px;
+    height: 400px;
+    overflow-y: auto;
+    position: fixed;
+    /* top: calc(200px + 100px); */
+    /* z-index: 1; */
+}
+/* ===== Scrollbar CSS ===== */
+  /* Firefox */
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: #8f54a0 #ffffff;
+  }
+
+  /* Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #3939db;
+    border-radius: 10px;
+    border: 3px solid #ffffff;
+  }
+
+  .text-container{
+    position: fixed;
+    height: 100px;
+    width: 20%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    margin-left: 20px;
+    margin-top: 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* @media only screen and ((min-width: 630px) and (max-width: 768px)) {
+    .r-container {
+      width: 100%;
+      position: relative;
+      margin-left: 0;
+    }
+  } */
+
+  @media only screen and (max-width: 990px) {
+    .r-container {
+      display: none;
+    }
+    
+  }

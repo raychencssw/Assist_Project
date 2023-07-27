@@ -1,4 +1,4 @@
-<div class="container-xl event-page-bottom">
+<div class="container-xl event-page-bottom" style="margin-top: 80px;">
     <!-- nav bar -->
     <div class="autocomplete_box container-sm">
         <input type="text" class="textbox" [formControl]="eventKeyword" [matAutocomplete]="auto">
@@ -8,67 +8,99 @@
             </mat-option>
         </mat-autocomplete>
     </div>
-    <mat-tab-group class="custom-tab-group"> <!-- how do I adjust the spacing between tabs? -->
 
-        <!-- events in a week -->
-        <mat-tab label="Week">
-            <div class="events-wrap">
-                <table>
-                    <tbody>
-                        <tr *ngFor="let event of weeklyEvents">
-                            <div class="assist-blue">{{event.date}}</div>
-                                <div>
-                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
-                                <td class="vertical"></td>
-                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
-                                    {{event.location.city}}, {{event.location.state}}
-                                </td>                       
-                                <td class="text-end">
-                                    <!-- only valid for static route -->
-                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
+    <!-- week  -->
+    <p class="fs-3 mt-3">Week</p>
+    <ngb-carousel
+    [interval]="0"
+    [showNavigationArrows]="showNavigationArrows"
+    [showNavigationIndicators]="showNavigationIndicators"
+    [wrap]="false"
+    >
+        <!-- <ng-template ngbSlide *ngFor="let event of weeklyEvents"> -->
+        <ng-template ngbSlide *ngFor="let event of weeklyEventsDisplay">
+            <!-- <img [src]="image" alt="Random slide" /> -->
 
-                                    <!-- <a [routerLink]="'/event-detail/' + event._id"> -->
-                                    <a [routerLink]="'/event-detail/' + event._id">
-                                        <i class="fa-solid fa-chevron-right"></i>
-                                    </a>
-                                </td> 
+            <div class="row no-gutters" style="flex-wrap: nowrap;padding-left:70px;padding-right:70px"> 
+                <!-- small device -->
+                <ng-template [ngIf]="this.smallDev">
+                    <div class="col-4" *ngFor="let each of event">       
+                        <div class="calendar-container">
+                            <div class="calendar"></div>
+                            <div class="calendar-top"></div>
+                            <div class="calendar-overlay-top">{{each.month}}</div>
+                            <div class="calendar-overlay">
+                                <a [routerLink]="'/event-detail/' + each._id">
+                                    {{each.dOfmonth}}
+                                </a>
                             </div>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </mat-tab>
+                        </div>
+                    </div>
+                </ng-template>
 
-        <!-- events in a month -->
-        <mat-tab label="Month">
-            <div class="events-wrap">
-                <table>
-                    <tbody>
-                        <tr *ngFor="let event of monthlyEvents">
-                            <div class="assist-blue">{{event.date}}</div>
-                                <div>
-                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
-                                <td class="vertical"></td>
-                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
-                                    {{event.location.city}}, {{event.location.state}}
-                                </td>
-                                <td class="text-end">
-                                    <!-- only valid for static route -->
-                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
-
-                                    <!-- <a [routerLink]="'/event-detail/' + event._id"> -->
-                                    <a [routerLink]="'/event-detail/' + event.id">
-                                        <i class="fa-sharp fa-solid fa-chevron-right"></i>
-                                    </a>
-                                </td> 
+                <!-- large device -->
+                <ng-template [ngIf]="!this.smallDev">
+                    <div class="col-2" *ngFor="let each of event">       
+                        <div class="calendar-container">
+                            <div class="calendar"></div>
+                            <div class="calendar-top"></div>
+                            <div class="calendar-overlay">
+                                <a [routerLink]="'/event-detail/' + each._id">
+                                    {{each.dOfmonth}}
+                                </a>
                             </div>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </mat-tab>
+                        </div>
+                    </div>
+                </ng-template>
+            </div>              
+        </ng-template>
+    </ngb-carousel>
 
-    </mat-tab-group>
+    <!-- month  -->
+    <p class="fs-3 mt-3">Month</p>
+    <ngb-carousel
+    [interval]="0"
+    [showNavigationArrows]="showNavigationArrows"
+    [showNavigationIndicators]="showNavigationIndicators"
+    [wrap]="false"
+    >
+        <!-- <ng-template ngbSlide *ngFor="let event of monthlyEvents"> -->
+        <ng-template ngbSlide *ngFor="let event of monthlyEventsDisplay">
+            <!-- <img [src]="image" alt="Random slide" /> -->
+            <div class="row no-gutters" style="flex-wrap: nowrap;padding-left:70px;padding-right:70px"> 
+                <!-- small device -->
+                <ng-template [ngIf]="this.smallDev">
+                    <div class="col-4" *ngFor="let each of event">       
+                        <div class="calendar-container">
+                            <div class="calendar"></div>
+                            <div class="calendar-top"></div>
+                            <div class="calendar-overlay-top">{{each.month}}</div>
+                            <div class="calendar-overlay">
+                                <a [routerLink]="'/event-detail/' + each._id">
+                                    {{each.dOfmonth}}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <!-- large device -->
+                <ng-template [ngIf]="!this.smallDev">
+                    <div class="col-2" *ngFor="let each of event">       
+                        <div class="calendar-container">
+                            <div class="calendar"></div>
+                            <div class="calendar-top"></div>
+                            <div class="calendar-overlay">
+                                <a [routerLink]="'/event-detail/' + each._id">
+                                    {{each.dOfmonth}}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </div>                
+        </ng-template>
+    </ngb-carousel>
 
     <!-- Create Event button -->
     <div class="fs-5 text-center create-event" (click)="createEvent()">Create Event</div>

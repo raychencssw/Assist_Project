@@ -1,0 +1,72 @@
+/* video-background.component.css */
+:host {
+    display: block;
+    height: 100%;
+  }
+  
+  .video-background {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    z-index: -1;
+    /* filter: blur(5px);  */
+  }
+  
+  .video-background video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+  }
+  
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    margin-top: 12%;
+  }
+  .assist-logo{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+  }
+  
+  .banner {
+    text-align: center;
+    color: #fff;
+  }
+  
+  .banner h1 {
+    margin-bottom: 20px;
+    letter-spacing: 1rem;
+    text-transform: uppercase;
+    font-size: 60px;
+    font-family: 'Gentium Plus', serif;
+    font-family: 'Montserrat', sans-serif;
+    color: #1d2140;
+  }
+  
+  .buttons {
+    margin-top: 20px;
+  }
+  
+  .buttons button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    background-color: #4fad32;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  

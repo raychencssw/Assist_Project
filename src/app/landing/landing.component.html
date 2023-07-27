@@ -1,0 +1,18 @@
+<div class="video-background">
+    <video #video autoplay loop [muted]="'muted'">
+        <source [src]="videoUrl" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+  </div>
+  
+  <div class="content">
+    <div class="banner">
+        <img src="assets/ASSIST.jpeg" alt="logo" class="assist-logo">
+      <h1>Assist Project</h1>
+      <div class="buttons">
+        <button class="signup" routerLink="/signup" (click)="redirectSignup()">SIGN UP</button>
+        <button class="login" routerLink="/login" (click)="redirectLogin()">LOG IN</button>
+      </div>
+    </div>
+</div>
+  

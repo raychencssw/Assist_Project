@@ -16,7 +16,7 @@ export class FollowingComponent implements OnInit{
       this.follow = response
       console.log(this.follow)
     })
-    this.following.getFollowers()
+    this.following.getFollowing()
   }
 
 }

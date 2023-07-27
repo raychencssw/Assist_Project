@@ -7,6 +7,7 @@ const User = require("./models/user");
 const Event = require("./models/event");
 const Post = require("./models/post");
 const School = require("./models/school");
+const Notification = require('./models/notification');
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
@@ -20,7 +21,8 @@ const verifyToken = require("./verifyToken");
 const Joi = require("joi");
 const schemas = require("./schemas");
 const middleware = require("./middleware");
-const { async } = require("rxjs");
+const passwordResetRoute = require('./passwordreset');
+
 
 const db = mongoose.connection;
 //const passport = require("passport");
@@ -31,17 +33,21 @@ const db = mongoose.connection;
 const multer = require("multer");
 const { storage } = require("../cloudinary");
 const { cloudinary } = require("../cloudinary");
+const { verify } = require("crypto");
 
 // creating variables
 const characters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 let randomId = "";
 let posts = [];
+const userSocketMap = {};
 
 const upload = multer({ storage: storage });
 
 initializePassport(passport);
 const app = express();
+
+
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
 app.use(bodyParser.json({ limit: "25mb" }));
@@ -55,6 +61,14 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+const httpServer = require('http').createServer(app);
+const io = require('socket.io')(httpServer, {
+  cors: {
+    origins: ['http://localhost:4200']
+  }
+});
+
+
 
 let db_url =
   "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
@@ -69,7 +83,29 @@ mongoose
     console.log(e);
   });
 
+
+
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  const socketid = socket.id
+  socket.on('user', (user)=>{
+    userSocketMap[user] = socket.id;
+    console.log(userSocketMap)
+  })
+  socket.on('removeuser', (userid)=>{
+    if(userSocketMap.hasOwnProperty(userid)){
+      delete userSocketMap[userid]
+      console.log("THE NEW DICT IS", userSocketMap)
+    }
+  })
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+}); 
 // ROUTES
+
+app.use('/api', passwordResetRoute);
 
 app.get("/home/:page", verifyToken, async (req, res) => {
   page = req.params.page;
@@ -98,15 +134,58 @@ app.get("/home/:page", verifyToken, async (req, res) => {
       imageurl: post.imageurl,
     };
   });
-  console.log(postObjects);
+  res.send({ posts: postObjects });
+});
+
+app.get("/profile/:page/:userId", verifyToken, async (req, res) => {
+  console.log("Receive call to get profile posts");
+  page = req.params.page;
+  let userId = req.params.userId;
+  let query = {};
+  if (userId !== undefined) {
+    query = { author: userId };
+  }
+  const limit = 5;
+  const allPosts = await Post.find(query)
+    .populate([
+      {
+        path: "author",
+        select: " _id username firstname lastname profilepicture",
+      },
+    ])
+    .skip((page - 1) * limit)
+    .limit(limit);
+  const postObjects = allPosts.map((post) => {
+    return {
+      id: post._id,
+      userid: post.author._id,
+      username: post.author.username,
+      firstname: post.author.firstname,
+      lastname: post.author.lastname,
+      userprofilepic: post.author.profilepicture,
+      location: post.location,
+      date: post.date,
+      description: post.description,
+      likes: post.likes,
+      imageurl: post.imageurl,
+    };
+  });
   res.send({ posts: postObjects });
 });
 
 app.post(
-  "/posts/submit/:userid",
-  verifyToken,
-  upload.single("photo"),
-  async (req, res) => {
+  "/posts/submit/:userid", verifyToken, upload.single("photo"),async (req, res) => {
+    const postSchema = Joi.object({
+      description: Joi.string().required().min(4).max(1000),
+      location: Joi.string().max(200).required(),
+      photo: Joi.string().max(200).optional().allow(null).allow(''),
+    });
+  
+    const validationResult = postSchema.validate(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error.details[0].message });
+    }
+  
     console.log(req.body);
     foundUser = await User.findById(req.params.userid);
 
@@ -126,7 +205,7 @@ app.post(
       imageurl: req.file.path,
     });
     await post.save();
-    foundUser.posts.push(post);
+    foundUser.posts.unshift(post);
     res.json({ success: true, message: "Data received" });
   }
 );
@@ -147,7 +226,7 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
     .limit(limit);
   const postObjects = allPosts.map((post) => {
     return {
-      id: post.id,
+      id: post._id,
       author: post.author.username,
       location: post.location,
       date: post.date,
@@ -162,19 +241,19 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
 });
 
 
-app.post('/posts/togglelike', async (req, res) => {
+app.post('/posts/togglelike', verifyToken, async (req, res) => {
 
   const user = await User.findById(req.body.userid)
   const post = await Post.findById(req.body.postid)
   // console.log(user, post)
   if (req.body.addtoLike) {
-    user.likedposts.push(post._id)
-    const like = post.likes + 1
-    post.likes = like
+    user.likedposts.push(post._id);
+    const like = post.likes + 1;
+    post.likes = like;
   } else {
-    user.likedposts = user.likedposts.filter(postId => {
-      postId != req.body.postid
-    })
+    user.likedposts = user.likedposts.filter((postId) => {
+      postId != req.body.postid;
+    });
     if (post.likes > 0) {
       const like = post.likes - 1;
       post.likes = like;
@@ -185,24 +264,28 @@ app.post('/posts/togglelike', async (req, res) => {
   console.log(user, post);
   return res.status(201).json({ message: "Like toggled" });
 });
-
-app.post("/signup", upload.single("profilePicture"), async (req, res) => {
+app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPost), async (req, res) => {
   // Jack should work here. Receive the userdata and store it in the "User" collection.
   console.log("receive signup notification");
+  if (req.file) {
+    var profilePicture = req.file.path;
+  }
+  else {
+    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
+  }
+
   try {
     const { username, email, firstname, lastname, school } = req.body;
 
-    const profilePicture = req.file.path;
-
     //Check if username already exists
     const existingUsername = await User.findOne({ username });
+
     if (existingUsername) {
       console.log("username already exists");
       return res.status(409).json({ message: "Username already exists" });
     }
 
     //Check if email already exists
-    //Check if username already exists
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       console.log("email already exists");
@@ -210,17 +293,16 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
     }
 
     //Find school id from school name
-    const schoolDocument = await School.findOne({ name: school });
-    const schoolID = schoolDocument.id;
-
+    const foundSchool = await School.findOne({ name: school });
     const newUser = new User({
-      username,
-      email,
-      firstname,
-      lastname,
-      profilePicture,
-      schoolID,
+      email: req.body.email,
+      username: req.body.username,
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      profilepicture: req.file.path,
+      school: foundSchool
     });
+
     if (req.body.password == null) {
       console.log("No password");
     }
@@ -235,22 +317,38 @@ app.post("/signup", upload.single("profilePicture"), async (req, res) => {
   }
 });
 
-// app.post(
-//   "/login",
-//   passport.authenticate("local", {
-//     successRedirect: "/",
-//     failureRedirect: "/login",
-//   })
-// );
 
-app.post("/login", passport.authenticate("local"), function (req, res) {
+app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost), async function (req, res) {
   const token = jwt.sign({ id: req.user._id }, config.secretKey, {
     expiresIn: config.expiresIn,
   });
-  console.log(token);
+  const tempUser = await User.findById(req.user._id).populate([
+    {
+      path: "school",
+      select: "name",
+    },
+    {
+      path: "notifications",
+      select: 'type date isRead',
+      populate:[
+        {
+          path: 'follower',
+          select: 'firstname lastname profilepicture',
+        },
+        {
+          path: 'event',
+          select: 'name'
+        },
+        {
+          path: 'from',
+          select: 'firstname lastname',
+        }
+      ]
+    }
+  ])
   res.json({
     token: token,
-    user: req.user,
+    user: tempUser,
   });
 });
 
@@ -263,6 +361,7 @@ app.get("/logout", (req, res) => {
   });
 });
 
+
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
@@ -273,7 +372,7 @@ app.get("/qrscan", (req, res) => {
 
 app.get('/profile/:userid', verifyToken, async (req, res) => {
     console.log(req.params.userid)
-    const user = await User.findById(req.params.userid)
+    const user = await User.findById(req.params.userid).populate('school', 'name')
     res.send(user)
 })
 
@@ -281,38 +380,44 @@ app.get('/profile/:userid', verifyToken, async (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-app.post('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
-  const updatedData = req.body;
-  const check_file = req.file;
-  console.log("check_file ", check_file)
-  const user = await User.findById(req.params.userid)
-  user.username = req.body.username,
-    user.school = req.body.school,
-    user.firstname = req.body.firstname,
-    user.lastname = req.body.lastname,
-    user.email = req.body.email
-  if (check_file) {
-    user.profilepicture = req.file.path
-  }
+app.put('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
+  try {
+    const updatedData = req.body;
+    const check_file = req.file;
+    //find school id by school name
+    const schoolDocument = await School.findOne({ name: req.body.school });
+    const schoolID = schoolDocument._id;
+    const user = await User.findById(req.params.userid)
+    user.username = req.body.username,
+      user.firstname = req.body.firstname,
+      user.lastname = req.body.lastname,
+      user.email = req.body.email
+    if (check_file) {
+      user.profilepicture = req.file.path
+    }
   await user.save()
   res.status(201).json({ message: "profile updated created" });
+  } catch (error) {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+  
 })
 
-app.get("/eventsearch", (req, res) => {
+app.get("/eventsearch", async (req, res) => {
   const getEvents = Event.distinct("name"); //.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result);
   });
 });
 
-app.get("/usersearch", (req, res) => {
+app.get("/usersearch", async(req, res) => {
   const getEvents = User.distinct("username"); //.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result);
   });
 });
 
-app.post('/createevent', async (req, res) => {
+app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
   //console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
   //console.log("req.body.Name: " + req.body.Name); //Great event
 
@@ -322,8 +427,12 @@ app.post('/createevent', async (req, res) => {
   const {
     name,
     date,
-    time,
-    location:{
+    time: {
+      minute,
+      hour,
+      second,
+    },
+    location: {
       street,
       city,
       state,
@@ -358,7 +467,11 @@ app.post('/createevent', async (req, res) => {
     name,
     // imageurl,
     date,
-    time,
+    time: {
+      minute,
+      hour,
+      second,
+    },
     location: {
       street,
       city,
@@ -398,62 +511,101 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-app.get('/following/:userid', verifyToken, async (req, res) => {
-  const user = await User.findById(req.params.userid)
-  console.log(req.params.id)
+app.get("/following/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
+  console.log(req.params.id);
   const follow = await user.populate([
-    { path: "following", select: "username firstname lastname" },
+    { path: "following", select: "username firstname lastname profilepicture" },
   ]);
-  console.log(follow)
+  console.log(follow);
   res.send({ following: follow.following });
 });
 
-app.get('/following/:userid', verifyToken, async (req, res) => {
-  const user = await User.findById(req.params.userid)
+app.get("/follower/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
+  const follow = await user.populate([
+    { 
+      path: "followers", 
+      select: "username firstname lastname profilepicture",
+      populate:
+      {
+        path: 'school',
+        select: 'name',
+      },
+    }
+    
+  ]);
+  console.log(follow);
+  res.send({ followers: follow.followers });
+});
+
+app.get("/following/:userid", verifyToken, async (req, res) => {
+  const user = await User.findById(req.params.userid);
   res.send(user);
 });
 
-
-app.post('/follow/:myid/:userid/:isfollowing', async (req, res) => {
+app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
   const isfollowing = req.params.isfollowing;
   const myid = req.params.myid;
   const userid = req.params.userid;
-
-
+  const socketid = userSocketMap[userid]
   if (isfollowing == "false") {
     //append myid to user's follower  
     const user = await User.findById(userid)
+    const me = await User.findById(myid)
     user.followers.push(myid)
+    const notification = new Notification({
+      type: 'follow',
+      to: user._id,
+      from: myid,
+      follower: myid,
+      isRead: false
+    })
+    console.log("THE NOTIFICATION IS", notification)
+    user.notifications.unshift(notification)
+    await notification.save()
     // append userid to my following list
     const myuser = await User.findById(myid)
     myuser.following.push(userid)
     await user.save()
     await myuser.save()
+    console.log("THE USER IS", user)  
+    if(socketid){
+      const newNotification = {
+        type: 'follow',
+        date: Date.now(),
+        follower: {
+          _id: myid,
+          firstname: me.firstname,
+          lastname: me.lastname,
+          profilepicture: me.profilepicture
+        },
+        from: {
+          firstname: me.firstname,
+          lastname: me.lastname,
+          _id: myid
+        },
+        isRead: false,
+        _id: notification._id
+      }
+      io.to(socketid).emit('newFollower', newNotification);
+    }
     res.status(201).json({ message: "follow updated" })
   }
 
   else {
     //pop out myid from user's follower
-    const user = await User.findById(userid)
+    const user = await User.findById(userid);
     user.followers.pull(myid);
 
     // append userid to my following list
-    const myuser = await User.findById(myid)
-    myuser.following.pull(userid)
-    await user.save()
-    await myuser.save()
-    res.status(201).json({ message: "unfollow updated" })
+    const myuser = await User.findById(myid);
+    myuser.following.pull(userid);
+    await user.save();
+    await myuser.save();
+    io.to(myid).emit('followUpdated');
+    res.status(201).json({ message: "unfollow updated" });
   }
-
-
-})
-
-app.get("/follower", verifyToken, async (req, res) => {
-  const user = await User.findOne({ id: 1 });
-  const follow = await user.populate([
-    { path: "followers", select: "username firstname lastname" },
-  ]);
-  res.send({ following: follow.followers });
 });
 
 app.get("/searchuser/:username", async (req, res) => {
@@ -467,16 +619,16 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get('/searchevent/:eventname', async(req, res)=>{
+app.get('/searchevent/:eventname', verifyToken, async(req, res)=>{
   const event = await Event.findOne({name: req.params.eventname})
   if(event){
     res.json(event)
-  }else{
-    res.status(500).json({message: 'no such event'})
+  } else {
+    res.status(500).json({ message: 'no such event' })
   }
-})
+});
 
-app.get("/ranking/student", async (req, res) => {
+app.get("/ranking/student", verifyToken, async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topUsers = await User.find().sort({ points: -1 }).limit(10);
@@ -490,7 +642,7 @@ app.get("/ranking/student", async (req, res) => {
   }
 });
 
-app.get("/ranking/school", async (req, res) => {
+app.get("/ranking/school", verifyToken, async (req, res) => {
   try {
     // Retrieve the top 10 users with the most points
     const topSchools = await School.find().sort({ points: -1 }).limit(10);
@@ -504,7 +656,7 @@ app.get("/ranking/school", async (req, res) => {
   }
 });
 
-app.post('/api/checkin', async (req, res) => {
+app.post("/api/checkin", async (req, res) => {
   try {
     const { userId, eventId } = req.body;
     const existingCheckIn = await CheckIn.findOne({
@@ -514,7 +666,7 @@ app.post('/api/checkin', async (req, res) => {
     });
 
     if (existingCheckIn) {
-      return res.status(400).json({ error: 'User is already checked in.' });
+      return res.status(400).json({ error: "User is already checked in." });
     }
     const newCheckIn = new CheckIn({
       userId: userId,
@@ -523,12 +675,68 @@ app.post('/api/checkin', async (req, res) => {
 
     await newCheckIn.save();
 
-    res.json({ message: 'User checked in successfully!!!' });
+    res.json({ message: "User checked in successfully!!!" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'An error occurred!!!' });
+    res.status(500).json({ error: "An error occurred!!!" });
   }
 });
+
+app.get('/recommend/:userid', async (req, res)=>{
+  const userRes = []
+  const alreadyAdded = []
+  const user = await User.findById(req.params.userid)
+  const school = await School.findById(user.school)
+  const userBySchool = await User.find({school: school._id, _id: { $ne: req.params.userid }})//.populate('school')
+  for(i = 0; i <userBySchool.length; i ++){
+    if(user.following.includes(userBySchool[i]._id)){
+      continue;
+    }
+    const tempUser = {
+      id: userBySchool[i]._id,
+      username: userBySchool[i].username,
+      firstname: userBySchool[i].firstname,
+      lastname: userBySchool[i].lastname,
+      profilepicture: userBySchool[i].profilepicture,
+      //school: userBySchool[i].school.name,
+      points: userBySchool[i].points
+    }
+    alreadyAdded.push(tempUser.username)
+    userRes.push(tempUser)
+  }
+
+  const userByPoints = await User.find({points: user.points, _id: { $ne: req.params.userid }})//.populate('school')
+  for(i = 0; i <userByPoints.length; i ++){
+    if(user.following.includes(userByPoints[i]._id) || alreadyAdded.includes(userByPoints[i].username)){
+      continue;
+    }
+    const tempUser = {
+      id: userByPoints[i]._id,
+      username: userByPoints[i].username,
+      firstname: userByPoints[i].firstname,
+      lastname: userByPoints[i].lastname,
+      profilepicture: userByPoints[i].profilepicture,
+      //school: userByPoints[i].school.name,
+      points: userByPoints[i].points
+    }
+    userRes.push(tempUser)
+  }
+  console.log(userRes)
+  res.json(userRes)
+})
+
+app.put('/notifications/readnotification', verifyToken, async (req, res)=>{
+  try{
+    const id = req.body.id
+    const notification = await Notification.findById(id)
+    notification.isRead = true
+    notification.save()
+    res.status(200).json({ success: true, message: "Notification read saved" });
+  }catch(error){
+    res.status(500).json({ error: true, message: "Internal Server Error!!!" });
+  } 
+  
+})
 
 
 function checkAuthenticated(req, res, next) {
@@ -551,6 +759,6 @@ app.use((req, res) => {
 
 const port = process.env.PORT || 3080;
 
-app.listen(port, () => {
-  console.log(`Server started at ${port}`);
+httpServer.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });

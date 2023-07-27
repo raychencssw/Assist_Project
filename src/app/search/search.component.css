@@ -1,19 +1,11 @@
-@media only screen and (min-width: 1200px){
+/* @media only screen and (min-width: 1200px){
     .textbox {
         width:50rem;
     }
-}
+} */
 
-@media only screen and (max-width: 1200px){
-    .textbox {
-        width:100%;
-    }
-    .fs-6{
-        font-size:14px !important;
-    }
-}
 
-.center{
+/* .center{
     margin:auto;
     display:flex;
 }
@@ -23,16 +15,17 @@
     background-color: rgb(0, 81, 255);
     border: 2px solid #ffffff;
 
-}
+} */
 
 .autocomplete_box {
     display: flex;
     align-items: center;
-    border: 2px solid rgb(0, 81, 255);
+    margin-left: 15px;
 
 }
 
-.options {
+
+/* .options {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -63,28 +56,95 @@
     width: 18px;
     border: 2px solid #ffffff6e;
     border-radius: 50%;
-}
+} */
 
-.radio-label:hover .checkmark {
+/* .radio-label:hover .checkmark {
     border-color: #ffffff;
 }
 
 .radio-label input:checked~.checkmark {
     background-color: #ffffff;
+} */
+
+/* ref: https://codepen.io/aqib-hanief/pen/dwBQdy */
+
+.middle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-
-
 .textbox {
-    padding: 5px;
+    /* padding: 5px;
     margin: auto;
     border: 2px solid white;
     border-radius: 16px;
-    /* width: 50rem;    */
     font-size: 15px;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease; */
+    width: 30px;
+    height: 30px;
+    background: none;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-sizing: border-box;
+    outline: none;
+    transition: width 0.4s ease-in-out, border-radius 0.8s ease-in-out,
+      padding 0.2s;
+    transition-delay: 0.4s;
+    color: white;
+    font-size: 20px;
 
 }
+.inclicked {
+    width: 360px;
+    border-radius: 20px;
+    padding: 0 15px;
+    padding-right: 40px;
+}
+.btn {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: 0;
+    right: 0;
+    box-sizing: border-box;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.btn::before {
+    content: "";
+    width: 4px;
+    height: 20px;
+    background: #fff;
+    position: absolute;
+    transform: rotate(-45deg);
+    bottom: -11px;
+    right: -3px;
+    transition: 0.3s;
+  }
+  
+.close::before,
+  .close::after {
+    content: "";
+    width: 2px;
+    height: 17px;
+    background: #fff;
+    position: absolute;
+    bottom: 6px;
+    right: 14px;
+}
+  
+.close::before {
+    transform: rotate(-45deg);
+}
+  
+.close::after {
+    transform: rotate(45deg);
+}
+  
 
 .textbox:focus {
     outline: none;

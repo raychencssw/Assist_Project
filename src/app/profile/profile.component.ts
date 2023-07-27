@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProfileService } from '../services/profile.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Event } from '@angular/router';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { NgForm } from '@angular/forms';
@@ -10,6 +10,8 @@ import { Subscription, debounceTime } from 'rxjs';
 import { FollowingService } from '../services/following.service';
 import { PostServiceService } from '../services/post-service.service';
 import { Console } from 'console';
+import { filter } from 'rxjs/operators';
+
 
 @Component({
 
@@ -19,11 +21,10 @@ import { Console } from 'console';
 })
 
 
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   isFollowing: boolean = false;
   getUserProfile!: any;
   username: string = '';
-  name: string = '';
   firstname: string = '';
   lastname: string = '';
   email: string = '';
@@ -46,11 +47,13 @@ export class ProfileComponent implements OnInit {
   update_school: string = '';
   update_profilepicture: string = '';
   currentUser: any
+  sameUser: boolean = false
 
 
   followers: any = []
   showFollowers = false;
   posts: any = []
+  userLikedPosts: any
   times = []
   pageNumber: any = 1
 
@@ -75,21 +78,36 @@ export class ProfileComponent implements OnInit {
     private followingservice: FollowingService,
     // private following: FollowingService
   ) {
-
+    
 
   }
 
   ngOnInit(): void {
+    this.router.events.pipe(
+      filter((event: any) => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      const user = this.auth.findUser()
+      const userId = event.url.split('/profile/')[1];
+      this.sameUser = (userId === user.id);
+    });
     this.route.paramMap.subscribe(params => {
       this.id = params.get("id")
-      console.log("my id changes to: " + this.id)
+      const user = this.auth.findUser()
+      if(user.id == this.id){
+        this.sameUser = true
+      }
+      this.getData()
+      this.isFollowing = this.checkFollow()
+      console.log(this.isFollowing, this.sameUser)
     })
 
+  }
+
+  getData() {
     this.following = this.auth.getFollowing()
     console.log(this.following)
     this.profileService.profileResponse.subscribe(
       (data) => {
-        console.log("my name is now: " + this.lastname)
         this.getUserProfile = data
         this.email = this.getUserProfile['email'];
         this.username = this.getUserProfile['username'];
@@ -97,10 +115,11 @@ export class ProfileComponent implements OnInit {
         this.lastname = this.getUserProfile['lastname'];
         this.role = this.getUserProfile['role'];
         this.points = this.getUserProfile['points']
-        this.school = this.getUserProfile['school']
+        if(this.getUserProfile['school']){
+          this.school = this.getUserProfile['school']['name']
+        }
         this.eventsAttended = this.getUserProfile['eventsAttended']
         this.profilepicture = this.getUserProfile['profilepicture']
-        this.name = this.firstname + " " + this.lastname
         // Process the retrieved profile data
         this.update_username = this.username
         this.update_firstname = this.firstname;
@@ -117,16 +136,23 @@ export class ProfileComponent implements OnInit {
     this.myid = JSON.parse(localStorage.getItem("user")!).id
     this.isOwnProfile = this.myid === this.id;
     this.getPosts()
-    this.followingservice.following$.subscribe((response)=>{
-      this.followers = response
-    })
-    this.followingservice.getFollowers()
+    this.getFollower()
   }
 
+  getFollower() {
+    this.followingservice.profileFollower$.subscribe((response)=>{
+      this.followers = response
+      console.log("THE FOLLOWERS", this.followers)
+    })
+    this.followingservice.getFollower(this.id)
+  }
+
+  //Gets the posts created by this user
   getPosts() {
+    this.posts = []
+    this.userLikedPosts = this.auth.getLikedPosts()
     this.postservice.oneUserPostsResponse.subscribe(postResponse => {
       this.posts.push(...postResponse.posts)
-      console.log(this.posts)
       for (let i = 0; i < this.posts.length; i++) {
         const tempDate = this.posts[i]['date']
         const uploadDate = new Date(tempDate)
@@ -134,30 +160,38 @@ export class ProfileComponent implements OnInit {
         const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
         const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
 
-        if (elapsedSeconds < 60) {
+        if(elapsedSeconds < 60){
           this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
-        } else if (elapsedSeconds < 3600) {
+        }else if(elapsedSeconds < 3600){
           const minutes = Math.floor(elapsedSeconds / 60);
-          if (minutes <= 1) {
+          if(minutes <= 1){
             this.posts[i]['date'] = `${minutes} minute ago`
-          } else {
+          }else{
             this.posts[i]['date'] = `${minutes} minutes ago`
           }
-        } else if (elapsedSeconds < 86400) {
+        }else if(elapsedSeconds < 86400){
           const hours = Math.floor(elapsedSeconds / 3600);
-          if (hours <= 1) {
+          if(hours <= 1){
             this.posts[i]['date'] = `${hours} hour ago`
-          } else {
+          }else{
             this.posts[i]['date'] = `${hours} hours ago`
           }
-        } else if (elapsedSeconds < 604800) {
+        }else if (elapsedSeconds < 604800) {
           const days = Math.floor(elapsedSeconds / 86400);
-          if (days <= 1) {
+          if(days <= 1){
             this.posts[i]['date'] = `${days} day ago`;
-          } else {
+          }else{
             this.posts[i]['date'] = `${days} days ago`;
           }
+        }else if(elapsedSeconds > 604800){
+          const formattedDate = uploadDate.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+          this.posts[i]['date'] = formattedDate;
         }
+
       }
     })
     this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
@@ -209,7 +243,7 @@ export class ProfileComponent implements OnInit {
 
     this.profile.updateUser(this.formData, (response: any)=>{
       console.log(response)
-      this.ngOnInit(); //reload the table  
+      this.getData(); //reload the table  
       this.modalService.dismissAll(); //dismiss the modal
       window.location.reload();//reload the page for data update
 
@@ -229,42 +263,72 @@ export class ProfileComponent implements OnInit {
   }
 
 
-  onScroll() {
-    this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
-  }
+  // onScroll() {
+  //   this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
+  // }
 
   async followUser() {
     // users cannot follow themselves 
-    console.log('THis is follow user', this.id)
-    // const myid = JSON.parse(localStorage.getItem("user")!).id
-    // if (myid === this.id) {
-    //   this.isFollowing = true
-    //   this.modalService.open("You Cannot Follow Yourself");
-    // }
-    // this.isFollowing = !this.isFollowing;
-    // this.followingservice.followButton(myid, this.id, this.isFollowing)
-
+    console.log('This is follow user', this.id)
     const myid = JSON.parse(localStorage.getItem("user")!).id
     if(this.following.includes(this.id)){
-      const filteredFollowers = this.followers.filter((filterid: any)=>{
-        filterid != this.id
+      console.log(this.following)
+      const filteredFollowing = this.following.filter((filterid: any)=>{
+        return filterid != this.id
       })
-      this.following = filteredFollowers
-      this.auth.setFollowing(this.followers)
-      this.followingservice.followButton(myid, this.id, true)
+      this.following = filteredFollowing
+      this.auth.setFollowing(this.following)
+      this.isFollowing = false
+      let promise = this.followingservice.followButton(myid, this.id, true)
+      promise.then(result => {this.getFollower()})
     }else{
       this.following.push(this.id)
-      this.auth.setFollowing(this.id)
-      this.followingservice.followButton(myid, this.id, false)
+      this.auth.setFollowing(this.following)
+      this.isFollowing = true
+      let promise = this.followingservice.followButton(myid, this.id, false)
       console.log(this.following)
+      promise.then((response) => {this.getFollower()})
     }
   }
   checkFollow(){
+    console.log(this.following)
     if(this.following.includes(this.id)){
       return true
     }
     return false
   }
 
+  isLiked(id: any): boolean{
+    // console.log(this.userLikedPosts)
+    // console.log(id)
+    // console.log(this.userLikedPosts.includes(id))
+    return this.userLikedPosts.includes(id)
+  }
+  toggleLike(postId: any){
+    console.log("TOGGLE LIKE", postId)
+    console.log(this.userLikedPosts)
+    if(this.userLikedPosts.includes(postId)){
+      const filteredLikes = this.userLikedPosts.filter((id: any)=>{
+        return id != postId
+      })
+      this.userLikedPosts = filteredLikes
+      const user = this.auth.findUser()
+      this.postservice.addRemoveLike(user['id'], postId, false)
+      this.auth.setLikedPosts(this.userLikedPosts)
+    }else{
+      this.userLikedPosts.push(postId)
+      const user = this.auth.findUser()
+      this.postservice.addRemoveLike(user['id'], postId, true)
+      this.auth.setLikedPosts(this.userLikedPosts)
+    }
+  }
 
+
+
+  ngOnDestroy(): void {
+    this.isFollowing = false
+    this.following = []
+    this.sameUser = false
+    this.isOwnProfile = false
+  }
 }

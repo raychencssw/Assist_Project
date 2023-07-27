@@ -1,0 +1,21 @@
+<div class="r-container" *ngIf="recommendList.length > 0">
+    <div class="container" *ngFor="let user of recommendList">
+        <div class="row"  style="padding-top: 10px; padding-bottom: 10px">
+            <div class="col-12 col-md-3">
+                <img src="{{user.profilepicture ||'assets/user.jpg'}}" alt="profilepic" style="width: 50px; height: 50px; border-radius: 50%;">
+            </div>
+            <div class="col-12 col-md-5">
+                <p style="font-family: 'Montserrat', sans-serif; margin-bottom: 0;">{{user.firstname}} {{user.lastname}}</p>
+                <p style="font-family: 'Montserrat', sans-serif; margin-top: 0;" >Points: {{user.points}}</p>
+            </div>
+            <div class="col-12 col-md-4">
+                <button class="btn btn-primary" (click)="navigateToProfile(user.id)">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="recommendList.length == 0" class="text-container">
+    <img src="assets/icons8-tick.gif" alt="tick">
+    <p style="font-family: 'Montserrat', sans-serif; font-size: 20px; margin-bottom: 0; margin-left: 10px;">You are on track !!!<p>
+</div>

@@ -46,11 +46,11 @@ export class SearchServiceService {
     );
 
   }
+  searchevent(id: string): Observable<string[]> {
+    return this.http.get<string[]>(this.searchevents + id).pipe(
+      debounceTime(300) // Add debounceTime operator with the desired delay
+    );
 
-  searchevent(eventname: string): Observable<any>{
-    return this.http.get(this.searchevents + eventname).pipe(
-      debounceTime(300)
-    )
   }
 
 

@@ -19,8 +19,24 @@
 </div> -->
 
 
-<div class="autocomplete_box container-sm">
-    <input type="text" class="textbox" [formControl]="searchControl" [matAutocomplete]="auto">
+<!-- <div class="autocomplete_box container-sm" style="position: relative;">
+    <div class="middle">
+        <input type="text" class="textbox" [class.inclicked]="isInputClicked"  [formControl]="searchControl" [matAutocomplete]="auto">
+        <button type="button" class="btn" [class.close]="isClose" name="button" (click)="toggleClasses()"></button>
+    </div>
+
+    <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let result of searchResults" (click)="navigateToProfile(result)" [value]="result">
+            {{ result }}
+        </mat-option>
+    </mat-autocomplete>
+</div> -->
+
+<div class="autocomplete_box container-sm" style="position: relative; margin-bottom: 8px;">
+    <div>
+        <input type="search" placeholder="Search" aria-label="Search" class="form-control me-2" [class.inclicked]="isInputClicked"  [formControl]="searchControl" [matAutocomplete]="auto">
+    </div>
+
     <mat-autocomplete #auto="matAutocomplete">
         <mat-option *ngFor="let result of searchResults" (click)="navigateToProfile(result)" [value]="result">
             {{ result }}

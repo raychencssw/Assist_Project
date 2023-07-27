@@ -1,122 +1,118 @@
-<div class="card">
-  <div class="user-profile container" id="profile">
-    <div class="imgcontainer">
-      <img src="{{profilepicture||'assets/user.jpg'}}" class="profile-img" alt="Profile picture">
-      <button type="button" id="follow" class="btn btn-primary" (click)="followUser()" *ngIf="!checkFollow()">Follow</button>
-      <button type="button" id="follow" class="btn btn-primary" (click)="followUser()" *ngIf="checkFollow()">Unfollow</button>
-
-    </div>
-
-
-    <div class="card-body" name="information">
-      <h5 class="card-title">Username: {{username}}</h5>
-      <p class="card-text" id="name">Name: {{name}}</p>
-      <p class="card-text" id="email">Email: {{email}}</p>
-      <p class="card-text" id="role">Role: {{role}}</p>
-      <p class="card-text" id="points">Points: {{points}}</p>
-      <p class="card-text" id="school">School: {{school}}</p>
-      <p class="card-text" id="events">Events Attended: {{eventsAttended}}</p>
-    </div>
-    <button (click)="editUserInfo(content)" *ngIf="isOwnProfile" type="button" class="btn btn-primary">Update</button>
-
-  </div>
-  <ng-template #content let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">Edit My Profile</h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-
-      <form #myForm="ngForm" class="form-control" (ngSubmit)="onSubmit(myForm)" name="f">
-
-        <label for="username">User Name: </label>
-        <input type="text" class="form-control" id="username" [value]="username" name="username" ngModel
-          #username="ngModel" [ngModel]="update_username">
-        <br>
-        <label for="name">Last Name:</label>
-        <input type="text" class="form-control" [value]="lastname" id="lastname" name="lastname" ngModel
-          #lastname="ngModel" [ngModel]="update_lastname">
-        <br>
-        <label for="name">First Name:</label>
-        <input type="text" class="form-control" [value]="firstname" id="firstname" name="firstname" ngModel
-          #firstname="ngModel" [ngModel]="update_firstname">
-        <br>
-        <label for="email">Email:</label>
-        <input type="email" class="form-control" [value]="email" id="email" name="email" ngModel #email="ngModel"
-          [ngModel]="update_email">
-        <br>
-        <label for="school">School:</label>
-        <input class="form-control" id="school" [value]="school" name="school" ngModel #school="ngModel"
-          [ngModel]="update_school">
-        <br>
-        <!-- This is a comment
-                <input type="file" class="form-control" id="profilepicture" name="profilepicture"> -->
-        <div>
-          <label for="profilepicture">Profile Picture:</label>
-          <input type="file" id="profilepicture" name="profilepicture" (change)="onFileChange($event)" accept="image/*"
-            required>
+<div class="profile-container" style="padding-top: 100px;">
+    <div class="container split-div">
+      <div class="rotate-text" style="font-family: 'Montserrat', sans-serif;">
+        <h5 class="rank-header">RANK</h5>
+        <p class="rank-text">N/A</p>
+      </div>
+      <div class="imgcontainer">
+        <div class="d-flex flex-column justify-content-center align-items-center" style="font-family: 'Montserrat', sans-serif; ">
+          <img src="{{profilepicture||'assets/user.jpg'}}" class="profile-img" alt="Profile picture" style="border-radius: 50%;">
+          <div style="text-align: center;">
+            <p style="text-transform: uppercase; letter-spacing: 1rem; font-size: 40px;"><span style="text-align: center;">{{firstname}} {{lastname}} </span><span style="font-size: 15px; text-transform: none; letter-spacing: 0;">@{{username}}</span></p>
+            <p></p>
+            <p id="school" style="font-size: 25px;">{{school}}</p>
+            <p class="card-text" id="email" *ngIf="sameUser" style="font-size: 25px;">{{email}}</p>
+            <p style="font-size: 25px;">{{points}} points</p>
+          </div>
         </div>
 
-        <br>
-        <button type="submit" class="btn btn-primary">Submit</button>
-
-      </form>
+        <div class="d-flex">
+          <!-- <button type="button" class="follow" (click)="openFollowersModal()"><i class="fa-solid fa-users" style="padding-right: 10px;"></i>Followers</button> -->
+          <button class="follow p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="padding-right: 10px;" ><i class="fa-solid fa-users" style="padding-right: 10px;"></i>Followers</button>
+          <button type="button" class=" follow p-2 ms-auto" (click)="followUser()" *ngIf="!isFollowing && !sameUser"><i class="fa-solid fa-user-plus fa-beat" style="padding-right: 10px;"></i>Follow</button>
+          <button type="button" class="follow p-2 ms-auto" (click)="followUser()" *ngIf="isFollowing && !sameUser"><i class="fa-solid fa-user-minus" style="padding-right: 10px;"></i>Unfollow</button>
+          <button  (click)="editUserInfo(content)" *ngIf="isOwnProfile" type="button" class="follow p-2 ms-auto"><i class="fa-solid fa-user-pen" style="padding-right: 10px;"></i>Edit Profile</button>
+        </div>
+      </div>
+      <div class="d-flex flex-column" name="information" style="font-family: 'Montserrat', sans-serif; ">
+      </div>
     </div>
-  </ng-template>
+        
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="z-index: 10000;">
+      <div class="offcanvas-header">
+        <h4 class="offcanvas-title" id="offcanvasRightLabel">Followers</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body" style="font-family: 'Times New Roman', Times, serif;">
+            <div class="container">
+              <div class="row" *ngFor="let follower of followers">
+                <div class="col col-lg-12 col-md-12 col-sm-12">
+                  <!-- <a class="{{follower._id}}" routerLink="/profile/{{follower._id}}" appFollowListen>{{ follower.username }}</a> -->
+                  <div class="d-flex">
+                    <div class="p-2">
+                      <img src="{{follower.profilepicture}}" alt="userimg" style="width: 50px; height: 50px; border-radius: 50%;" *ngIf="follower.profilepicture">
+                      <img src="../../assets/user.jpg" alt="userimg" style="width: 50px; height: 50px; border-radius: 50%;" *ngIf="!follower.profilepicture">
+                    </div>
+                    <div class="p-2 flex-grow-1" style="font-family: Georgia, 'Times New Roman', Times, serif;">
+                      <h5 style="margin-bottom: 0;"><a class="{{follower._id}}" routerLink="/profile/{{follower._id}}" appFollowListen style="text-decoration: none; cursor: pointer; color: blue;" onmouseover="this.style.color='#ff0000';" onmouseout="this.style.color='blue';" data-bs-dismiss="offcanvas"> {{follower.firstname}} {{follower.lastname}} </a></h5>
+                      <span *ngIf="follower.school">{{follower.school.name}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      </div>
+    </div>
+    
+    
+    <ng-template #content let-modal>
+      <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Edit My Profile</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
 
-  <div infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" (scrolled)="onScroll()">
-    <div class="container posts-container" *ngIf="posts">
-      <div class="row" style="width: 100%;" *ngFor="let post of posts">
-        <div class="col col-lg-12 col-md-12 col-sm-12 justify-content-center" style="display: flex;">
-          <div class="card">
-            <div class="position-relative">
-              <img src="{{post['imageurl']}}" class="card-img-top" alt="Image" style="height: 400px;">
-              <div class="profile-overlay" style="width: 100%;">
-                <div class="row">
-                  <div class="col col-lg-6" style="display: flex; align-items: center;">
-                    <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                      class="profile-img" alt="Profile Image">
-                    <h4 style="margin-right: 10px; margin-left: 10px;">{{post['author']}}</h4>
-                  </div>
-                  <div class="col col-lg-6" style="display: flex; align-items: center;">
-                    <p style="margin-left: auto; margin-right: 10%;">{{post['location']}}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col col-lg-6">
-                  <p class="card-text">{{post['author']}}</p>
-                </div>
-                <div class="col col-lg-6" style="display: flex; align-items: center; margin-left: auto;">
-                  <p>{{post['date']}}</p>
-                  <p style="margin-left: 10px;">{{post['time']}}</p>
-                  <div>
-                    <span><i class="fa-regular fa-heart" style="color: #f70808; height: 50px;"></i></span>
-                    <i class="fa-solid fa-heart" style="color: #ec1354; height: 50px;"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <form #myForm="ngForm" class="form-control" (ngSubmit)="onSubmit(myForm)" name="f">
+
+          <label for="username">User Name: </label>
+          <input type="text" class="form-control" id="username" [value]="username" name="username" ngModel
+            #username="ngModel" [ngModel]="update_username">
+          <br>
+          <label for="name">Last Name:</label>
+          <input type="text" class="form-control" [value]="lastname" id="lastname" name="lastname" ngModel
+            #lastname="ngModel" [ngModel]="update_lastname">
+          <br>
+          <label for="name">First Name:</label>
+          <input type="text" class="form-control" [value]="firstname" id="firstname" name="firstname" ngModel
+            #firstname="ngModel" [ngModel]="update_firstname">
+          <br>
+          <label for="email">Email:</label>
+          <input type="email" class="form-control" [value]="email" id="email" name="email" ngModel #email="ngModel"
+            [ngModel]="update_email">
+          <br>
+          <label for="school">School:</label>
+          <input class="form-control" id="school" [value]="school" name="school" ngModel #school="ngModel"
+            [ngModel]="update_school">
+          <br>
+          <div>
+            <label for="profilepicture">Profile Picture:</label>
+            <input type="file" id="profilepicture" name="profilepicture" (change)="onFileChange($event)" accept="image/*"
+              required>
           </div>
+
+          <br>
+          <button type="submit" class="btn btn-primary">Submit</button>
+
+        </form>
+      </div>
+    </ng-template>
+
+<div class="container mb-5">
+  <div class="row">
+    <div class="col col-lg-3 cold-md-4 col-sm-12 me-2 mt-3" *ngFor="let post of posts">
+      <div class="card image-container" style="width: 18rem;">
+        <img src="{{post['imageurl']}}" class="card-img-top" alt="userpost" style="width: 100%; height: 300px;">
+        <!-- <div class="card-body">
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <a href="#" class="btn btn-primary">Go somewhere</a>
+        </div> -->
+        <div class="overlay">
+          <span (click)="toggleLike(post['id'])" style="cursor: pointer;" *ngIf="!isLiked(post['id'])"><i class="fa-regular fa-heart" style="color: #f70808; height: 50px;"></i></span>
+          <span (click)="toggleLike(post['id'])" style="cursor: pointer;" *ngIf="isLiked(post['id'])"><i class="fa-solid fa-heart" style="color: #ec1354; height: 50px;"></i></span>
         </div>
       </div>
     </div>
-
   </div>
-
-  <!-- https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" -->
-    <button (click)="showFollowers = !showFollowers">Show Followers ({{ followers.length }})</button>
-    <ul *ngIf="showFollowers">
-  <li *ngFor="let f of followers"><div class="fw-bold">
-    {{f.firstname}} {{f.lastname}}
 </div>
-<p class="{{f._id}}"routerLink="/profile/{{f._id}}" appFollowListen style="cursor: pointer; color: aqua;">@{{f.username}}</p></li>
-    </ul>
-    </div>
-<!-- https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png" -->
-
-

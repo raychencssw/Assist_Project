@@ -3,12 +3,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Routes, RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms'
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {MatListModule} from '@angular/material/list';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AuthInterceptor } from './interceptor/auth.interceptor';
 
 
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -29,6 +30,7 @@ import { FollowingComponent } from './home/following/following.component';
 import { FollowListenDirective } from './directives/follow-listen.directive';
 import { NgForm } from '@angular/forms';
 import { EventDetailsComponent } from './eventdetails/eventdetails.component';
+import { SocketioService } from './services/socketio.service';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -40,6 +42,11 @@ import { AuthGuard } from './auth.guard';
 
 import { SearchComponent } from './search/search.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { RecommendationComponent } from './home/recommendation/recommendation.component';
+import { InfoComponent } from './home/info/info.component';
+import { LandingComponent } from './landing/landing.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { NewPasswordComponent } from './new-password/new-password.component';
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
   { path: 'events', component: EventsComponent, canActivate:[AuthGuard]},
@@ -49,6 +56,10 @@ const appRoutes: Routes = [
   { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]},
   { path: 'search', component: SearchComponent, canActivate:[AuthGuard]},
   { path: 'event-detail/:id', component: EventDetailsComponent, canActivate:[AuthGuard] },
+  { path: '', component: LandingComponent},
+  {path: 'forgot-password', component: ResetPasswordComponent},
+  {path: 'reset-password/:token', component: NewPasswordComponent},
+  { path: '**', redirectTo: '/login', pathMatch: 'full' }
   
 ]
 
@@ -70,6 +81,11 @@ const appRoutes: Routes = [
     ProfileComponent,
     EventDetailsComponent,
     SearchComponent,
+    RecommendationComponent,
+    InfoComponent,
+    LandingComponent,
+    ResetPasswordComponent,
+    NewPasswordComponent,
   ],
   imports: [
     BrowserModule,
@@ -93,7 +109,13 @@ const appRoutes: Routes = [
     MatAutocompleteModule,
     MatInputModule,
   ],
-  providers: [AuthGuard],
+  providers: [AuthGuard, SocketioService, 
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
