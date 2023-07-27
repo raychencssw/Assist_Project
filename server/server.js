@@ -407,13 +407,20 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
   //extract every property from req.body and store them to the variable defined inside const{ }
   //these variables can later be used directly. Warning: these variables have to be exactly the same
   //as in the eventForm, or it'll become undefined.
-  const {
+  var {
     name,
     date,
-    time: {
-      minute,
+    start_time:{
+      // starthour,
+      // startminute,
       hour,
-      second,
+      minute,
+    },
+    end_time:{
+      // endhour,
+      // endminute,
+      hour,
+      minute,
     },
     location: {
       street,
@@ -423,11 +430,11 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
     description,
   } = req.body;
 
-  /*console.log("name: " + name);
+  console.log("name: " + name);
   console.log("date: " + date);
-  console.log("time: " + time);
-  console.log("location: " + location);
-  console.log("description: " + description);*/
+  // console.log("start_time.hour: " + start_time.hour);
+  // console.log("location.street: " + location.street);
+  console.log("description: " + description);
 
   // const imageurl = req.file.path;
   // console.log("incoming imageurl: " + imageurl);
@@ -450,10 +457,17 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
     name,
     // imageurl,
     date,
-    time: {
-      minute,
+    start_time: {
+      // starthour,
+      // startminute,
       hour,
-      second,
+      minute,
+    },
+    end_time: {
+      // endhour,
+      // endminute,
+      hour,
+      minute,
     },
     location: {
       street,
@@ -469,7 +483,7 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
 });
 
 app.get("/events", async (req, res) => {
-  //await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
+  // await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
   const events = await Event.find();
   console.log("events: " + events);
   res.send(events);

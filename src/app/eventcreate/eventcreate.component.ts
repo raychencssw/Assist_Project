@@ -19,7 +19,8 @@ export class EventcreateComponent implements OnInit{
     name: '',
     // photo: null as File | null,
     date:'',
-    time: { hour: 13, minute: 30 },
+    start_time: { hour: 13, minute: 30 },
+    end_time: { hour: 23, minute: 30 },
     location:{
       street: '',
       city: '',

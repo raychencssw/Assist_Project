@@ -170,8 +170,8 @@ export class EventsComponent implements OnInit{
 
       else {
         //console.log("date1 = date2, Let's compare time!")
-        const hour1 = a.time.hour;
-        const hour2 = b.time.hour;
+        const hour1 = a.start_time.hour;
+        const hour2 = b.start_time.hour;
         // console.log("hour1: " + hour1);
         // console.log("hour2: " + hour2);
         if (hour1 < hour2) {
@@ -183,8 +183,8 @@ export class EventsComponent implements OnInit{
           return 1;
         }
         else {
-          const min1 = a.time.minute;
-          const min2 = b.time.minute;
+          const min1 = a.start_time.minute;
+          const min2 = b.start_time.minute;
           // console.log("min1: " + min1);
           // console.log("min2: " + min2);
           if (min1 < min2) {

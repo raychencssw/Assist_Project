@@ -50,8 +50,25 @@
         <!-- <label class="form-label mb-0 mt-3 fw-bold">Time</label>
         <input id="time" type="text" name="Time" class="form-control" [(ngModel)]="eventForm.time"> -->
 
-        <label class="form-label mb-0 mt-3 fw-bold">Time</label>
-        <ngb-timepicker [(ngModel)]="eventForm.time" name="time"></ngb-timepicker>
+        <!-- <div class="row">
+            <div class="col-6">
+                <label class="form-label mb-0 mt-3 fw-bold">Start Time</label>
+                <ngb-timepicker [(ngModel)]="eventForm.start_time" name="starttime"></ngb-timepicker>
+            </div>
+
+            <div class="col-6">
+                <label class="form-label mb-0 mt-3 fw-bold">End Time</label>
+                <ngb-timepicker [(ngModel)]="eventForm.end_time" name="endtime"></ngb-timepicker>
+            </div>
+        </div> -->
+
+        <label label class="form-label mb-0 mt-3 fw-bold"></label>Start Time<br>
+        <input id ="start_time_hour" type="text" name="start_time_hour" class="form-control" [(ngModel)]="eventForm.start_time.hour">
+        <input id ="start_time_minute" type="text" name="start_time_minute" class="form-control" [(ngModel)]="eventForm.start_time.minute">
+
+        <label label class="form-label mb-0 mt-3 fw-bold"></label>End Time<br>
+        <input id ="end_time_hour" type="text" name="end_time_hour" class="form-control" [(ngModel)]="eventForm.end_time.hour">
+        <input id ="end_time_minute" type="text" name="end_time_minute" class="form-control" [(ngModel)]="eventForm.end_time.minute">
 
         <label class="form-label mb-0 mt-3 fw-bold">Location</label><br>
         <label class="form-label mb-0 mt-1">Street Address</label>
