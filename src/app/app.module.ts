@@ -45,6 +45,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { LandingComponent } from './landing/landing.component';
 import { InfoComponent } from './home/info/info.component';
 import { RecommendationComponent } from './home/recommendation/recommendation.component';
+import { CheckinComponent } from './checkin/checkin.component';
 const appRoutes: Routes = [
   { path: '', component: LandingComponent},
   { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
@@ -56,7 +57,7 @@ const appRoutes: Routes = [
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard] },
   { path: 'event-detail/:id', component: EventDetailsComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
-
+  { path: 'checkin', component: CheckinComponent },
 ]
 
 
@@ -79,6 +80,7 @@ const appRoutes: Routes = [
     SearchComponent,
     InfoComponent,
     RecommendationComponent,
+    CheckinComponent,
 
   ],
   imports: [

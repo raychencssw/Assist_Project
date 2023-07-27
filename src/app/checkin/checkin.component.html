@@ -1,0 +1,19 @@
+<div *ngIf="!verified">
+    <form (ngSubmit)="sendOTP()" #checkInForm="ngForm">
+      <label for="email">Email:</label>
+      <input type="email" name="email" id="email" [(ngModel)]="email" required>
+      <button type="submit">Send OTP</button>
+    </form>
+  
+    <div *ngIf="otpSent">
+      <form (ngSubmit)="verifyOTP()" #otpForm="ngForm">
+        <label for="otp">One-Time Password:</label>
+        <input type="text" name="otp" id="otp" [(ngModel)]="otp" required>
+        <button type="submit">Verify</button>
+      </form>
+    </div>
+  </div>
+  
+  <div *ngIf="verified">
+    <p>Check-in successful!</p>
+  </div>
