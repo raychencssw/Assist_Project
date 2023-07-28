@@ -10,17 +10,18 @@ import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './eventcreate.component.html',
   styleUrls: ['./eventcreate.component.css'],
 })
-export class EventcreateComponent implements OnInit{
+export class EventcreateComponent implements OnInit {
   unamePattern = '^[A-Za-z0-9\\s_]*$'
-  datePickerStartAt:any;
+  datePickerStartAt: any;
   public formDate = "";
 
   public eventForm = {
     name: '',
     // photo: null as File | null,
-    date:'',
+    date: '',
     time: { hour: 13, minute: 30 },
-    location:{
+    end_time: { hour: 13, minute: 50 },
+    location: {
       street: '',
       city: '',
       state: '',
@@ -30,8 +31,8 @@ export class EventcreateComponent implements OnInit{
 
 
   //A reference to the currently opened (active) modal.
-	constructor(public activeModal: NgbActiveModal, 
-              private eventService: EventServiceService) {};
+  constructor(public activeModal: NgbActiveModal,
+    private eventService: EventServiceService) { };
 
   ngOnInit() {
     this.datePickerStartAt = new Date();
@@ -39,7 +40,7 @@ export class EventcreateComponent implements OnInit{
 
 
 
-  submit(){
+  submit() {
 
     console.log("submit button clicked!");
 

@@ -89,12 +89,12 @@ mongoose
 io.on('connection', (socket) => {
   console.log('a user connected');
   const socketid = socket.id
-  socket.on('user', (user)=>{
+  socket.on('user', (user) => {
     userSocketMap[user] = socket.id;
     console.log(userSocketMap)
   })
-  socket.on('removeuser', (userid)=>{
-    if(userSocketMap.hasOwnProperty(userid)){
+  socket.on('removeuser', (userid) => {
+    if (userSocketMap.hasOwnProperty(userid)) {
       delete userSocketMap[userid]
       console.log("THE NEW DICT IS", userSocketMap)
     }
@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
-}); 
+});
 // ROUTES
 
 app.use('/api', passwordResetRoute);
@@ -174,18 +174,18 @@ app.get("/profile/:page/:userId", verifyToken, async (req, res) => {
 });
 
 app.post(
-  "/posts/submit/:userid", verifyToken, upload.single("photo"),async (req, res) => {
+  "/posts/submit/:userid", verifyToken, upload.single("photo"), async (req, res) => {
     const postSchema = Joi.object({
       description: Joi.string().required().min(4).max(1000),
       location: Joi.string().max(200).required(),
       photo: Joi.string().max(200).optional().allow(null).allow(''),
     });
-  
+
     const validationResult = postSchema.validate(req.body);
     if (validationResult.error) {
       return res.status(400).json({ error: validationResult.error.details[0].message });
     }
-  
+
     console.log(req.body);
     foundUser = await User.findById(req.params.userid);
 
@@ -330,7 +330,7 @@ app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost)
     {
       path: "notifications",
       select: 'type date isRead',
-      populate:[
+      populate: [
         {
           path: 'follower',
           select: 'firstname lastname profilepicture',
@@ -371,9 +371,9 @@ app.get("/qrscan", (req, res) => {
 
 
 app.get('/profile/:userid', verifyToken, async (req, res) => {
-    console.log(req.params.userid)
-    const user = await User.findById(req.params.userid).populate('school', 'name')
-    res.send(user)
+  console.log(req.params.userid)
+  const user = await User.findById(req.params.userid).populate('school', 'name')
+  res.send(user)
 })
 
 // app.get("/eventdetails/:eventid", (req, res) => {
@@ -395,12 +395,12 @@ app.put('/profileedit/:userid', upload.single("profilepicture"), async (req, res
     if (check_file) {
       user.profilepicture = req.file.path
     }
-  await user.save()
-  res.status(201).json({ message: "profile updated created" });
+    await user.save()
+    res.status(201).json({ message: "profile updated created" });
   } catch (error) {
     res.status(401).json({ message: "Unauthorized" });
   }
-  
+
 })
 
 app.get("/eventsearch", async (req, res) => {
@@ -410,7 +410,7 @@ app.get("/eventsearch", async (req, res) => {
   });
 });
 
-app.get("/usersearch", async(req, res) => {
+app.get("/usersearch", async (req, res) => {
   const getEvents = User.distinct("username"); //.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result);
@@ -427,10 +427,13 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
   const {
     name,
     date,
-    time: {
-      minute,
-      hour,
-      second,
+    start_time: {
+      minute_start,
+      hour_start,
+    },
+    end_time: {
+      minute_end,
+      hour_end,
     },
     location: {
       street,
@@ -470,7 +473,10 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
     time: {
       minute,
       hour,
-      second,
+    },
+    end_time: {
+      minute,
+      hour,
     },
     location: {
       street,
@@ -524,8 +530,8 @@ app.get("/following/:userid", verifyToken, async (req, res) => {
 app.get("/follower/:userid", verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid);
   const follow = await user.populate([
-    { 
-      path: "followers", 
+    {
+      path: "followers",
       select: "username firstname lastname profilepicture",
       populate:
       {
@@ -533,7 +539,7 @@ app.get("/follower/:userid", verifyToken, async (req, res) => {
         select: 'name',
       },
     }
-    
+
   ]);
   console.log(follow);
   res.send({ followers: follow.followers });
@@ -569,8 +575,8 @@ app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
     myuser.following.push(userid)
     await user.save()
     await myuser.save()
-    console.log("THE USER IS", user)  
-    if(socketid){
+    console.log("THE USER IS", user)
+    if (socketid) {
       const newNotification = {
         type: 'follow',
         date: Date.now(),
@@ -619,9 +625,9 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get('/searchevent/:eventname', verifyToken, async(req, res)=>{
-  const event = await Event.findOne({name: req.params.eventname})
-  if(event){
+app.get('/searchevent/:eventname', verifyToken, async (req, res) => {
+  const event = await Event.findOne({ name: req.params.eventname })
+  if (event) {
     res.json(event)
   } else {
     res.status(500).json({ message: 'no such event' })
@@ -647,7 +653,7 @@ app.get("/ranking/school", verifyToken, async (req, res) => {
     // Retrieve the top 10 users with the most points
     const topSchools = await School.find().sort({ points: -1 }).limit(10);
     // Send the top users as a JSON response
-    res.json(topSchools);
+    res.json(topSchools).toString;
   } catch (error) {
     console.log("Error retrieving top schools", error);
     res
@@ -682,14 +688,14 @@ app.post("/api/checkin", async (req, res) => {
   }
 });
 
-app.get('/recommend/:userid', async (req, res)=>{
+app.get('/recommend/:userid', async (req, res) => {
   const userRes = []
   const alreadyAdded = []
   const user = await User.findById(req.params.userid)
   const school = await School.findById(user.school)
-  const userBySchool = await User.find({school: school._id, _id: { $ne: req.params.userid }})//.populate('school')
-  for(i = 0; i <userBySchool.length; i ++){
-    if(user.following.includes(userBySchool[i]._id)){
+  const userBySchool = await User.find({ school: school._id, _id: { $ne: req.params.userid } })//.populate('school')
+  for (i = 0; i < userBySchool.length; i++) {
+    if (user.following.includes(userBySchool[i]._id)) {
       continue;
     }
     const tempUser = {
@@ -705,9 +711,9 @@ app.get('/recommend/:userid', async (req, res)=>{
     userRes.push(tempUser)
   }
 
-  const userByPoints = await User.find({points: user.points, _id: { $ne: req.params.userid }})//.populate('school')
-  for(i = 0; i <userByPoints.length; i ++){
-    if(user.following.includes(userByPoints[i]._id) || alreadyAdded.includes(userByPoints[i].username)){
+  const userByPoints = await User.find({ points: user.points, _id: { $ne: req.params.userid } })//.populate('school')
+  for (i = 0; i < userByPoints.length; i++) {
+    if (user.following.includes(userByPoints[i]._id) || alreadyAdded.includes(userByPoints[i].username)) {
       continue;
     }
     const tempUser = {
@@ -725,18 +731,76 @@ app.get('/recommend/:userid', async (req, res)=>{
   res.json(userRes)
 })
 
-app.put('/notifications/readnotification', verifyToken, async (req, res)=>{
-  try{
+
+app.post('/getUsernames', async (req, res) => {
+  const userIds = req.body.userIds; // Assuming the frontend sends an array of user IDs
+  const usernames = []
+  const users = {}
+  for (const id of userIds) {
+    const user = await User.findOne({ _id: id });
+    if (user) {
+      usernames.push(user.username)
+      users[id] = user.username
+    }
+
+  }
+  console.log(users)
+
+  // Send the list of usernames as the HTTP response
+  res.json(users);
+});
+
+
+app.put('/notifications/readnotification', verifyToken, async (req, res) => {
+  try {
     const id = req.body.id
     const notification = await Notification.findById(id)
     notification.isRead = true
     notification.save()
     res.status(200).json({ success: true, message: "Notification read saved" });
-  }catch(error){
+  } catch (error) {
     res.status(500).json({ error: true, message: "Internal Server Error!!!" });
-  } 
-  
+  }
+
 })
+
+//post when user attend events
+app.post('/attendevent/:eventid/:userid/:state', async (req, res) => {
+  const eventid = req.params.eventid;
+  const userid = req.params.userid;
+  const state = req.params.state;
+  //console.log("state", state)
+  const user = await User.findOne({ _id: userid })
+
+  //Convert eventid and userid to MongoDB ObjectIDs
+  const eventObjectId = new mongoose.Types.ObjectId(eventid);
+  const userObjectId = new mongoose.Types.ObjectId(userid);
+  const event = await Event.findOne({ _id: eventObjectId });
+  if (!event) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+  if (state == 'true')//push the userid into registered and save
+  {
+    if (!event.registered) {
+      event.registered = [userObjectId];
+    }
+    else if (!user.eventsAttended) {
+      user.eventsAttended = [eventObjectId];
+    }
+
+    event.registered.push(userObjectId);
+    user.eventsAttended.push(eventObjectId)
+    await event.save();
+    await user.save();
+  }
+
+  else {
+    event.registered.pull(userObjectId)
+    await event.save();
+    user.eventsAttended.pull(eventObjectId)
+    await user.save();
+  }
+});
 
 
 function checkAuthenticated(req, res, next) {

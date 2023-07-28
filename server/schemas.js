@@ -39,12 +39,14 @@ const schemas = {
     eventPOST: Joi.object({
         name: Joi.string().max(100).required(),
         date: Joi.date().required(),//date().max(100).format(['MM/DD/YYYY']).required(),//'2023-06-09'
-        time: {
+        start_time: {
             hour: Joi.number().max(24).required(),
             minute: Joi.number().max(60).required(),
-            second: Joi.number().max(60).required(),
         },// = '12:30'
-
+        end_time: {
+            hour: Joi.number().max(24).required(),
+            minute: Joi.number().max(60).required(),
+        },
         description: Joi.string().max(1000).required(),
         location: {
             street: Joi.string().max(500).required(),
