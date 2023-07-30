@@ -75,16 +75,17 @@ export class EventDetailsComponent implements OnInit {
       console.log("filteredFollowers:", filteredFollowers, "\nattending:", this.attending)
       this.attending = filteredFollowers
       this.eventService.setAttending(this.attending)
-      this.eventService.attendEventById(this.eventid, this.userid, 'false');
+      this.eventService.attendEventById(this.eventid, this.userid, 'false').subscribe();
       console.log("Succefully unregistered")
     }
 
     else {
       this.attending.push(this.eventid)
       this.eventService.setAttending(this.attending)
-      this.eventService.attendEventById(this.eventid, this.userid, 'true').subscribe()
+      this.eventService.attendEventById(this.eventid, this.userid, 'true').subscribe();
       console.log("Succefully registered")
     }
+    location.reload() //comment this for not reloading 
   }
 
   checkattend() {
