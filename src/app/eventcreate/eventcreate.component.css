@@ -7,6 +7,11 @@
     z-index: 9999 !important;
 } */
 
-::ng-deep .cdk-overlay-container {
+::ng-deep .cdk-overlay-container{
     z-index: 9999 !important;
+}
+
+/* try to add this but not working https://github.com/angular/components/issues/9730 */
+::ng-deep .mat-input-underline{ 
+    visibility: visible; z-index: -999; display: block; 
 }

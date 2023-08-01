@@ -354,7 +354,14 @@ export class EventsComponent implements OnInit{
     }
     console.log("numCal: " + numCal);
 
-    let numGroup = Math.floor(this.weeklyEvents.length / numCal) + 1;  //the number of groups of events
+    var numGroup; //the number of groups of events
+    if(this.weeklyEvents.length % numCal != 0){
+      numGroup = Math.floor(this.weeklyEvents.length / numCal) + 1;  
+    }
+    else{
+      numGroup = this.weeklyEvents.length / numCal;
+    }
+    
     console.log("numGroup: " + numGroup);
 
     for(let i = 0; i < numGroup; i++){
@@ -391,7 +398,14 @@ export class EventsComponent implements OnInit{
     }
     console.log("numCal: " + numCal);
 
-    let numGroup = Math.floor(this.monthlyEvents.length / numCal) + 1;  //the number of groups of events
+    var numGroup; //the number of groups of events
+    if(this.monthlyEvents.length % numCal != 0){
+      numGroup = Math.floor(this.monthlyEvents.length / numCal) + 1;  
+    }
+    else{
+      numGroup = this.monthlyEvents.length / numCal;
+    }
+
     console.log("numGroup: " + numGroup);
 
     for(let i = 0; i < numGroup; i++){

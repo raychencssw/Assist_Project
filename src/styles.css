@@ -41,3 +41,12 @@ body { margin: 0; font-family: 'Roboto', "Helvetica Neue", sans-serif; }
 .modal-content{
   margin-top:80px;
 }
+
+.carousel-control-prev{
+  width:10%;
+}
+
+.carousel-control-next{
+  width:10%;
+}
+
