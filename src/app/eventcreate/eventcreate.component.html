@@ -35,7 +35,7 @@
                 <input matInput [matDatepicker]="picker" placeholder="Choose a date" name="Date" [(ngModel)]="formDate"
                     required #date="ngModel">
                 <mat-hint>MM/DD/YYYY</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker [panelClass]="'modal-datepicker-panel'"
                     [startAt]="datePickerStartAt"></mat-datepicker>
             </mat-form-field>
@@ -118,6 +118,14 @@
             </small>
         </div>
 
+        <mat-form-field>
+            <input matInput [matDatepicker]="picker2" placeholder="Choose a date" name="Date"
+                required>
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+            <mat-datepicker #picker2 [panelClass]="'modal-datepicker-panel'"
+                [startAt]="datePickerStartAt"></mat-datepicker>
+        </mat-form-field>
 
         <!-- Submit button -->
         <div class="text-end mt-3">
@@ -125,3 +133,4 @@
         </div>
     </form>
 </div>
+

@@ -1,9 +1,6 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
-// import { MatDatepicker } from '@angular/material/datepicker';
-// import {MatDatepickerModule} from '@angular/material/datepicker';
-import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -36,7 +33,7 @@ export class EventcreateComponent implements OnInit{
               private eventService: EventServiceService) {};
 
   ngOnInit() {
-    this.datePickerStartAt = new Date();
+    this.datePickerStartAt = new Date();   //today
   }
 
   // onFileSelected(event: any){
