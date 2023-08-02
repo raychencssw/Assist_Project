@@ -63,12 +63,31 @@
         </div> -->
 
         <label label class="form-label mb-0 mt-3 fw-bold"></label>Start Time<br>
-        <input id ="start_time_hour" type="text" name="start_time_hour" class="form-control" [(ngModel)]="eventForm.start_time.hour">
+        <input id ="start_time_hour" type="text" name="start_time_hour" class="form-control" [(ngModel)]="eventForm.start_time.hour" required>
+        <div *ngIf=!eventForm.start_time.hour class="alert">
+            <small>Start time hour is required.</small>
+        </div>
+        <div *ngIf="eventForm.start_time.hour && (eventForm.start_time.hour < 0 || eventForm.start_time.hour > 24)" class="alert">
+            <small>Start time hour should be within 0 to 24.</small>
+        </div>
         <input id ="start_time_minute" type="text" name="start_time_minute" class="form-control" [(ngModel)]="eventForm.start_time.minute">
+        <div *ngIf=!eventForm.start_time.minute class="alert">
+            <small>Start time hour is required.</small>
+        </div>
+        <div *ngIf="eventForm.start_time.minute && (eventForm.start_time.minute < 0 || eventForm.start_time.minute > 60)" class="alert">
+            <small>Start time minute should be within 0 to 60.</small>
+        </div>
+
 
         <label label class="form-label mb-0 mt-3 fw-bold"></label>End Time<br>
         <input id ="end_time_hour" type="text" name="end_time_hour" class="form-control" [(ngModel)]="eventForm.end_time.hour">
+        <div *ngIf="eventForm.end_time.hour && (eventForm.end_time.hour < 0 || eventForm.end_time.hour > 24)" class="alert">
+            <small>End time hour should be within 0 to 24.</small>
+        </div>
         <input id ="end_time_minute" type="text" name="end_time_minute" class="form-control" [(ngModel)]="eventForm.end_time.minute">
+        <div *ngIf="eventForm.end_time.minute && (eventForm.end_time.minute < 0 || eventForm.end_time.minute > 60)" class="alert">
+            <small>End time minute should be within 0 to 60.</small>
+        </div>
 
         <label class="form-label mb-0 mt-3 fw-bold">Location</label><br>
         <label class="form-label mb-0 mt-1">Street Address</label>
