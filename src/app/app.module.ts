@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms'
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-import {MatListModule} from '@angular/material/list';
+import { MatListModule } from '@angular/material/list';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
@@ -47,20 +47,25 @@ import { InfoComponent } from './home/info/info.component';
 import { LandingComponent } from './landing/landing.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { NewPasswordComponent } from './new-password/new-password.component';
+import { OrganizationSignupComponent } from './signup/organization-signup/organization-signup.component';
+import { SupvisosignupComponent } from './signup/supvisosignup/supvisosignup.component';
+
 const appRoutes: Routes = [
-  { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
-  { path: 'events', component: EventsComponent, canActivate:[AuthGuard]},
-  { path: 'rankings', component: RankingsComponent, canActivate:[AuthGuard]},
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'events', component: EventsComponent, canActivate: [AuthGuard] },
+  { path: 'rankings', component: RankingsComponent, canActivate: [AuthGuard] },
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'profile/:id', component: ProfileComponent, canActivate:[AuthGuard]},
-  { path: 'search', component: SearchComponent, canActivate:[AuthGuard]},
-  { path: 'event-detail/:id', component: EventDetailsComponent, canActivate:[AuthGuard] },
-  { path: '', component: LandingComponent},
-  {path: 'forgot-password', component: ResetPasswordComponent},
-  {path: 'reset-password/:token', component: NewPasswordComponent},
+  { path: 'orgsignup', component: OrganizationSignupComponent },
+  { path: 'supsignup', component: SupvisosignupComponent },
+  { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'search', component: SearchComponent, canActivate: [AuthGuard] },
+  { path: 'event-detail/:id', component: EventDetailsComponent, canActivate: [AuthGuard] },
+  { path: '', component: LandingComponent },
+  { path: 'forgot-password', component: ResetPasswordComponent },
+  { path: 'reset-password/:token', component: NewPasswordComponent },
   { path: '**', redirectTo: '/login', pathMatch: 'full' }
-  
+
 ]
 
 
@@ -86,6 +91,8 @@ const appRoutes: Routes = [
     LandingComponent,
     ResetPasswordComponent,
     NewPasswordComponent,
+    OrganizationSignupComponent,
+    SupvisosignupComponent,
   ],
   imports: [
     BrowserModule,
@@ -98,18 +105,18 @@ const appRoutes: Routes = [
     MatTabsModule,
     InfiniteScrollModule,
     MatListModule,
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatDatepickerModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
     MatNativeDateModule,
     NgbTimepickerModule,
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
-    
+
     MatAutocompleteModule,
     MatInputModule,
   ],
-  providers: [AuthGuard, SocketioService, 
+  providers: [AuthGuard, SocketioService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

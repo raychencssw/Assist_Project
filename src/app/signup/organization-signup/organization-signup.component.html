@@ -1,0 +1,78 @@
+<div class="form-container">
+    <div *ngIf="isLoading" class="loading-overlay">
+        <img src="https://i.gifer.com/yy3.gif" alt="Loading..." class="loading-image">
+    </div>
+    <div class="container">
+        <div class="row" style="height: 100%;">
+            <div class="col col-md-6"
+                style="text-align: center; background-color: rgba(0, 8, 251, 0.7); border-radius: 30px 0 0 30px;">
+                <img src="../../assets/ASSIST.jpeg" alt="logo" class="assist-logo">
+            </div>
+            <div class="col col-md-6">
+                <div class="row">
+                    <div class="col col-md-12" style="text-align: center;">
+                        <h1 style="color: blue;">Organization Sign up</h1>
+                    </div>
+                </div>
+                <form ngNativeValidate (ngSubmit)="onSubmit()">
+                    <div class="row">
+                        <div class="col col-md-12">
+                            <div class="mt-3">
+                                <label for="name" class="form-label">Name of Organization*</label>
+                                <input type="text" class="form-control" id="name" name="name" [(ngModel)]="user.name"
+                                    placeholder="ASSIST Project"
+                                    [ngClass]="{ 'is-invalid': submitted && f['name'].errors }" maxlength=20 required>
+                                <span style="color: red;" *ngIf="nameError">Name already exists</span>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col col-md-6">
+                            <label for="phone" class="form-label">Phone number*</label>
+                            <input type="text" class="form-control" id="phone" name="phone" [(ngModel)]="user.phone"
+                                placeholder="1234567890" required>
+                        </div>
+
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col col-md-6">
+                            <label for="location" class="form-label">Location*</label>
+                            <input type="text" class="form-control" id="location" name="location"
+                                [(ngModel)]="user.location" placeholder="Los Angeles" required>
+                        </div>
+
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col col-md-12">
+                            <label for="email" class="form-label">Email*</label>
+                            <input type="email" class="form-control" id="email" name="email" [(ngModel)]="user.email"
+                                placeholder="janedoe@abc.com" required>
+                            <span style="color: red;" *ngIf="emailError">Email already exists</span>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col col-md-12">
+                            <label for="password" class="form-label">Password*</label>
+                            <input type="text" class="form-control" id="password" name="password"
+                                [(ngModel)]="user.password" required>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col col-md-12">
+                            <label for="profilePicture" class="form-label">Profile Picture*</label>
+                            <input type="file" class="form-control" id="profilePicture" name="profilePicture"
+                                (change)="onFileChange($event)" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col col-md-12" style="text-align: center;">
+                            <button class="btn btn-primary" type="submit">Signup</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

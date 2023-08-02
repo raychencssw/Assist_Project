@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const User = require("./models/user");
 const Event = require("./models/event");
 const Post = require("./models/post");
+const Supervisor = require("./models/supervisor");
+const Organization = require("./models/organization");
 const School = require("./models/school");
 const Notification = require('./models/notification');
 const passport = require("passport");
@@ -763,7 +765,6 @@ app.put('/notifications/readnotification', verifyToken, async (req, res) => {
   }
 
 })
-
 //post when user attend events
 app.post('/attendevent/:eventid/:userid/:state', async (req, res) => {
   const eventid = req.params.eventid;
@@ -796,12 +797,126 @@ app.post('/attendevent/:eventid/:userid/:state', async (req, res) => {
 
   else {
     event.registered.pull(userObjectId)
-    await event.save();
     user.eventsAttended.pull(eventObjectId)
     await user.save();
   }
 });
 
+app.post('/orgsignup', upload.single("profilePicture"), async (req, res) => {
+  console.log("receive signup notification");
+  if (req.file) {
+    var profilePicture = req.file.path;
+  }
+  else {
+    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
+  }
+
+  try {
+    const { name, email, phone, location } = req.body;
+
+    //Check if email already exists
+    const existingEmail = await Organization.findOne({ email });
+    if (existingEmail) {
+      console.log("email already exists");
+      return res.status(409).json({ message: "Email already exists" });
+    }
+    const newOrg = new Organization({
+      email: req.body.email,
+      name: req.body.name,
+      phone: req.body.phone,
+      location: req.body.location,
+      profilepicture: req.file.path,
+    });
+
+    if (req.body.password == null) {
+      console.log("No password");
+    }
+    newOrg.password = newOrg.generateHash(req.body.password);
+    await newOrg.save();
+    console.log("Org_db saved");
+
+    const schoolObjectId = new mongoose.Types.ObjectId("64a3b104c7380cc713d41020"); //set school to not above
+    //make a copy to user Database
+    const newUser = new User({
+      email: req.body.email,
+      username: req.body.name,
+      firstname: req.body.name,
+      lastname: req.body.name,
+      profilepicture: req.file.path,
+      school: schoolObjectId
+    });
+    newUser.role = 1;
+    newUser.password = newOrg.generateHash(req.body.password);
+    await newUser.save();
+    console.log("User_db saved");
+    res.status(200).json({ message: "Signup successful" });
+
+  }
+  catch (error) {
+    console.error("Error signing up: ", error);
+    res.redirect("/orgsignup");
+  }
+
+});
+
+
+app.post('/supsignup', upload.single("profilePicture"), async (req, res) => {
+  console.log("receive signup notification");
+  if (req.file) {
+    var profilePicture = req.file.path;
+  }
+  else {
+    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
+  }
+
+  try {
+    const { username, firstname, lastname, email, phone } = req.body;
+
+    //Check if email already exists
+    const existingEmail = await Supervisor.findOne({ email });
+    if (existingEmail) {
+      console.log("email already exists");
+      return res.status(409).json({ message: "Email already exists" });
+    }
+    const newOrg = new Supervisor({
+      email: req.body.email,
+      username: req.body.username,
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      phone: req.body.phone,
+      profilepicture: req.file.path,
+    });
+
+    if (req.body.password == null) {
+      console.log("No password");
+    }
+    newOrg.password = newOrg.generateHash(req.body.password);
+    await newOrg.save();
+    console.log("sup_db saved");
+
+    const schoolObjectId = new mongoose.Types.ObjectId("64a3b104c7380cc713d41020"); //set school to not above
+    //make a copy to user Database
+    const newUser = new User({
+      email: req.body.email,
+      username: req.body.username,
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      profilepicture: req.file.path,
+      school: schoolObjectId
+    });
+    newUser.role = 2;
+    newUser.password = newOrg.generateHash(req.body.password);
+    await newUser.save();
+    console.log("User_db saved");
+    res.status(200).json({ message: "Signup successful" });
+
+  }
+  catch (error) {
+    console.error("Error signing up: ", error);
+    res.redirect("/orgsignup");
+  }
+
+});
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {

@@ -25,7 +25,7 @@ export class SearchServiceService {
       map(response =>
         response
           .map(item => item.toString())
-          .filter(result => result.toLowerCase().includes(value.toLowerCase()))
+          .filter(result => result.toLowerCase().startsWith(value.toLowerCase()))
           .slice(0, 10)
       )
     );
@@ -35,7 +35,7 @@ export class SearchServiceService {
       map(response =>
         response
           .map(item => item.toString())
-          .filter(result => result.toLowerCase().includes(value.toLowerCase()))
+          .filter(result => result.toLowerCase().startsWith(value.toLowerCase()))
           .slice(0, 10)
       )
     );
