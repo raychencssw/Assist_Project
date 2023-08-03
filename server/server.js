@@ -798,6 +798,7 @@ app.post('/attendevent/:eventid/:userid/:state', async (req, res) => {
   else {
     event.registered.pull(userObjectId)
     user.eventsAttended.pull(eventObjectId)
+    await event.save();
     await user.save();
   }
 });

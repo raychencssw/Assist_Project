@@ -19,8 +19,7 @@ export class EventDetailsComponent implements OnInit {
   event: any;
   userid: string = '';
   attending: any = [];
-  isRegistered!: boolean;
-  attendees: any = []; //id
+  attendees: any = []; //user ids
   attendees_name: any = [];
   showContainer = false;
   idToNameMap: { key: string, value: string }[] = [];
@@ -30,13 +29,13 @@ export class EventDetailsComponent implements OnInit {
     private router: Router
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     const id: any = this.route.snapshot.paramMap.get('id');
-    this.eventService.getEventById(id).pipe(delay(300)).
+    this.eventid = id
+    this.userid = JSON.parse(localStorage.getItem('user')!).id
+    this.eventService.getEventById(this.eventid).pipe(delay(300)).
       subscribe((data) => {
-
         this.event = data;
-
         //this.yourFunction(this.attendees)
         (async () => {
           try {
@@ -45,7 +44,7 @@ export class EventDetailsComponent implements OnInit {
             this.attendees_name = await this.eventService.getListOfUsernames(userIds);
             this.idToNameMap = Object.keys(this.attendees_name).map(key => ({ key, value: this.attendees_name[key] }))
             // Now 'this.users' will be set with the data fetched from the backend
-            console.log("this.users in ngOnInit:", this.idToNameMap);
+            this.attending = JSON.parse(localStorage.getItem('user')!).eventsAttended
           } catch (error) {
             console.error('Error in ngOnInit:', error);
           }
@@ -53,47 +52,43 @@ export class EventDetailsComponent implements OnInit {
         this.attendees = data.registered
 
       });
-
-    this.eventid = id
-    this.userid = JSON.parse(localStorage.getItem('user')!).id
-    //const eventsAttended: string[] = JSON.parse(localStorage.getItem('eventsAttended') || '[]');
-    this.isRegistered = localStorage.getItem('eventsAttended')!.includes(this.eventid);
-    this.attending = this.eventService.getAttending()
-
   }
-
 
   attendEvent() {
-    if (this.attending.includes(this.eventid)) { //unfollow button
-      const filteredFollowers: string[] = []
-      this.attending.forEach((id: any) => {
-        if (id !== this.eventid) {
-          filteredFollowers.push(id);
-        }
-      });
-
-      console.log("filteredFollowers:", filteredFollowers, "\nattending:", this.attending)
-      this.attending = filteredFollowers
-      this.eventService.setAttending(this.attending)
-      this.eventService.attendEventById(this.eventid, this.userid, 'false').subscribe();
-      console.log("Succefully unregistered")
-    }
-
-    else {
-      this.attending.push(this.eventid)
-      this.eventService.setAttending(this.attending)
-      this.eventService.attendEventById(this.eventid, this.userid, 'true').subscribe();
-      console.log("Succefully registered")
-    }
+    //follow button
+    const new_array = [this.eventid]
+    const users = JSON.parse(localStorage.getItem('user')!);
+    users.eventsAttended = new_array
+    localStorage.setItem('user', JSON.stringify(users))
+    this.eventService.attendEventById(this.eventid, this.userid, 'true').subscribe();
     location.reload() //comment this for not reloading 
+    console.log("Succefully registered")
   }
 
+
+  unattendEvent() {
+    const users_attended = JSON.parse(localStorage.getItem('user')!).eventsAttended;
+    const filtered: string[] = []
+    users_attended.forEach((id: any) => {
+      if (id !== this.eventid) {
+        filtered.push(id);
+      }
+    });
+    const users = JSON.parse(localStorage.getItem('user')!);
+    users.eventsAttended = filtered
+    localStorage.setItem('user', JSON.stringify(users))
+    this.eventService.attendEventById(this.eventid, this.userid, 'false').subscribe();
+
+    location.reload() //comment this for not reloading 
+    console.log("Succefully unregistered")
+
+  }
   checkattend() {
-    if (this.attending.includes(this.eventid)) {
+    const id: any = this.route.snapshot.paramMap.get('id');
+    const users_attended = Object.values(JSON.parse(localStorage.getItem('user')!).eventsAttended);
+    if (users_attended.includes(id)) {
       return true
     }
     return false
   }
-
-
 }

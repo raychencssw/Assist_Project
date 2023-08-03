@@ -21,8 +21,7 @@ export class EventServiceService {
   users: any;
   isRegistered!: boolean;
   attendees: any = []; //as ids
-
-  attendingJson: any;
+  attendingJson: any = [];
   constructor(private http: HttpClient, private router: Router, private auth: AuthService) { }
 
   addtoEvents(event: any): Observable<any> {
@@ -73,14 +72,6 @@ export class EventServiceService {
     localStorage.setItem('eventsAttended', JSON.stringify(eventid));
   }
 
-  getAttending() {
-    const attendingString = localStorage.getItem('eventsAttended')
-    if (attendingString) {
-      this.attendingJson = JSON.parse(attendingString)
-    }
-    return Array.isArray(this.attendingJson) ? this.attendingJson : [this.attendingJson];
-  }
-
   async version_getListOfUsernames(userIds: string[]): Promise<void> {
     const url = 'http://localhost:3080/getUsernames'; // Replace this URL with your backend endpoint
     this.http.post<string[]>(url, { userIds }).subscribe(
@@ -88,11 +79,9 @@ export class EventServiceService {
         // 'usernames' contains the list of usernames received from the backend
         const users = JSON.stringify(usernames)
         this.users = users
-        console.log("this.username", this.users, typeof this.users)
       }
 
     );
-    console.log("out side this.username", this.users, typeof this.users)
   }
 
 
@@ -101,7 +90,6 @@ export class EventServiceService {
       const url = 'http://localhost:3080/getUsernames'; // Replace with your backend endpoint
       const userpair: any = await this.http.post<any>(url, { userIds }).toPromise();
       this.users = userpair;
-      console.log("this.username", this.users, typeof this.users);
 
     } catch (error) {
       console.error('Error fetching usernames:', error);
