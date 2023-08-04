@@ -28,11 +28,14 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay-top">{{each.month}}</div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        <div class="circle"></div>
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -44,11 +47,13 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay-top">{{each.month}}</div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -75,11 +80,14 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay-top">{{each.month}}</div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        <div class="circle"></div>
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -91,11 +99,13 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay-top">{{each.month}}</div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -163,7 +173,7 @@
     </mat-tab-group> -->
 
     <!-- Create Event button -->
-    <div class="fs-5 text-center create-event mt-3 mb-3" (click)="createEvent()">Create Event</div>
+    <div class="fs-5 text-center create-event mt-3 mb-3" style="margin-top: 50px !important" (click)="createEvent()">Create Event</div>
     
     <div class="info-wrap">
         <p class="fs-5 fw-bold text-center assist-blue mb-1">Need More Points?</p>

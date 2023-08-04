@@ -123,20 +123,43 @@
 
 .calendar-overlay-top{
     position: absolute;
-    top: 10%;
-    left: 30%;
+    top: 5%;
+    /* left: 25%; */
     z-index: 1;
 }
 
 .calendar-overlay{
     position: absolute;
-    top: 50%;
-    left: 25%;
+    top: 45%;
+    left: 30%;
     /* transform: translate(-50%, -50%); */
     /* background-color: rgba(255, 255, 255, 0.8); */
     /* padding: 20px; */
     padding: 10%;
     z-index: 1;
+}
+
+.circle {
+    position: absolute;
+    top: 0%;
+    left: -15%;
+    width: 50px;
+    height: 50px;
+    border: 2px solid transparent; /* Sets the initial border as transparent */
+    border-radius: 50%; /* Creates a circular shape */
+    transition: border-color 0.3s ease; /* Add a smooth transition effect */
+  }
+  
+  .circle:hover {
+    border-color: black; /* Change the border color to black on hover */
+  }
+
+.calendar-overlay-date{
+    text-decoration: none;
+    color:black;
+    position: absolute;
+    /* left: 30%; */
+    top: 13%;
 }
 
 .carousel-control-prev-icon{
@@ -187,6 +210,12 @@
     
     .font-awesome{
         color:rgb(49,108,244);
+    }
+    .calendar-overlay-date{
+        left:30%;
+    }
+    .calendar-overlay-top{
+        left:30%;
     }
 }
 
@@ -246,5 +275,11 @@
     }
     .font-awesome{
         color:white;
+    }
+    .calendar-overlay-date{
+        left:15%;
+    }
+    .calendar-overlay-top{
+        left:25%;
     }
 }
