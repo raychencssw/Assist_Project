@@ -76,15 +76,15 @@ export class SignupComponent implements OnInit {
     const url = 'http://localhost:3080/signup';
   
     this.http.post(url, this.formData)
-      .subscribe(
-        (response) => {
-          console.log(response); // Handle the response from the server
+      .subscribe({
+        next:(response)=>{
+          console.log(response);
           setTimeout(() => {
             this.isLoading = false;
             this.router.navigate(['/login']);
-          }, 5000);
+            }, 5000);
         },
-        (error) => {
+        error:(error)=>{
           this.isLoading = false;
           console.error(error);
           if (error.error.message == 'Username already exists') {
@@ -93,7 +93,7 @@ export class SignupComponent implements OnInit {
             this.emailError = true;
           }
         }
-      );
+      });
   }
   
 

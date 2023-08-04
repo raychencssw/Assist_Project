@@ -3,6 +3,8 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 import { Subscription } from 'rxjs';
+import { SocketioService } from '../services/socketio.service';
+
 
 @Component({
   selector: 'app-header',
@@ -12,11 +14,11 @@ import { Subscription } from 'rxjs';
 export class HeaderComponent implements OnInit{
   isLoggedin = false
   subscription?:Subscription
-  notifications: any
+  notifications: any = []
   showNotifications: boolean = false
   count: any = 0
   navbarCollapsed: boolean = false;
-  constructor(public authservice: AuthService, private notificationService: NotificationService) {}
+  constructor(public authservice: AuthService, private notificationService: NotificationService, private socketService: SocketioService) {}
 
   ngOnInit(): void {
     this.subscription = this.authservice.getUser().subscribe(response=>{
@@ -28,8 +30,11 @@ export class HeaderComponent implements OnInit{
     })
     this.notifications = this.authservice.getNotifications()
     this.checkCount(this.notifications)
-    console.log(this.notifications)
-
+    this.socketService.followerResponse.subscribe(response=>{
+      this.notifications.unshift(response)
+      this.checkCount(this.notifications)
+      this.authservice.setNotifications(this.notifications)
+    })
   }
 
   toggleNotifications(): void {

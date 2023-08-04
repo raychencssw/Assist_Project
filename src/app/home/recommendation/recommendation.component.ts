@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { RecommendationService } from 'src/app/services/recommendation.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
+import { RecommendationService } from 'src/app/services/recommendation.service';
 
 @Component({
   selector: 'app-recommendation',

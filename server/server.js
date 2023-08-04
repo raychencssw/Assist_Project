@@ -21,6 +21,7 @@ const verifyToken = require("./verifyToken");
 const Joi = require("joi");
 const schemas = require("./schemas");
 const middleware = require("./middleware");
+const passwordResetRoute = require('./passwordreset');
 
 
 const db = mongoose.connection;
@@ -39,13 +40,12 @@ const characters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 let randomId = "";
 let posts = [];
+const userSocketMap = {};
 
 const upload = multer({ storage: storage });
 
 initializePassport(passport);
 const app = express();
-const httpServer = require('http').createServer(app);
-const io = require('socket.io')(httpServer);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
@@ -60,6 +60,14 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+const httpServer = require('http').createServer(app);
+const io = require('socket.io')(httpServer, {
+  cors: {
+    origins: ['http://localhost:4200']
+  }
+});
+
+
 
 let db_url =
   "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
@@ -74,7 +82,29 @@ mongoose
     console.log(e);
   });
 
+
+
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  const socketid = socket.id
+  socket.on('user', (user) => {
+    userSocketMap[user] = socket.id;
+    console.log(userSocketMap)
+  })
+  socket.on('removeuser', (userid) => {
+    if (userSocketMap.hasOwnProperty(userid)) {
+      delete userSocketMap[userid]
+      console.log("THE NEW DICT IS", userSocketMap)
+    }
+  })
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
 // ROUTES
+
+app.use('/api', passwordResetRoute);
 
 app.get("/home/:page", verifyToken, async (req, res) => {
   page = req.params.page;
@@ -103,7 +133,6 @@ app.get("/home/:page", verifyToken, async (req, res) => {
       imageurl: post.imageurl,
     };
   });
-  console.log(postObjects);
   res.send({ posts: postObjects });
 });
 
@@ -113,7 +142,6 @@ app.get("/profile/:page/:userId", verifyToken, async (req, res) => {
   let userId = req.params.userId;
   let query = {};
   if (userId !== undefined) {
-    console.log("Get post for this user: " + userId);
     query = { author: userId };
   }
   const limit = 5;
@@ -141,23 +169,24 @@ app.get("/profile/:page/:userId", verifyToken, async (req, res) => {
       imageurl: post.imageurl,
     };
   });
-  console.log(postObjects);
   res.send({ posts: postObjects });
 });
 
 app.post(
-  "/posts/submit/:userid", verifyToken, upload.single("photo"),async (req, res) => {
+  "/posts/submit/:userid",
+  verifyToken,
+  upload.single("photo"),
+  async (req, res) => {
     const postSchema = Joi.object({
       description: Joi.string().required().min(4).max(1000),
       location: Joi.string().max(200).required(),
       photo: Joi.string().max(200).optional().allow(null).allow(''),
     });
-  
+
     const validationResult = postSchema.validate(req.body);
     if (validationResult.error) {
       return res.status(400).json({ error: validationResult.error.details[0].message });
     }
-  
     console.log(req.body);
     foundUser = await User.findById(req.params.userid);
 
@@ -198,7 +227,7 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
     .limit(limit);
   const postObjects = allPosts.map((post) => {
     return {
-      id: post.id,
+      id: post._id,
       author: post.author.username,
       location: post.location,
       date: post.date,
@@ -290,21 +319,6 @@ app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPo
   }
 });
 
-// app.post(
-//   "/login",
-//   passport.authenticate("local", {
-//     successRedirect: "/",
-//     failureRedirect: "/login",
-//   })
-// );
-
-// app.post(
-//   "/login",
-//   passport.authenticate("local", {
-//     successRedirect: "/",
-//     failureRedirect: "/login",
-//   })
-// );
 
 app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost), async function (req, res) {
   const token = jwt.sign({ id: req.user._id }, config.secretKey, {
@@ -318,7 +332,7 @@ app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost)
     {
       path: "notifications",
       select: 'type date isRead',
-      populate:[
+      populate: [
         {
           path: 'follower',
           select: 'firstname lastname profilepicture',
@@ -349,6 +363,7 @@ app.get("/logout", (req, res) => {
   });
 });
 
+
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
@@ -358,32 +373,36 @@ app.get("/qrscan", (req, res) => {
 
 
 app.get('/profile/:userid', verifyToken, async (req, res) => {
-    console.log(req.params.userid)
-    const user = await User.findById(req.params.userid).populate('school', 'name')
-    res.send(user)
+  console.log(req.params.userid)
+  const user = await User.findById(req.params.userid).populate('school', 'name')
+  res.send(user)
 })
 
 // app.get("/eventdetails/:eventid", (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-app.put('/profileedit/:userid', upload.single("profilepicture"), middleware(schemas.profilePOST), async (req, res) => { // 
-  const updatedData = req.body;
-  const check_file = req.file;
-  //find school id by school name
-  const schoolDocument = await School.findOne({ name: req.body.school });
-  const schoolID = schoolDocument._id;
-  const user = await User.findById(req.params.userid)
-  user.username = req.body.username,
-    user.firstname = req.body.firstname,
-    user.lastname = req.body.lastname,
-    user.email = req.body.email
-  if (check_file) {
-    user.profilepicture = req.file.path
+app.put('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
+  try {
+    const updatedData = req.body;
+    const check_file = req.file;
+    //find school id by school name
+    const schoolDocument = await School.findOne({ name: req.body.school });
+    const schoolID = schoolDocument._id;
+    const user = await User.findById(req.params.userid)
+    user.username = req.body.username,
+      user.firstname = req.body.firstname,
+      user.lastname = req.body.lastname,
+      user.email = req.body.email
+    if (check_file) {
+      user.profilepicture = req.file.path
+    }
+    await user.save()
+    res.status(201).json({ message: "profile updated created" });
+  } catch (error) {
+    res.status(401).json({ message: "Unauthorized" });
   }
-  await user.save()
-  res.status(201).json({ message: "profile updated created" });
-  res.status(401).json({ message: "Unauthorized" });
+
 })
 
 app.get("/eventsearch", async (req, res) => {
@@ -393,7 +412,7 @@ app.get("/eventsearch", async (req, res) => {
   });
 });
 
-app.get("/usersearch", async(req, res) => {
+app.get("/usersearch", async (req, res) => {
   const getEvents = User.distinct("username"); //.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result);
@@ -419,10 +438,7 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
     end_time:{
       // endhour,
       // endminute,
-      hour,
-      minute,
-    },
-    location: {
+    location:{
       street,
       city,
       state,
@@ -518,10 +534,19 @@ app.get("/following/:userid", verifyToken, async (req, res) => {
   res.send({ following: follow.following });
 });
 
-app.get("/follower/:userid", verifyToken, async (req, res) => {
+app.get('/following/:userid', verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid);
   const follow = await user.populate([
-    { path: "followers", select: "username firstname lastname" },
+    {
+      path: "followers",
+      select: "username firstname lastname profilepicture",
+      populate:
+      {
+        path: 'school',
+        select: 'name',
+      },
+    }
+
   ]);
   console.log(follow);
   res.send({ followers: follow.followers });
@@ -536,7 +561,7 @@ app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
   const isfollowing = req.params.isfollowing;
   const myid = req.params.myid;
   const userid = req.params.userid;
-
+  const socketid = userSocketMap[userid]
   if (isfollowing == "false") {
     //append myid to user's follower  
     const user = await User.findById(userid)
@@ -557,26 +582,27 @@ app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
     myuser.following.push(userid)
     await user.save()
     await myuser.save()
-    console.log("THE USER IS", user)  
-    const newNotification = {
-      type: 'follow',
-      date: Date.now(),
-      follower: {
-        _id: myid,
-        firstname: me.firstname,
-        lastname: me.lastname,
-        profilepicture: me.profilepicture
-      },
-      from: {
-        firstname: me.firstname,
-        lastname: me.lastname,
-        _id: myid
-      },
-      isRead: false,
-      _id: notification._id
+    console.log("THE USER IS", user)
+    if (socketid) {
+      const newNotification = {
+        type: 'follow',
+        date: Date.now(),
+        follower: {
+          _id: myid,
+          firstname: me.firstname,
+          lastname: me.lastname,
+          profilepicture: me.profilepicture
+        },
+        from: {
+          firstname: me.firstname,
+          lastname: me.lastname,
+          _id: myid
+        },
+        isRead: false,
+        _id: notification._id
+      }
+      io.to(socketid).emit('newFollower', newNotification);
     }
-    io.to(userid).emit('newFollower', newNotification);
-    io.to(myid).emit('followUpdated');
     res.status(201).json({ message: "follow updated" })
   }
 
@@ -606,9 +632,9 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get('/searchevent/:eventname', verifyToken, async(req, res)=>{
-  const event = await Event.findOne({name: req.params.eventname})
-  if(event){
+app.get('/searchevent/:eventname', verifyToken, async (req, res) => {
+  const event = await Event.findOne({ name: req.params.eventname })
+  if (event) {
     res.json(event)
   } else {
     res.status(500).json({ message: 'no such event' })
@@ -634,7 +660,7 @@ app.get("/ranking/school", verifyToken, async (req, res) => {
     // Retrieve the top 10 users with the most points
     const topSchools = await School.find().sort({ points: -1 }).limit(10);
     // Send the top users as a JSON response
-    res.json(topSchools);
+    res.json(topSchools).toString;
   } catch (error) {
     console.log("Error retrieving top schools", error);
     res
@@ -665,7 +691,8 @@ app.post("/api/checkin", async (req, res) => {
     res.json({ message: "User checked in successfully!!!" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "An error occurred!!!" });
+    res.status(500).json({ error: 'An error occurred!!!' });
+  
   }
 });
 

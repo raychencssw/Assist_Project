@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProfileService } from '../services/profile.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Event } from '@angular/router';
 import { Router } from '@angular/router';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { NgForm } from '@angular/forms';
@@ -10,6 +10,7 @@ import { Subscription, debounceTime } from 'rxjs';
 import { FollowingService } from '../services/following.service';
 import { PostServiceService } from '../services/post-service.service';
 import { Console } from 'console';
+import { filter } from 'rxjs/operators';
 
 
 @Component({
@@ -20,11 +21,10 @@ import { Console } from 'console';
 })
 
 
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   isFollowing: boolean = false;
   getUserProfile!: any;
   username: string = '';
-  name: string = '';
   firstname: string = '';
   lastname: string = '';
   email: string = '';
@@ -83,6 +83,13 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.router.events.pipe(
+      filter((event: any) => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      const user = this.auth.findUser()
+      const userId = event.url.split('/profile/')[1];
+      this.sameUser = (userId === user.id);
+    });
     this.route.paramMap.subscribe(params => {
       this.id = params.get("id")
       const user = this.auth.findUser()
@@ -90,6 +97,8 @@ export class ProfileComponent implements OnInit {
         this.sameUser = true
       }
       this.getData()
+      this.isFollowing = this.checkFollow()
+      console.log(this.isFollowing, this.sameUser)
     })
 
   }
@@ -106,10 +115,11 @@ export class ProfileComponent implements OnInit {
         this.lastname = this.getUserProfile['lastname'];
         this.role = this.getUserProfile['role'];
         this.points = this.getUserProfile['points']
-        this.school = this.getUserProfile['school']['name']
+        if(this.getUserProfile['school']){
+          this.school = this.getUserProfile['school']['name']
+        }
         this.eventsAttended = this.getUserProfile['eventsAttended']
         this.profilepicture = this.getUserProfile['profilepicture']
-        this.name = this.firstname + " " + this.lastname
         // Process the retrieved profile data
         this.update_username = this.username
         this.update_firstname = this.firstname;
@@ -132,12 +142,14 @@ export class ProfileComponent implements OnInit {
   getFollower() {
     this.followingservice.profileFollower$.subscribe((response)=>{
       this.followers = response
+      console.log("THE FOLLOWERS", this.followers)
     })
     this.followingservice.getFollower(this.id)
   }
 
   //Gets the posts created by this user
   getPosts() {
+    this.posts = []
     this.userLikedPosts = this.auth.getLikedPosts()
     this.postservice.oneUserPostsResponse.subscribe(postResponse => {
       this.posts.push(...postResponse.posts)
@@ -251,20 +263,13 @@ export class ProfileComponent implements OnInit {
   }
 
 
-  onScroll() {
-    this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
-  }
+  // onScroll() {
+  //   this.postservice.loadOneUserPosts(this.pageNumber++, this.id)
+  // }
 
   async followUser() {
     // users cannot follow themselves 
     console.log('This is follow user', this.id)
-    // const myid = JSON.parse(localStorage.getItem("user")!).id
-    // if (myid === this.id) {
-    //   this.isFollowing = true
-    //   this.modalService.open("You Cannot Follow Yourself");
-    // }
-    // this.isFollowing = !this.isFollowing;
-    // this.followingservice.followButton(myid, this.id, this.isFollowing)
     const myid = JSON.parse(localStorage.getItem("user")!).id
     if(this.following.includes(this.id)){
       console.log(this.following)
@@ -273,17 +278,20 @@ export class ProfileComponent implements OnInit {
       })
       this.following = filteredFollowing
       this.auth.setFollowing(this.following)
+      this.isFollowing = false
       let promise = this.followingservice.followButton(myid, this.id, true)
       promise.then(result => {this.getFollower()})
     }else{
       this.following.push(this.id)
-      this.auth.setFollowing(this.id)
+      this.auth.setFollowing(this.following)
+      this.isFollowing = true
       let promise = this.followingservice.followButton(myid, this.id, false)
       console.log(this.following)
       promise.then((response) => {this.getFollower()})
     }
   }
   checkFollow(){
+    console.log(this.following)
     if(this.following.includes(this.id)){
       return true
     }
@@ -297,6 +305,8 @@ export class ProfileComponent implements OnInit {
     return this.userLikedPosts.includes(id)
   }
   toggleLike(postId: any){
+    console.log("TOGGLE LIKE", postId)
+    console.log(this.userLikedPosts)
     if(this.userLikedPosts.includes(postId)){
       const filteredLikes = this.userLikedPosts.filter((id: any)=>{
         return id != postId
@@ -313,21 +323,12 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  openFollowersModal() {
-    const modalElement = document.getElementById('followersModal');
-    if (modalElement) {
-      modalElement.classList.add('show');
-      modalElement.style.display = 'block';
-      document.body.classList.add('modal-open');
-    }
-  }
 
-  closeFollowersModal() {
-    const modalElement = document.getElementById('followersModal');
-    if (modalElement) {
-      modalElement.classList.remove('show');
-      modalElement.style.display = 'none';
-      document.body.classList.remove('modal-open');
-    }
+
+  ngOnDestroy(): void {
+    this.isFollowing = false
+    this.following = []
+    this.sameUser = false
+    this.isOwnProfile = false
   }
 }

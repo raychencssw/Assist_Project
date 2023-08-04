@@ -3,10 +3,11 @@ import { EventcreateComponent } from '../eventcreate/eventcreate.component';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
 import { Router } from '@angular/router';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import {  FormGroup, FormControl, Validators  } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { SearchServiceService } from '../services/search-service.service';
 import { NgbCarouselConfig, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 
 
@@ -16,9 +17,10 @@ import { NgbCarouselConfig, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap
   styleUrls: ['./events.component.css'],
   providers: [NgbCarouselConfig], // add NgbCarouselConfig to the component providers
 })
-export class EventsComponent implements OnInit{
+export class EventsComponent implements OnInit {
   showNavigationArrows = true;
-	showNavigationIndicators = false;
+  showNavigationIndicators = false;
+
 
   events: any = [];             //store the events fetched from the backend
   weeklyEvents: any = [];       //store the events within 1 week
@@ -337,7 +339,6 @@ export class EventsComponent implements OnInit{
   }
 
   displayWeeklyEvent(){
-
     // var templ = []
     // for(let i = 0; i < this.weeklyEvents.length; i++){
     //   if(i < 5){
@@ -419,8 +420,8 @@ export class EventsComponent implements OnInit{
       this.monthlyEventsDisplay.push(templ);
     }
     
-    console.log("this.monthlyEventsDisplay.length: " + this.monthlyEventsDisplay.length)
-    console.log("this.monthlyEventsDisplay[0].length: " + this.monthlyEventsDisplay[0].length)
+    console.log("this.monthlyEventsDisplay.length: " + this.monthlyEventsDisplay.length);
+    console.log("this.monthlyEventsDisplay[0].length: " + this.monthlyEventsDisplay[0].length);
   }
-
+  
 }

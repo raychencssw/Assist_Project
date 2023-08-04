@@ -20,6 +20,7 @@
             </small>
 
         </div>
+
         <!-- <label class="form-label mb-0 mt-3 fw-bold">Upload Photo</label>
         <input type="file" class="form-control" (change)="onFileSelected($event)" required="">
         <div *ngIf="isWrongExtension">
@@ -35,10 +36,16 @@
                 <input matInput [matDatepicker]="picker" placeholder="Choose a date" name="Date" [(ngModel)]="formDate"
                     required #date="ngModel">
                 <mat-hint>MM/DD/YYYY</mat-hint>
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker [panelClass]="'modal-datepicker-panel'"
                     [startAt]="datePickerStartAt"></mat-datepicker>
             </mat-form-field>
+            <div *ngIf="date.invalid && (date.dirty || date.touched)" class="alert">
+                <small *ngIf="date.errors?.['required']">
+                    Date is required.
+                </small>
+            </div>
+
             <div *ngIf="date.invalid && (date.dirty || date.touched)" class="alert">
                 <small *ngIf="date.errors?.['required']">
                     Date is required.
@@ -114,6 +121,7 @@
             <small *ngIf="city.errors?.['pattern']"> City can only contain letters numbers and underscores.
             </small>
         </div>
+
         <label class="form-label mb-0 mt-0">State</label>
         <input id="location" type="text" name="Location" class="form-control" [(ngModel)]="eventForm.location.state"
             [pattern]="unamePattern" required maxlength=100 #state="ngModel">
@@ -123,8 +131,6 @@
             <small *ngIf="state.errors?.['pattern']"> State can only contain letters numbers and underscores.
             </small>
         </div>
-
-
 
         <label class="form-label mb-0 mt-3 fw-bold">Description</label>
         <input id="description" type="text" name="Description" class="form-control" [(ngModel)]="eventForm.description"
@@ -136,15 +142,6 @@
                 underscores.
             </small>
         </div>
-
-        <mat-form-field>
-            <input matInput [matDatepicker]="picker2" placeholder="Choose a date" name="Date"
-                required>
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-            <mat-datepicker #picker2 [panelClass]="'modal-datepicker-panel'"
-                [startAt]="datePickerStartAt"></mat-datepicker>
-        </mat-form-field>
 
         <!-- Submit button -->
         <div class="text-end mt-3">

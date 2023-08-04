@@ -15,7 +15,7 @@ export class EventcreateComponent implements OnInit{
 
   public eventForm = {
     name: '',
-    // photo: null as File | null,
+    photo: null as File | null,
     date:'',
     start_time: { hour: 13, minute: 30 },
     end_time: { hour: 23, minute: 30 },
@@ -29,36 +29,16 @@ export class EventcreateComponent implements OnInit{
 
 
   //A reference to the currently opened (active) modal.
-	constructor(public activeModal: NgbActiveModal, 
-              private eventService: EventServiceService) {};
+  constructor(public activeModal: NgbActiveModal,
+    private eventService: EventServiceService) { };
 
   ngOnInit() {
     this.datePickerStartAt = new Date();   //today
   }
 
-  // onFileSelected(event: any){
-  //   console.log("event: " + JSON.stringify(event));  //{"isTrusted":true}
-  //   console.log("event.target: " + JSON.stringify(event.target)); //event.target{"__ngContext__":45,"__zone_symbol__inputfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:input","zone":"angular","runCount":2}],"__zone_symbol__blurfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:blur","zone":"angular","runCount":2}],"__zone_symbol__compositionstartfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:compositionstart","zone":"angular","runCount":0}],"__zone_symbol__compositionendfalse":[{"type":"eventTask","state":"scheduled","source":"HTMLInputElement.addEventListener:compositionend","zone":"angular","runCount":0}],"__zone_symbol__changefalse":[{"type":"eventTask","state":"running","source":"HTMLInputElement.addEventListener:change","zone":"angular","runCount":2}]}
-  //   console.log("event.target.files: " + JSON.stringify(event.target.files)); //{"0":{}}
-  //   console.log("event.target.files[0].name: " + JSON.stringify(event.target.files[0].name));
-    
-  //   this.selectedFile = event.target.files[0] as File
-  //   this.fileName = this.selectedFile.name
-
-  //   console.log("this.fileName.split('.'): " + this.fileName.split('.'));
-  //   //pop removes and returns the last element of the array
-  //   this.fileExtension = this.fileName.split('.').pop();
-  //   console.log("file name: " + this.fileName);
-  //   console.log("file extension: " + this.fileExtension);
-  //   if(this.fileExtension !== 'jpeg' && this.fileExtension !== 'jpg' && this.fileExtension !== 'png'){
-  //     this.isWrongExtension = true
-  //   }else{
-  //     this.isWrongExtension = false
-  //   }
-  // }
 
 
-  submit(){
+  submit() {
 
     console.log("submit button clicked!");
 
@@ -80,7 +60,6 @@ export class EventcreateComponent implements OnInit{
       // Close the modal
       this.activeModal.close();
     })
-
 
   }
 

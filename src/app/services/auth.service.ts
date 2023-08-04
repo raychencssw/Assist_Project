@@ -1,8 +1,12 @@
 import { Injectable, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject, Observable, of, BehaviorSubject } from 'rxjs';
 import { type } from 'os';
+import { SocketioService } from './socketio.service';
+import { response } from 'express';
+import { error } from 'console';
+
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +21,9 @@ export class AuthService implements OnInit {
   notificationJson: any
   loginResponse = new BehaviorSubject<any>(this.user['token'])
   authResponse = new Subject<any>()
+  socketId: any
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router, private socketService: SocketioService) {
     this.isLoggedIn = this.checkAuthenticationStatus();
   }
 
@@ -92,6 +97,7 @@ export class AuthService implements OnInit {
     this.setLikedPosts(tempUser.likedposts)
     this.setFollowing(tempUser.following)
     this.setNotifications(tempUser.notifications)
+    
   }
   private setAuthToken(token: string): void {
     localStorage.setItem('token', token);
@@ -118,6 +124,7 @@ export class AuthService implements OnInit {
     if(followingString){
       this.followingJson = JSON.parse(followingString)
     }
+    console.log(this.followingJson)
     return Array.isArray(this.followingJson) ? this.followingJson : [this.followingJson];
   }
   setNotifications(notifications: any){
@@ -182,6 +189,7 @@ export class AuthService implements OnInit {
     return false;
   }
 
+
   isLoggedInUser() {
     return this.user
   }
@@ -194,6 +202,7 @@ export class AuthService implements OnInit {
       this.router.navigate(['/login']);
       this.clearAuthToken();
       this.clearUser()
+      this.socketService.disconnect()
       this.user = null
       this.loginResponse.next(false)
     })

@@ -14,7 +14,7 @@ const eventSchema = new Schema({
         type: String,
         //required: true
     },
-    description:{
+    description: {
         type: String,
         required: true
     },
@@ -38,8 +38,8 @@ const eventSchema = new Schema({
             type:Number,
             required: true
         },
-        minute:{
-            type:Number,
+        minute: {
+            type: Number,
             required: true
         }
     },
@@ -74,7 +74,11 @@ const eventSchema = new Schema({
     attendants: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
+    }],
+    registered: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     }]
 })
 
-module.exports= mongoose.model('Event', eventSchema);
+module.exports = mongoose.model('Event', eventSchema);
