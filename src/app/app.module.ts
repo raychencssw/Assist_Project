@@ -64,9 +64,10 @@ const appRoutes: Routes = [
   { path: '', component: LandingComponent},
   { path: 'forgot-password', component: ResetPasswordComponent},
   { path: 'reset-password/:token', component: NewPasswordComponent},
-  { path: '**', redirectTo: '/login', pathMatch: 'full' },
   { path: 'signup/org', component: SignuporgComponent},
   { path: 'signup/sup', component: SignupsupComponent},
+  { path: '**', redirectTo: '/login', pathMatch: 'full' },
+
 
 ]
 
