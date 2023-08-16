@@ -39,4 +39,4 @@ orgSchema.methods.validPassword = function (password) {
     return bcrypt.compareSync(password, this.password);
 };
 
-module.exports = mongoose.model("organization", orgSchema);
+module.exports = mongoose.model("tem_organization", orgSchema);

@@ -78,6 +78,10 @@ const eventSchema = new Schema({
     registered: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
+    }],
+    supervisor: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Supervisor'
     }]
 })
 

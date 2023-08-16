@@ -30,6 +30,10 @@ const supervisorSchema = new Schema({
     profilepicture: {
         type: String,
     },
+    eventsupervise: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Event'
+    }]
 
 });
 

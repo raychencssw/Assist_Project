@@ -68,6 +68,34 @@ export class EventServiceService {
     return this.http.post(`http://localhost:3080/attendevent/${eventid}/${userid}/${state}`, requestOptions)
   }
 
+
+  superviseEventById(eventid: any, userid: string, state: string) {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = { headers: headers };
+    return this.http.post(`http://localhost:3080/superviseevent/${eventid}/${userid}/${state}`, requestOptions)
+  }
+
+  geteventsupervised(userid: string) {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = { headers: headers };
+    this.http.get(`http://localhost:3080/eventsupervised/${userid}`, requestOptions).subscribe(
+      (supervised_events) => {
+        // Handle the response data, for example:
+        localStorage.setItem('supervisedEvents', JSON.stringify(supervised_events))
+      },
+      (error) => {
+        console.error(error);
+      }
+
+    )
+
+  }
+
+
   setAttending(eventid: string) {
     localStorage.setItem('eventsAttended', JSON.stringify(eventid));
   }

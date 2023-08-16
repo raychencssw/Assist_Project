@@ -1,0 +1,61 @@
+<h2>Event List</h2>
+<div id="eventable_div">
+    <table class="table table-bordered" id="eventsTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Start Time to End Time</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let event of events let i = index">
+                <td>{{ event.name }}</td>
+                <td>{{ event.date }}</td>
+                <td>from {{ event.start_time.hour}}: {{ event.start_time.minute}} to {{ event.end_time.hour}}: {{
+                    event.end_time.minute}}</td>
+                <td><button (click)="goToEventProfile(content, event._id, i)" class="btn btn-light">More Detail</button>
+                </td>
+
+                <td>
+                    <button type="button" id="attend" class="btn btn-primary" (click)="supervise_btn(event._id)"
+                        *ngIf="!isSupervised(event._id) ">Supervise this event</button>
+                    <button type="button" id="attend" class="btn btn-warning" (click)="unsupervise_btn(event._id)"
+                        *ngIf="isSupervised(event._id) ">Unsupervise this event</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<ng-template #content let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title"> Event Profile</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p style="font-size: 20px; font-weight: bold;">Event Name</p>
+        <p style="font-size: 20px;">{{this.curevent.name}}</p>
+        <p id="date" style="font-size: 20px; font-weight: bold;">Date</p>
+        <p id="date" style="font-size: 20px;">{{this.curevent.date}}</p>
+        <p id="start_time" style="font-size: 20px; font-weight: bold;">Start Time</p>
+        <p id="start_time" style="font-size: 20px;">{{this.curevent.start_time.hour}}:
+            {{this.curevent.start_time.minute}}</p>
+        <p id="end_time" style="font-size: 20px; font-weight: bold;">End Time</p>
+        <p id="end_time" style="font-size: 20px;">{{this.curevent.end_time.hour}}:{{this.curevent.end_time.minute}}</p>
+        <p id="location" style="font-size: 20px; font-weight: bold;">Location</p>
+        <p id="location" style="font-size: 20px;">{{this.curevent.location.street}},{{this.curevent.location.city}},
+            {{this.curevent.location.state}}</p>
+        <p id="description" style="font-size: 20px; font-weight: bold;">Description</p>
+        <p id="description" style="font-size: 20px;">{{this.curevent.description}}</p>
+
+    </div>
+
+    <div class="modal-footer">
+    </div>
+
+</ng-template>

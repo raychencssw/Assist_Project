@@ -690,6 +690,7 @@ app.post("/api/checkin", async (req, res) => {
   }
 });
 
+
 app.get('/recommend/:userid', async (req, res) => {
   const userRes = []
   const alreadyAdded = []
@@ -732,7 +733,10 @@ app.get('/recommend/:userid', async (req, res) => {
   console.log(userRes)
   res.json(userRes)
 })
-
+app.get('/supervisor/eventlist', async (req, res) => {
+  const event = await Event.find({})
+  res.json(event)
+})
 
 app.post('/getUsernames', async (req, res) => {
   const userIds = req.body.userIds; // Assuming the frontend sends an array of user IDs
@@ -918,7 +922,64 @@ app.post('/supsignup', upload.single("profilePicture"), async (req, res) => {
   }
 
 });
+app.post('/superviseevent/:eventid/:supervisorid/:state', async (req, res) => {
+  const eventid = req.params.eventid;
+  const supervisorid = req.params.supervisorid;
+  const state = req.params.state;
+  const supervisor = await Supervisor.findOne({ _id: supervisorid })
 
+  if (!supervisor) {
+    console.log("no supervisor error", supervisorid)
+  }
+
+  //Convert eventid and userid to MongoDB ObjectIDs
+  const eventObjectId = new mongoose.Types.ObjectId(eventid);
+  const supervisorObjectId = new mongoose.Types.ObjectId(supervisorid);
+  const event = await Event.findOne({ _id: eventObjectId });
+  if (!event) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+
+  if (state == 'true')//push the supervisorid into events and save
+  {
+    if (!event.supervisor) {
+      event.supervisor = [supervisorObjectId];
+    }
+    else {
+      event.supervisor.push(supervisorObjectId);
+    }
+
+    if (!supervisor.eventsupervise) {
+      supervisor.eventsupervise = [eventObjectId];
+    }
+    else {
+      supervisor.eventsupervise.push(eventObjectId)
+    }
+    await event.save()
+    await supervisor.save();
+  }
+
+  else {
+    event.supervisor.pull(supervisorObjectId)
+    supervisor.eventsupervise.pull(eventObjectId)
+    await event.save();
+    await supervisor.save();
+  }
+}
+);
+app.get('/eventsupervised/:userid', async (req, res) => {
+  const supervisorid = new mongoose.Types.ObjectId(req.params.userid);
+  const supervisor = await Supervisor.findOne({ _id: supervisorid })
+
+  if (supervisor && supervisor.eventsupervise) {
+    res.json(supervisor.eventsupervise)
+  }
+  else {
+    res.json({ message: "no supervisor.eventsupervise" });
+  }
+
+}
+)
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();

@@ -49,6 +49,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { NewPasswordComponent } from './new-password/new-password.component';
 import { OrganizationSignupComponent } from './signup/organization-signup/organization-signup.component';
 import { SupvisosignupComponent } from './signup/supvisosignup/supvisosignup.component';
+import { SupervisorComponent } from './supervisor/supervisor.component';
 
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
@@ -62,6 +63,7 @@ const appRoutes: Routes = [
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard] },
   { path: 'event-detail/:id', component: EventDetailsComponent, canActivate: [AuthGuard] },
   { path: '', component: LandingComponent },
+  { path: 'supervisor', component: SupervisorComponent },
   { path: 'forgot-password', component: ResetPasswordComponent },
   { path: 'reset-password/:token', component: NewPasswordComponent },
   { path: '**', redirectTo: '/login', pathMatch: 'full' }
@@ -93,6 +95,7 @@ const appRoutes: Routes = [
     NewPasswordComponent,
     OrganizationSignupComponent,
     SupvisosignupComponent,
+    SupervisorComponent,
   ],
   imports: [
     BrowserModule,
