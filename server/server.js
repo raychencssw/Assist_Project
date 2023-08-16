@@ -5,9 +5,11 @@ const path = require("path");
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const Event = require("./models/event");
+const Checkin = require("./models/checkin");
+const Guestcheckin = require("./models/guestcheckin");
 const Post = require("./models/post");
 const School = require("./models/school");
-const Notification = require('./models/notification');
+const Notification = require("./models/notification");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
@@ -21,8 +23,8 @@ const verifyToken = require("./verifyToken");
 const Joi = require("joi");
 const schemas = require("./schemas");
 const middleware = require("./middleware");
-const passwordResetRoute = require('./passwordreset');
-
+const passwordResetRoute = require("./passwordreset");
+const sendOTPRoute = require("./event-otp");
 
 const db = mongoose.connection;
 //const passport = require("passport");
@@ -47,7 +49,6 @@ const upload = multer({ storage: storage });
 initializePassport(passport);
 const app = express();
 
-
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ limit: "25mb", extended: true }));
 app.use(bodyParser.json({ limit: "25mb" }));
@@ -61,14 +62,12 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-const httpServer = require('http').createServer(app);
-const io = require('socket.io')(httpServer, {
+const httpServer = require("http").createServer(app);
+const io = require("socket.io")(httpServer, {
   cors: {
-    origins: ['http://localhost:4200']
-  }
+    origins: ["http://localhost:4200"],
+  },
 });
-
-
 
 let db_url =
   "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
@@ -83,29 +82,27 @@ mongoose
     console.log(e);
   });
 
-
-
-
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  const socketid = socket.id
-  socket.on('user', (user)=>{
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  const socketid = socket.id;
+  socket.on("user", (user) => {
     userSocketMap[user] = socket.id;
-    console.log(userSocketMap)
-  })
-  socket.on('removeuser', (userid)=>{
-    if(userSocketMap.hasOwnProperty(userid)){
-      delete userSocketMap[userid]
-      console.log("THE NEW DICT IS", userSocketMap)
-    }
-  })
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+    console.log(userSocketMap);
   });
-}); 
+  socket.on("removeuser", (userid) => {
+    if (userSocketMap.hasOwnProperty(userid)) {
+      delete userSocketMap[userid];
+      console.log("THE NEW DICT IS", userSocketMap);
+    }
+  });
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
 // ROUTES
 
-app.use('/api', passwordResetRoute);
+app.use("/api", passwordResetRoute);
+app.use("/api", sendOTPRoute);
 
 app.get("/home/:page", verifyToken, async (req, res) => {
   page = req.params.page;
@@ -174,18 +171,23 @@ app.get("/profile/:page/:userId", verifyToken, async (req, res) => {
 });
 
 app.post(
-  "/posts/submit/:userid", verifyToken, upload.single("photo"),async (req, res) => {
+  "/posts/submit/:userid",
+  verifyToken,
+  upload.single("photo"),
+  async (req, res) => {
     const postSchema = Joi.object({
       description: Joi.string().required().min(4).max(1000),
       location: Joi.string().max(200).required(),
-      photo: Joi.string().max(200).optional().allow(null).allow(''),
+      photo: Joi.string().max(200).optional().allow(null).allow(""),
     });
-  
+
     const validationResult = postSchema.validate(req.body);
     if (validationResult.error) {
-      return res.status(400).json({ error: validationResult.error.details[0].message });
+      return res
+        .status(400)
+        .json({ error: validationResult.error.details[0].message });
     }
-  
+
     console.log(req.body);
     foundUser = await User.findById(req.params.userid);
 
@@ -240,11 +242,9 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
   res.send({ posts: postObjects });
 });
 
-
-app.post('/posts/togglelike', verifyToken, async (req, res) => {
-
-  const user = await User.findById(req.body.userid)
-  const post = await Post.findById(req.body.postid)
+app.post("/posts/togglelike", verifyToken, async (req, res) => {
+  const user = await User.findById(req.body.userid);
+  const post = await Post.findById(req.body.postid);
   // console.log(user, post)
   if (req.body.addtoLike) {
     user.likedposts.push(post._id);
@@ -264,93 +264,102 @@ app.post('/posts/togglelike', verifyToken, async (req, res) => {
   console.log(user, post);
   return res.status(201).json({ message: "Like toggled" });
 });
-app.post("/signup", upload.single("profilePicture"), middleware(schemas.signupPost), async (req, res) => {
-  // Jack should work here. Receive the userdata and store it in the "User" collection.
-  console.log("receive signup notification");
-  if (req.file) {
-    var profilePicture = req.file.path;
-  }
-  else {
-    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
-  }
-
-  try {
-    const { username, email, firstname, lastname, school } = req.body;
-
-    //Check if username already exists
-    const existingUsername = await User.findOne({ username });
-
-    if (existingUsername) {
-      console.log("username already exists");
-      return res.status(409).json({ message: "Username already exists" });
+app.post(
+  "/signup",
+  upload.single("profilePicture"),
+  middleware(schemas.signupPost),
+  async (req, res) => {
+    // Jack should work here. Receive the userdata and store it in the "User" collection.
+    console.log("receive signup notification");
+    if (req.file) {
+      var profilePicture = req.file.path;
+    } else {
+      var profilePicture =
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
     }
 
-    //Check if email already exists
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
-      console.log("email already exists");
-      return res.status(409).json({ message: "Email already exists" });
-    }
+    try {
+      const { username, email, firstname, lastname, school } = req.body;
 
-    //Find school id from school name
-    const foundSchool = await School.findOne({ name: school });
-    const newUser = new User({
-      email: req.body.email,
-      username: req.body.username,
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      profilepicture: req.file.path,
-      school: foundSchool
+      //Check if username already exists
+      const existingUsername = await User.findOne({ username });
+
+      if (existingUsername) {
+        console.log("username already exists");
+        return res.status(409).json({ message: "Username already exists" });
+      }
+
+      //Check if email already exists
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        console.log("email already exists");
+        return res.status(409).json({ message: "Email already exists" });
+      }
+
+      //Find school id from school name
+      const foundSchool = await School.findOne({ name: school });
+      const newUser = new User({
+        email: req.body.email,
+        username: req.body.username,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        profilepicture: req.file.path,
+        school: foundSchool,
+      });
+
+      if (req.body.password == null) {
+        console.log("No password");
+      }
+      newUser.password = newUser.generateHash(req.body.password);
+      newUser.role = 0;
+      await newUser.save();
+      console.log("user saved");
+      res.status(200).json({ message: "Signup successful" });
+    } catch (error) {
+      console.error("Error signing up: ", error);
+      res.redirect("/signup");
+    }
+  }
+);
+
+app.post(
+  "/login",
+  passport.authenticate("local"),
+  middleware(schemas.loginPost),
+  async function (req, res) {
+    const token = jwt.sign({ id: req.user._id }, config.secretKey, {
+      expiresIn: config.expiresIn,
     });
-
-    if (req.body.password == null) {
-      console.log("No password");
-    }
-    newUser.password = newUser.generateHash(req.body.password);
-    newUser.role = 0;
-    await newUser.save();
-    console.log("user saved");
-    res.status(200).json({ message: "Signup successful" });
-  } catch (error) {
-    console.error("Error signing up: ", error);
-    res.redirect("/signup");
+    const tempUser = await User.findById(req.user._id).populate([
+      {
+        path: "school",
+        select: "name",
+      },
+      {
+        path: "notifications",
+        select: "type date isRead",
+        populate: [
+          {
+            path: "follower",
+            select: "firstname lastname profilepicture",
+          },
+          {
+            path: "event",
+            select: "name",
+          },
+          {
+            path: "from",
+            select: "firstname lastname",
+          },
+        ],
+      },
+    ]);
+    res.json({
+      token: token,
+      user: tempUser,
+    });
   }
-});
-
-
-app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost), async function (req, res) {
-  const token = jwt.sign({ id: req.user._id }, config.secretKey, {
-    expiresIn: config.expiresIn,
-  });
-  const tempUser = await User.findById(req.user._id).populate([
-    {
-      path: "school",
-      select: "name",
-    },
-    {
-      path: "notifications",
-      select: 'type date isRead',
-      populate:[
-        {
-          path: 'follower',
-          select: 'firstname lastname profilepicture',
-        },
-        {
-          path: 'event',
-          select: 'name'
-        },
-        {
-          path: 'from',
-          select: 'firstname lastname',
-        }
-      ]
-    }
-  ])
-  res.json({
-    token: token,
-    user: tempUser,
-  });
-});
+);
 
 app.get("/logout", (req, res) => {
   req.logout(function (err) {
@@ -361,47 +370,49 @@ app.get("/logout", (req, res) => {
   });
 });
 
-
 app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
-
-
-
-
-app.get('/profile/:userid', verifyToken, async (req, res) => {
-    console.log(req.params.userid)
-    const user = await User.findById(req.params.userid).populate('school', 'name')
-    res.send(user)
-})
+app.get("/profile/:userid", verifyToken, async (req, res) => {
+  console.log(req.params.userid);
+  const user = await User.findById(req.params.userid).populate(
+    "school",
+    "name"
+  );
+  res.send(user);
+});
 
 // app.get("/eventdetails/:eventid", (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
 // });
 
-app.put('/profileedit/:userid', upload.single("profilepicture"), async (req, res) => { // 
-  try {
-    const updatedData = req.body;
-    const check_file = req.file;
-    //find school id by school name
-    const schoolDocument = await School.findOne({ name: req.body.school });
-    const schoolID = schoolDocument._id;
-    const user = await User.findById(req.params.userid)
-    user.username = req.body.username,
-      user.firstname = req.body.firstname,
-      user.lastname = req.body.lastname,
-      user.email = req.body.email
-    if (check_file) {
-      user.profilepicture = req.file.path
+app.put(
+  "/profileedit/:userid",
+  upload.single("profilepicture"),
+  async (req, res) => {
+    //
+    try {
+      const updatedData = req.body;
+      const check_file = req.file;
+      //find school id by school name
+      const schoolDocument = await School.findOne({ name: req.body.school });
+      const schoolID = schoolDocument._id;
+      const user = await User.findById(req.params.userid);
+      (user.username = req.body.username),
+        (user.firstname = req.body.firstname),
+        (user.lastname = req.body.lastname),
+        (user.email = req.body.email);
+      if (check_file) {
+        user.profilepicture = req.file.path;
+      }
+      await user.save();
+      res.status(201).json({ message: "profile updated created" });
+    } catch (error) {
+      res.status(401).json({ message: "Unauthorized" });
     }
-  await user.save()
-  res.status(201).json({ message: "profile updated created" });
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
   }
-  
-})
+);
 
 app.get("/eventsearch", async (req, res) => {
   const getEvents = Event.distinct("name"); //.toArray()//OBJECT
@@ -410,14 +421,14 @@ app.get("/eventsearch", async (req, res) => {
   });
 });
 
-app.get("/usersearch", async(req, res) => {
+app.get("/usersearch", async (req, res) => {
   const getEvents = User.distinct("username"); //.toArray()//OBJECT
   getEvents.then(function (result) {
     res.json(result);
   });
 });
 
-app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
+app.post("/createevent", middleware(schemas.eventPOST), async (req, res) => {
   //console.log("req.body: " + JSON.stringify(req.body)); //{"Name":"Great event","Date":"Great Day","Time":"Great Time","Location":"Great Locale","Description":"Have fun"}
   //console.log("req.body.Name: " + req.body.Name); //Great event
 
@@ -427,16 +438,8 @@ app.post('/createevent', middleware(schemas.eventPOST), async (req, res) => {
   const {
     name,
     date,
-    time: {
-      minute,
-      hour,
-      second,
-    },
-    location: {
-      street,
-      city,
-      state,
-    },
+    time: { minute, hour, second },
+    location: { street, city, state },
     description,
   } = req.body;
 
@@ -524,16 +527,14 @@ app.get("/following/:userid", verifyToken, async (req, res) => {
 app.get("/follower/:userid", verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid);
   const follow = await user.populate([
-    { 
-      path: "followers", 
+    {
+      path: "followers",
       select: "username firstname lastname profilepicture",
-      populate:
-      {
-        path: 'school',
-        select: 'name',
+      populate: {
+        path: "school",
+        select: "name",
       },
-    }
-    
+    },
   ]);
   console.log(follow);
   res.send({ followers: follow.followers });
@@ -548,52 +549,50 @@ app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
   const isfollowing = req.params.isfollowing;
   const myid = req.params.myid;
   const userid = req.params.userid;
-  const socketid = userSocketMap[userid]
+  const socketid = userSocketMap[userid];
   if (isfollowing == "false") {
-    //append myid to user's follower  
-    const user = await User.findById(userid)
-    const me = await User.findById(myid)
-    user.followers.push(myid)
+    //append myid to user's follower
+    const user = await User.findById(userid);
+    const me = await User.findById(myid);
+    user.followers.push(myid);
     const notification = new Notification({
-      type: 'follow',
+      type: "follow",
       to: user._id,
       from: myid,
       follower: myid,
-      isRead: false
-    })
-    console.log("THE NOTIFICATION IS", notification)
-    user.notifications.unshift(notification)
-    await notification.save()
+      isRead: false,
+    });
+    console.log("THE NOTIFICATION IS", notification);
+    user.notifications.unshift(notification);
+    await notification.save();
     // append userid to my following list
-    const myuser = await User.findById(myid)
-    myuser.following.push(userid)
-    await user.save()
-    await myuser.save()
-    console.log("THE USER IS", user)  
-    if(socketid){
+    const myuser = await User.findById(myid);
+    myuser.following.push(userid);
+    await user.save();
+    await myuser.save();
+    console.log("THE USER IS", user);
+    if (socketid) {
       const newNotification = {
-        type: 'follow',
+        type: "follow",
         date: Date.now(),
         follower: {
           _id: myid,
           firstname: me.firstname,
           lastname: me.lastname,
-          profilepicture: me.profilepicture
+          profilepicture: me.profilepicture,
         },
         from: {
           firstname: me.firstname,
           lastname: me.lastname,
-          _id: myid
+          _id: myid,
         },
         isRead: false,
-        _id: notification._id
-      }
-      io.to(socketid).emit('newFollower', newNotification);
+        _id: notification._id,
+      };
+      io.to(socketid).emit("newFollower", newNotification);
     }
-    res.status(201).json({ message: "follow updated" })
-  }
-
-  else {
+    res.status(201).json({ message: "follow updated" });
+  } else {
     //pop out myid from user's follower
     const user = await User.findById(userid);
     user.followers.pull(myid);
@@ -603,7 +602,7 @@ app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
     myuser.following.pull(userid);
     await user.save();
     await myuser.save();
-    io.to(myid).emit('followUpdated');
+    io.to(myid).emit("followUpdated");
     res.status(201).json({ message: "unfollow updated" });
   }
 });
@@ -619,12 +618,70 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get('/searchevent/:eventname', verifyToken, async(req, res)=>{
-  const event = await Event.findOne({name: req.params.eventname})
-  if(event){
-    res.json(event)
+app.get("/searchevent/:eventname", verifyToken, async (req, res) => {
+  const event = await Event.findOne({ name: req.params.eventname });
+  if (event) {
+    res.json(event);
   } else {
-    res.status(500).json({ message: 'no such event' })
+    res.status(500).json({ message: "no such event" });
+  }
+});
+
+app.get("/api/getAllEvents", async (req, res) => {
+  try {
+    const events = await Event.find({});
+    res.json(events);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred while fetching events." });
+  }
+});
+
+app.get("/api/getAllCheckin", async (req, res) => {
+  try {
+    const checkin = await Checkin.find({});
+    res.json(checkin);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching check in data." });
+  }
+});
+
+app.get("/api/getAllGuestCheckin", async (req, res) => {
+  try {
+    const checkin = await Guestcheckin.find({});
+    res.json(checkin);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching check in data." });
+  }
+});
+
+app.post("/api/deleteAllCheckin", async (req, res) => {
+  try {
+    await Checkin.deleteMany({});
+    res.status(200).json({ message: "All checkin data has been deleted" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occured while deleting checkin data" });
+  }
+});
+
+app.post("/api/deleteAllGuestCheckin", async (req, res) => {
+  try {
+    await Guestcheckin.deleteMany({});
+    res
+      .status(200)
+      .json({ message: "All guest checkin data has been deleted" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occured while deleting checkin data" });
   }
 });
 
@@ -656,40 +713,172 @@ app.get("/ranking/school", verifyToken, async (req, res) => {
   }
 });
 
-app.post("/api/checkin", async (req, res) => {
+app.post("/api/guestcheckin", async (req, res) => {
   try {
-    const { userId, eventId } = req.body;
-    const existingCheckIn = await CheckIn.findOne({
-      userId: userId,
-      eventId: eventId,
-      checkOutTime: null,
-    });
+    const { email, eventId, memberEmail } = req.body;
+    console.log("Member email: " + memberEmail);
+    const user = await User.findOne({ email: memberEmail });
+    //Check if the host user exists
+    if (user) {
+      const userId = user._id;
+      const existingCheckIn = await Guestcheckin.findOne({
+        email: email,
+        eventId: eventId,
+      });
 
-    if (existingCheckIn) {
-      return res.status(400).json({ error: "User is already checked in." });
+      if (existingCheckIn) {
+        return res.status(400).json({ error: "Guest is already checked in." });
+      }
+      const newCheckIn = new Guestcheckin({
+        email: email,
+        eventId: eventId,
+        refUser: userId,
+      });
+
+      await newCheckIn.save();
+
+      res.json({ message: "Guest checked in successfully!!" });
+    } else {
+      res.status(400).json({ error: "User does not exist" });
     }
-    const newCheckIn = new CheckIn({
-      userId: userId,
-      eventId: eventId,
-    });
-
-    await newCheckIn.save();
-
-    res.json({ message: "User checked in successfully!!!" });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: "An error occurred!!" });
+  }
+});
+
+app.post("/api/checkin", async (req, res) => {
+  try {
+    const { email, eventId } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      const userId = user._id;
+      const existingCheckIn = await Checkin.findOne({
+        userId: userId,
+        eventId: eventId,
+      });
+
+      if (existingCheckIn) {
+        return res.status(400).json({ error: "User is already checked in." });
+      }
+      const newCheckIn = new Checkin({
+        userId: userId,
+        eventId: eventId,
+      });
+
+      await newCheckIn.save();
+
+      res.json({ message: "User checked in successfully!!" });
+    } else {
+      res.status(400).json({ error: "User does not exist" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred!!" });
+  }
+});
+
+//Handles the checkout user logic
+app.post("/api/checkout", async (req, res) => {
+  try {
+    const { email, eventId, mood } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      const userId = user._id;
+      const existingCheckIn = await Checkin.findOne({
+        userId: userId,
+        eventId: eventId,
+      });
+      if (!existingCheckIn) {
+        return res.status(400).json({ error: "User has not been checked in." });
+      }
+      if (existingCheckIn.checkOutTime !== null) {
+        return res
+          .status(400)
+          .json({ error: "User has already been checked out." });
+      }
+      existingCheckIn.checkOutTime = new Date();
+      existingCheckIn.mood = mood;
+      const timeDifferenceInMilliseconds =
+        existingCheckIn.checkOutTime - existingCheckIn.checkInTime;
+      const timeDifferenceInMinutes =
+        timeDifferenceInMilliseconds / (1000 * 60);
+      const intervalMinutes = 15;
+      const intervals = Math.round(timeDifferenceInMinutes / intervalMinutes);
+
+      // Calculate points
+      const points = intervals * 0.25;
+      console.log("Points to add: " + points);
+      user.points += points;
+
+      await existingCheckIn.save();
+      await user.save();
+
+      res.json({ message: "Check out successfully." });
+    } else {
+      res.status(400).json({ error: "User does not exist" });
+    }
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "An error occurred!!!" });
   }
 });
 
-app.get('/recommend/:userid', async (req, res)=>{
-  const userRes = []
-  const alreadyAdded = []
-  const user = await User.findById(req.params.userid)
-  const school = await School.findById(user.school)
-  const userBySchool = await User.find({school: school._id, _id: { $ne: req.params.userid }})//.populate('school')
-  for(i = 0; i <userBySchool.length; i ++){
-    if(user.following.includes(userBySchool[i]._id)){
+app.post("/api/guestcheckout", async (req, res) => {
+  try {
+    const { email, eventId, mood } = req.body;
+    const existingCheckIn = await Guestcheckin.findOne({
+      email: email,
+      eventId: eventId,
+    }).populate("refUser");
+    if (!existingCheckIn) {
+      return res.status(400).json({ error: "User has not been checked in." });
+    }
+    if (existingCheckIn.checkOutTime !== null) {
+      return res
+        .status(400)
+        .json({ error: "Guest has already been checked out." });
+    }
+    const user = existingCheckIn.refUser;
+    if (user) {
+      existingCheckIn.checkOutTime = new Date();
+      existingCheckIn.mood = mood;
+      const timeDifferenceInMilliseconds =
+        existingCheckIn.checkOutTime - existingCheckIn.checkInTime;
+      const timeDifferenceInMinutes =
+        timeDifferenceInMilliseconds / (1000 * 60);
+      const intervalMinutes = 15;
+      const intervals = Math.round(timeDifferenceInMinutes / intervalMinutes);
+
+      // Calculate points
+      const points = intervals * 0.25;
+      console.log("Points to add: " + points);
+      user.points += points;
+
+      await existingCheckIn.save();
+      await user.save();
+
+      res.json({ message: "Check out successfully." });
+    } else {
+      res.status(400).json({ error: "User does not exist" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "An error occurred!!!" });
+  }
+});
+
+app.get("/recommend/:userid", async (req, res) => {
+  const userRes = [];
+  const alreadyAdded = [];
+  const user = await User.findById(req.params.userid);
+  const school = await School.findById(user.school);
+  const userBySchool = await User.find({
+    school: school._id,
+    _id: { $ne: req.params.userid },
+  }); //.populate('school')
+  for (i = 0; i < userBySchool.length; i++) {
+    if (user.following.includes(userBySchool[i]._id)) {
       continue;
     }
     const tempUser = {
@@ -699,15 +888,21 @@ app.get('/recommend/:userid', async (req, res)=>{
       lastname: userBySchool[i].lastname,
       profilepicture: userBySchool[i].profilepicture,
       //school: userBySchool[i].school.name,
-      points: userBySchool[i].points
-    }
-    alreadyAdded.push(tempUser.username)
-    userRes.push(tempUser)
+      points: userBySchool[i].points,
+    };
+    alreadyAdded.push(tempUser.username);
+    userRes.push(tempUser);
   }
 
-  const userByPoints = await User.find({points: user.points, _id: { $ne: req.params.userid }})//.populate('school')
-  for(i = 0; i <userByPoints.length; i ++){
-    if(user.following.includes(userByPoints[i]._id) || alreadyAdded.includes(userByPoints[i].username)){
+  const userByPoints = await User.find({
+    points: user.points,
+    _id: { $ne: req.params.userid },
+  }); //.populate('school')
+  for (i = 0; i < userByPoints.length; i++) {
+    if (
+      user.following.includes(userByPoints[i]._id) ||
+      alreadyAdded.includes(userByPoints[i].username)
+    ) {
       continue;
     }
     const tempUser = {
@@ -717,41 +912,25 @@ app.get('/recommend/:userid', async (req, res)=>{
       lastname: userByPoints[i].lastname,
       profilepicture: userByPoints[i].profilepicture,
       //school: userByPoints[i].school.name,
-      points: userByPoints[i].points
-    }
-    userRes.push(tempUser)
+      points: userByPoints[i].points,
+    };
+    userRes.push(tempUser);
   }
-  console.log(userRes)
-  res.json(userRes)
-})
+  console.log(userRes);
+  res.json(userRes);
+});
 
-app.put('/notifications/readnotification', verifyToken, async (req, res)=>{
-  try{
-    const id = req.body.id
-    const notification = await Notification.findById(id)
-    notification.isRead = true
-    notification.save()
+app.put("/notifications/readnotification", verifyToken, async (req, res) => {
+  try {
+    const id = req.body.id;
+    const notification = await Notification.findById(id);
+    notification.isRead = true;
+    notification.save();
     res.status(200).json({ success: true, message: "Notification read saved" });
-  }catch(error){
+  } catch (error) {
     res.status(500).json({ error: true, message: "Internal Server Error!!!" });
-  } 
-  
-})
-
-
-function checkAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
   }
-  res.status(400).json({ statusCode: 400, message: "not authenticated" });
-}
-
-function checkNotAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return res.redirect("/");
-  }
-  next();
-}
+});
 
 app.use((req, res) => {
   res.status(404).send("404 PAGE NOT FOUND");

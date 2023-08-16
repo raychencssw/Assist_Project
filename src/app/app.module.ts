@@ -47,6 +47,7 @@ import { InfoComponent } from './home/info/info.component';
 import { LandingComponent } from './landing/landing.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { NewPasswordComponent } from './new-password/new-password.component';
+import { CheckinComponent } from './checkin/checkin.component';
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent, canActivate:[AuthGuard]},
   { path: 'events', component: EventsComponent, canActivate:[AuthGuard]},
@@ -59,8 +60,9 @@ const appRoutes: Routes = [
   { path: '', component: LandingComponent},
   {path: 'forgot-password', component: ResetPasswordComponent},
   {path: 'reset-password/:token', component: NewPasswordComponent},
-  { path: '**', redirectTo: '/login', pathMatch: 'full' }
-  
+  { path: 'checkin/:eventId', component: CheckinComponent },
+  { path: '**', redirectTo: '/login', pathMatch: 'full' },
+
 ]
 
 
@@ -86,6 +88,7 @@ const appRoutes: Routes = [
     LandingComponent,
     ResetPasswordComponent,
     NewPasswordComponent,
+    CheckinComponent,
   ],
   imports: [
     BrowserModule,

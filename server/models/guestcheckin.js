@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const checkinSchema = new Schema({
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
+const guestcheckinSchema = new Schema({
+  email: {
+    type: String,
+    required: true,
   },
   eventId: {
     type: Schema.Types.ObjectId,
@@ -17,6 +17,11 @@ const checkinSchema = new Schema({
     type: Date,
     default: null,
   },
+  refUser: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   eventEndTime: {
     type: Date,
     default: null,
@@ -28,4 +33,4 @@ const checkinSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("Checkin", checkinSchema);
+module.exports = mongoose.model("Guestcheckin", guestcheckinSchema);

@@ -1,0 +1,72 @@
+<div *ngIf="!isCheckedIn">
+  <div>
+    <button (click)="onCheckinButtonClick()" *ngIf="showCheckin">
+      Check-in
+    </button>
+    <div *ngIf="showQuestion">
+      <p>Are you an Assist Project member?</p>
+      <button (click)="showEmailQuestion()">Yes</button>
+      <button (click)="showHostQuestion()">No</button>
+    </div>
+  </div>
+
+  <!-- User is an AP memeber -->
+  <div *ngIf="showEmail">
+    <form (ngSubmit)="sendOTP()" #checkInForm="ngForm">
+      <label for="email">Email:</label>
+      <input type="email" name="email" id="email" [(ngModel)]="email" required>
+      <button type="submit">Send OTP</button>
+    </form>
+
+    <div *ngIf="otpSent">
+      <form (ngSubmit)="verifyOTP()" #otpForm="ngForm">
+        <label for="inputOtp">One-Time Password:</label>
+        <input type="text" name="inputOtp" id="inputOtp" [(ngModel)]="inputOtp" required>
+        <button type="submit">Verify</button>
+      </form>
+      <div *ngIf="otpExpirationTime > 0">
+        OTP will expire in {{ otpExpirationTime }} seconds.
+      </div>
+    </div>
+  </div>
+
+  <!-- User is not an AP memeber -->
+  <div *ngIf="showHost">
+    <form (ngSubmit)="sendOTP()" #checkInForm="ngForm">
+      <label for="hostEmail">Host Email:</label>
+      <input type="hostEmail" name="hostEmail" id="hostEmail" [(ngModel)]="hostEmail" required>
+      <br>
+      <label for="email">Email:</label>
+      <input type="email" name="email" id="email" [(ngModel)]="email" required>
+      <br>
+      <button type="submit">Send OTP</button>
+    </form>
+
+    <div *ngIf="otpSent">
+      <form (ngSubmit)="verifyOTP()" #otpForm="ngForm">
+        <label for="inputOtp">One-Time Password:</label>
+        <input type="text" name="inputOtp" id="inputOtp" [(ngModel)]="inputOtp" required>
+        <button type="submit">Verify</button>
+      </form>
+      <div *ngIf="otpExpirationTime > 0">
+        OTP will expire in {{ otpExpirationTime }} seconds.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isCheckedIn">
+  <div>
+    <p>How was your experience?</p>
+    <label>
+      <input type="radio" name="mood" value="happy" [(ngModel)]="selectedMood" /> <i class="bi bi-emoji-smile"></i>
+    </label>
+    <label>
+      <input type="radio" name="mood" value="mixed" [(ngModel)]="selectedMood" /><i class="bi bi-emoji-neutral"></i>
+    </label>
+    <label>
+      <input type="radio" name="mood" value="disappointed" [(ngModel)]="selectedMood" /> <i class="bi bi-emoji-frown"></i>
+    </label>
+    <button (click)="checkout()">Check out</button>
+  </div>
+</div>
