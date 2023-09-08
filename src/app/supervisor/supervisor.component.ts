@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
+import { Router } from '@angular/router';
+import { ResetpasswordService } from '../services/resetpassword.service';
+import { DomainValidationService } from '../services/domain-validation.service';
+import { ToastrService } from 'ngx-toastr';
 import { EventServiceService } from '../event-service.service';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 @Component({
@@ -13,6 +16,7 @@ export class SupervisorComponent implements OnInit {
   eventid = '';
   userid = '';
   curindex = 0;
+  email = "";
   curevent = {
     name: '',
     date: '',
@@ -32,16 +36,30 @@ export class SupervisorComponent implements OnInit {
   }
   closeResult!: string;
   constructor(private http: HttpClient,
+    private renderer: Renderer2,
     private eventService: EventServiceService,
-    private modalService: NgbModal,) { }
+    private el: ElementRef,
+    private modalService: NgbModal,
+    private router: Router,
+    private resetPasswordService: ResetpasswordService, private domainValidate: DomainValidationService, private toastr: ToastrService) { }
 
   ngOnInit() {
     const userId = JSON.parse(localStorage.getItem('user')!).id;
+    this.email = JSON.parse(localStorage.getItem('user')!).email;
     this.userid = userId
     this.eventService.geteventsupervised(userId)
     this.fetchEvents();
-
-
+    const sidebar = this.el.nativeElement.querySelector('#navbarNav');
+    if (sidebar) {
+      this.renderer.addClass(sidebar, 'disabled'); // Add a custom CSS class to disable the sidebar
+    }
+  }
+  //to remove the class of sidebar when leaving the specific page:
+  ngOnDestroy() {
+    const sidebar = this.el.nativeElement.querySelector('#navbarNav');
+    if (sidebar) {
+      this.renderer.removeClass(sidebar, 'disabled');
+    }
   }
   fetchEvents() {
     this.http.get<any[]>('http://localhost:3080/supervisor/eventlist')
@@ -104,7 +122,9 @@ export class SupervisorComponent implements OnInit {
     }
     this.eventService.superviseEventById(eventId, userId, 'true').subscribe();
 
+    this.requestsupervisor()
   }
+
   unsupervise_btn(eventId: String) {
 
     const supervisedEvents = JSON.parse(localStorage.getItem('supervisedEvents')!);
@@ -118,12 +138,51 @@ export class SupervisorComponent implements OnInit {
     const userId = JSON.parse(localStorage.getItem('user')!).id;
     this.eventService.superviseEventById(eventId, userId, 'false').subscribe();
     //console.log('successfully unsupervise')
-
+    this.requestunsupervisor()
   }
+
   isSupervised(eventId: String): boolean {
     const supervisedEvents = JSON.parse(localStorage.getItem('supervisedEvents') || '[]');
     return supervisedEvents.includes(eventId);
   }
 
+  async requestsupervisor() {
+    const email = JSON.parse(localStorage.getItem('user')!).email
+    const validDomain = this.domainValidate.validateEmailDomain(this.email)
+    if (validDomain) {
+      this.resetPasswordService.requesteventsupervise(email).subscribe(
+        () => {
 
+          this.toastr.success('Supervise confirmation email is sent. Please check your inbox.')
+        },
+        (error: any) => {
+          this.toastr.error('Invalid email address!')
+        }
+      );
+    } else {
+      this.toastr.error('Please enter a valid email address')
+      return
+    }
+
+  }
+  async requestunsupervisor() {
+    const email = JSON.parse(localStorage.getItem('user')!).email
+    const validDomain = this.domainValidate.validateEmailDomain(this.email)
+
+    if (validDomain) {
+      this.resetPasswordService.requesteventunsupervise(email).subscribe(
+        () => {
+
+          this.toastr.success('Unsupervise confirmation email is sent. Please check your inbox.')
+        },
+        (error: any) => {
+          this.toastr.error('Invalid email address!')
+        }
+      );
+    } else {
+      this.toastr.error('Please enter a valid email address')
+      return
+    }
+
+  }
 }

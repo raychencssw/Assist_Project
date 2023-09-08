@@ -7,20 +7,22 @@ import { Router } from '@angular/router';
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.css']
 })
-export class LandingComponent implements OnInit{
+export class LandingComponent implements OnInit {
   @ViewChild('video') video: any;
   videoUrl?: SafeResourceUrl;
-  constructor(private router: Router, private sanitizer: DomSanitizer){}
+  constructor(private router: Router, private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
     this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl('assets/production_id_4508061 (1080p).mp4');
   }
 
-  redirectSignup(){
+  redirectSignup() {
     this.router.navigate(['signup'])
   }
-  redirectLogin(){
+  redirectLogin() {
     this.router.navigate(['login'])
   }
-  
+  redirectsupervisorLogin() {
+    this.router.navigate(['supervisorlogin'])
+  }
 }

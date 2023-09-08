@@ -23,6 +23,7 @@ import { PostsComponent } from './home/posts/posts.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
+import { SupervisorloginComponent } from './supervisorlogin/supervisorlogin.component';
 import { ProfileComponent } from './profile/profile.component';
 import { EventcreateComponent } from './eventcreate/eventcreate.component';
 import { FormComponent } from './home/form/form.component';
@@ -57,6 +58,7 @@ const appRoutes: Routes = [
   { path: 'rankings', component: RankingsComponent, canActivate: [AuthGuard] },
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'supervisorlogin', component: SupervisorloginComponent },
   { path: 'orgsignup', component: OrganizationSignupComponent },
   { path: 'supsignup', component: SupvisosignupComponent },
   { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGuard] },
@@ -81,6 +83,7 @@ const appRoutes: Routes = [
     PostsComponent,
     SignupComponent,
     LoginComponent,
+    SupervisorloginComponent,
     EventcreateComponent,
     FormComponent,
     FollowingComponent,

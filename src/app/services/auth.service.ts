@@ -42,24 +42,24 @@ export class AuthService implements OnInit {
       setTimeout(() => {
         // Send the POST request
         this.http.post(url, userDetails).subscribe({
-        next: (response) => {
-        // Stores the user object in auth service
-          this.user = response;
-          console.log(this.user)
-          this.token = this.user['token']
-          this.setAuthToken(this.token);
-          this.isLoggedIn = true
-          this.loginResponse.next(true);
-          this.startTokenExpiration()
-          this.setUser(this.user)
-          this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        // Handle any errors
-        console.error(error);
-        alert("Please enter a valid email and password");
-        this.router.navigate(['/login']);
-      }
+          next: (response) => {
+            // Stores the user object in auth service
+            this.user = response;
+            console.log(this.user)
+            this.token = this.user['token']
+            this.setAuthToken(this.token);
+            this.isLoggedIn = true
+            this.loginResponse.next(true);
+            this.startTokenExpiration()
+            this.setUser(this.user)
+            this.router.navigate(['/home']);
+          },
+          error: (error) => {
+            // Handle any errors
+            console.error(error);
+            alert("Please enter a valid email and password");
+            this.router.navigate(['/login']);
+          }
 
         });
         resolve(true)
@@ -67,6 +67,7 @@ export class AuthService implements OnInit {
     })
 
   }
+
 
   startTokenExpiration() {
     const expirationTime = 60 * 60 * 1000;
@@ -97,7 +98,7 @@ export class AuthService implements OnInit {
     this.setLikedPosts(tempUser.likedposts)
     this.setFollowing(tempUser.following)
     this.setNotifications(tempUser.notifications)
-    
+
   }
   private setAuthToken(token: string): void {
     localStorage.setItem('token', token);
@@ -115,26 +116,26 @@ export class AuthService implements OnInit {
     }
     return this.postJson
   }
-  setFollowing(following: any){
+  setFollowing(following: any) {
     const followingString = JSON.stringify(following)
     localStorage.setItem('following', followingString)
   }
-  getFollowing(){
+  getFollowing() {
     const followingString = localStorage.getItem('following')
-    if(followingString){
+    if (followingString) {
       this.followingJson = JSON.parse(followingString)
     }
     console.log(this.followingJson)
     return Array.isArray(this.followingJson) ? this.followingJson : [this.followingJson];
   }
-  setNotifications(notifications: any){
+  setNotifications(notifications: any) {
     const notString = JSON.stringify(notifications)
     localStorage.setItem('notifications', notString)
     console.log(localStorage)
   }
-  getNotifications(){
+  getNotifications() {
     const notString = localStorage.getItem('notifications')
-    if(notString){
+    if (notString) {
       this.notificationJson = JSON.parse(notString)
     }
     return Array.isArray(this.notificationJson) ? this.notificationJson : [this.notificationJson];
@@ -195,6 +196,58 @@ export class AuthService implements OnInit {
   }
 
 
+  supervisorloginUser(userDetails: any): Promise<boolean> {
+    // Define the endpoint URL
+    const url = 'http://localhost:3080/supervisorlogin';
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // Send the POST request
+        this.http.post(url, userDetails).subscribe({
+          next: (response) => {
+            // Stores the user object in auth service
+            this.user = response;
+            console.log(this.user)
+            this.token = this.user['token']
+            this.setAuthToken(this.token);
+            this.isLoggedIn = true
+            this.loginResponse.next(true);
+            this.startTokenExpiration()
+            this.setSupervisorUser(this.user)
+            this.router.navigate(['/supervisor']);
+          },
+          error: (error) => {
+            // Handle any errors
+            console.error(error);
+            alert("Please enter a valid email and password");
+            this.router.navigate(['/supervisorlogin']);
+          }
+
+        });
+        resolve(true)
+      }, 1000)
+    })
+
+  }
+
+  setSupervisorUser(user: any): void {
+    console.log(this.user)
+    const tempUser = user.user
+    const userDetails = {
+      id: tempUser._id,
+      email: tempUser.email,
+      firstName: tempUser.firstname,
+      lastName: tempUser.lastname,
+      userName: tempUser.username,
+      phone: tempUser.phone,
+      profilepicture: tempUser.profilepicture
+    }
+    const userString = JSON.stringify(userDetails)
+    localStorage.setItem('user', userString)
+    this.setLikedPosts(tempUser.likedposts)
+    this.setFollowing(tempUser.following)
+    this.setNotifications(tempUser.notifications)
+
+  }
 
   logout(): void {
     this.http.get(`http://localhost:3080/logout`).subscribe((response) => {

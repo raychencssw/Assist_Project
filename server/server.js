@@ -7,6 +7,7 @@ const User = require("./models/user");
 const Event = require("./models/event");
 const Post = require("./models/post");
 const Supervisor = require("./models/supervisor");
+const Supervisor_tem = require("./models/supervisor_tem");
 const Organization = require("./models/organization");
 const School = require("./models/school");
 const Notification = require('./models/notification');
@@ -24,7 +25,7 @@ const Joi = require("joi");
 const schemas = require("./schemas");
 const middleware = require("./middleware");
 const passwordResetRoute = require('./passwordreset');
-
+const superviseEventsRoute = require('./superviseevent');
 
 const db = mongoose.connection;
 //const passport = require("passport");
@@ -108,7 +109,7 @@ io.on('connection', (socket) => {
 // ROUTES
 
 app.use('/api', passwordResetRoute);
-
+app.use('/supervisorapi', superviseEventsRoute);
 app.get("/home/:page", verifyToken, async (req, res) => {
   page = req.params.page;
   const limit = 5;
@@ -735,6 +736,7 @@ app.get('/recommend/:userid', async (req, res) => {
 })
 app.get('/supervisor/eventlist', async (req, res) => {
   const event = await Event.find({})
+
   res.json(event)
 })
 
@@ -912,16 +914,31 @@ app.post('/supsignup', upload.single("profilePicture"), async (req, res) => {
     newUser.role = 2;
     newUser.password = newOrg.generateHash(req.body.password);
     await newUser.save();
-    console.log("User_db saved");
+    console.log("supervisor saved");
     res.status(200).json({ message: "Signup successful" });
+    res.redirect("/supervisorlogin");
 
   }
   catch (error) {
     console.error("Error signing up: ", error);
-    res.redirect("/orgsignup");
+    res.redirect("/supsignup");
   }
 
 });
+//supervisor log in backend
+app.post("/supervisorlogin", passport.authenticate("local"), async function (req, res) {
+  const token = jwt.sign({ id: req.user._id }, config.secretKey, {
+    expiresIn: config.expiresIn,
+  });
+
+  const tempUser = await Supervisor.findById(req.user._id)
+  console.log("temsupervisor", tempUser)
+  res.json({
+    token: token,
+    user: tempUser,
+  });
+});
+
 app.post('/superviseevent/:eventid/:supervisorid/:state', async (req, res) => {
   const eventid = req.params.eventid;
   const supervisorid = req.params.supervisorid;
