@@ -1206,6 +1206,19 @@ app.post("/supervisorlogin", passport.authenticate("local"), async function (req
   });
 });
 
+
+app.get('/supervisorcheck/:userid', async (req, res) => {
+  const supervisorid = new mongoose.Types.ObjectId(req.params.userid);
+  const supervisor = await Supervisor.findOne({ _id: supervisorid })
+
+  if (supervisor) {
+    res.json({ exists: true }); // Supervisor exists
+  } else {
+    res.json({ exists: false }); // Supervisor does not exist
+  }
+}
+)
+
 app.post('/superviseevent/:eventid/:supervisorid/:state', async (req, res) => {
   const eventid = req.params.eventid;
   const supervisorid = req.params.supervisorid;

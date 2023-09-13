@@ -53,6 +53,30 @@ export class SupervisorComponent implements OnInit {
     if (sidebar) {
       this.renderer.addClass(sidebar, 'disabled'); // Add a custom CSS class to disable the sidebar
     }
+    console.log(userId)
+    fetch('http://localhost:3080/supervisorcheck/' + userId) // Replace '123' with the actual userid you want to check
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        return response.json(); // Parse the response as JSON
+      })
+      .then(data => {
+        // Handle the response data
+        if (data.exists) {
+          // Supervisor exists, do something
+          console.log('Supervisor exists', userId);
+        } else {
+          // Supervisor does not exist, do something else
+          console.log('Supervisor does not exist');
+          this.router.navigate((['/supervisorlogin']))
+        }
+      })
+      .catch(error => {
+        // Handle errors
+        console.error('There was a problem with the fetch operation:', error);
+      });
   }
   //to remove the class of sidebar when leaving the specific page:
   ngOnDestroy() {
@@ -61,6 +85,7 @@ export class SupervisorComponent implements OnInit {
       this.renderer.removeClass(sidebar, 'disabled');
     }
   }
+
   fetchEvents() {
     this.http.get<any[]>('http://localhost:3080/supervisor/eventlist')
       .subscribe(events => {
@@ -134,6 +159,7 @@ export class SupervisorComponent implements OnInit {
         filtered.push(id);
       }
     });
+
     localStorage.setItem('supervisedEvents', JSON.stringify(filtered))
     const userId = JSON.parse(localStorage.getItem('user')!).id;
     this.eventService.superviseEventById(eventId, userId, 'false').subscribe();
