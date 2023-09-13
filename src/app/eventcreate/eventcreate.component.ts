@@ -1,8 +1,6 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
-import { MatDatepicker } from '@angular/material/datepicker';
-import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -10,18 +8,18 @@ import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './eventcreate.component.html',
   styleUrls: ['./eventcreate.component.css'],
 })
-export class EventcreateComponent implements OnInit {
+export class EventcreateComponent implements OnInit{
   unamePattern = '^[A-Za-z0-9\\s_]*$'
-  datePickerStartAt: any;
+  datePickerStartAt:any;
   public formDate = "";
 
   public eventForm = {
     name: '',
-    // photo: null as File | null,
-    date: '',
-    time: { hour: 13, minute: 30 },
-    end_time: { hour: 13, minute: 50 },
-    location: {
+    photo: null as File | null,
+    date:'',
+    start_time: { hour: 13, minute: 30 },
+    end_time: { hour: 23, minute: 30 },
+    location:{
       street: '',
       city: '',
       state: '',
@@ -35,7 +33,7 @@ export class EventcreateComponent implements OnInit {
     private eventService: EventServiceService) { };
 
   ngOnInit() {
-    this.datePickerStartAt = new Date();
+    this.datePickerStartAt = new Date();   //today
   }
 
 
@@ -62,7 +60,6 @@ export class EventcreateComponent implements OnInit {
       // Close the modal
       this.activeModal.close();
     })
-
 
   }
 

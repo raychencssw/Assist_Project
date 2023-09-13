@@ -42,11 +42,14 @@ const schemas = {
         start_time: {
             hour: Joi.number().max(24).required(),
             minute: Joi.number().max(60).required(),
+            // second: Joi.number().max(60).required(),
         },// = '12:30'
         end_time: {
             hour: Joi.number().max(24).required(),
             minute: Joi.number().max(60).required(),
-        },
+            // second: Joi.number().max(60).required(),
+        },// = '12:30'
+
         description: Joi.string().max(1000).required(),
         location: {
             street: Joi.string().max(500).required(),

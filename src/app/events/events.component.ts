@@ -3,10 +3,11 @@ import { EventcreateComponent } from '../eventcreate/eventcreate.component';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { EventServiceService } from '../event-service.service';
 import { Router } from '@angular/router';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import {  FormGroup, FormControl, Validators  } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { SearchServiceService } from '../services/search-service.service';
 import { NgbCarouselConfig, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 
 
@@ -20,6 +21,7 @@ export class EventsComponent implements OnInit {
   showNavigationArrows = true;
   showNavigationIndicators = false;
 
+
   events: any = [];             //store the events fetched from the backend
   weeklyEvents: any = [];       //store the events within 1 week
   monthlyEvents: any = [];      //store the events withing that month
@@ -31,32 +33,32 @@ export class EventsComponent implements OnInit {
   weeklyEventsDisplay: any = [];
   monthlyEventsDisplay: any = [];
 
-  public screenWidth: any;
+  public screenWidth: any;  
 
-  smallDev: boolean = false;
+  smallDev:boolean = false;
 
   constructor(private modalService: NgbModal,                   //open a modal when "create event" button is clicked
-    private eventService: EventServiceService,        //load events from DB when the page is first-time loaded or after a new event is created
-    private router: Router,                           //for the routerLink that direct to event deatil page
-    private searchService: SearchServiceService,
-    config: NgbCarouselConfig) {
-    config.showNavigationArrows = true;
-  };
+              private eventService: EventServiceService,        //load events from DB when the page is first-time loaded or after a new event is created
+              private router: Router,                           //for the routerLink that direct to event deatil page
+              private searchService: SearchServiceService,
+              config: NgbCarouselConfig){
+                config.showNavigationArrows = true;
+              };                        
 
   ngOnInit(): void {
     //loadEvent() returns Observable, so subscribe here
     this.eventService.loadEvent().subscribe((events) => {
       console.log("ngOninit loads!");
 
-      this.screenWidth = window.innerWidth;
+      this.screenWidth = window.innerWidth; 
       console.log("screenWidth: " + this.screenWidth);
-      if (this.screenWidth < 700) {
+      if(this.screenWidth < 700){
         this.smallDev = true;
       }
       console.log("smallDev: " + this.smallDev);
 
-      this.weeklyEvents = [];
-      this.monthlyEvents = [];
+      this.weeklyEvents = [];   
+      this.monthlyEvents = [];  
 
       //store the events from the MongoDB to this.events(not sorted yet)
       this.events = events;
@@ -145,6 +147,7 @@ export class EventsComponent implements OnInit {
         this.displayWeekly();
         this.displayMonthly();
         this.displayWeeklyEvent();
+        this.displayMonthlyEvent();
       });
     })
   }
@@ -221,7 +224,7 @@ export class EventsComponent implements OnInit {
         // console.log("event with name " + this.events[i].name + " and period " + period + " is within one week!" );
         let date = this.events[i].date.split("/");
         console.log("date[0]: " + date[0]);
-        switch (date[0]) {
+        switch(date[0]){
           case '1':
             this.events[i].month = 'Jan';
             break;
@@ -239,7 +242,7 @@ export class EventsComponent implements OnInit {
             break;
           case '6':
             this.events[i].month = 'Jun';
-            break;
+            break;          
           case '7':
             this.events[i].month = 'Jul';
             break;
@@ -290,7 +293,7 @@ export class EventsComponent implements OnInit {
         // console.log("event with name " + this.events[i].name + " and period " + period + " is within this month!" );
         let date = this.events[i].date.split("/");
         console.log("date[0]: " + date[0]);
-        switch (date[0]) {
+        switch(date[0]){
           case '1':
             this.events[i].month = 'Jan';
             break;
@@ -308,7 +311,7 @@ export class EventsComponent implements OnInit {
             break;
           case '6':
             this.events[i].month = 'Jun';
-            break;
+            break;          
           case '7':
             this.events[i].month = 'Jul';
             break;
@@ -328,14 +331,14 @@ export class EventsComponent implements OnInit {
             this.events[i].month = 'Dec';
             break;
         }
+        console.log("this.events[" + i + "].month: " + this.events[i].month);
         this.events[i].dOfmonth = date[1];
         this.monthlyEvents.push(this.events[i]);
       }
     }
   }
 
-  displayWeeklyEvent() {
-
+  displayWeeklyEvent(){
     // var templ = []
     // for(let i = 0; i < this.weeklyEvents.length; i++){
     //   if(i < 5){
@@ -343,32 +346,42 @@ export class EventsComponent implements OnInit {
     //   }
     // }
     // this.weeklyEventsDisplay.push(templ)
+    this.weeklyEventsDisplay = [];
 
-    let numCal = 5  //the number of events on the screen
-    if (this.smallDev) {
+
+    let numCal = 6  //the number of events on the screen
+    if(this.smallDev){
       numCal = 3;
     }
     console.log("numCal: " + numCal);
 
-    let numGroup = Math.floor(this.weeklyEvents.length / numCal) + 1;  //the number of groups of events
+    var numGroup; //the number of groups of events
+    if(this.weeklyEvents.length % numCal != 0){
+      numGroup = Math.floor(this.weeklyEvents.length / numCal) + 1;  
+    }
+    else{
+      numGroup = this.weeklyEvents.length / numCal;
+    }
+    
     console.log("numGroup: " + numGroup);
 
-    for (let i = 0; i < numGroup; i++) {
+    for(let i = 0; i < numGroup; i++){
       var templ = [];
-      for (let j = 0; j < numCal; j++) {
-        var index = i * numCal + j
-        if (index < this.weeklyEvents.length) {
+      for (let j = 0; j < numCal; j++){
+        var index = i * numCal +j
+        if (index < this.weeklyEvents.length){
           templ.push(this.weeklyEvents[index]);
+          console.log("temp[0].month: " + templ[0].month)
         }
       }
       this.weeklyEventsDisplay.push(templ);
     }
-
+    
     console.log("this.weeklyEventsDisplay.length: " + this.weeklyEventsDisplay.length)
     console.log("this.weeklyEventsDisplay[0].length: " + this.weeklyEventsDisplay[0].length)
   }
 
-  displayMonthlyEvent() {
+  displayMonthlyEvent(){
 
     // var templ = []
     // for(let i = 0; i < this.weeklyEvents.length; i++){
@@ -377,29 +390,38 @@ export class EventsComponent implements OnInit {
     //   }
     // }
     // this.weeklyEventsDisplay.push(templ)
+    this.monthlyEventsDisplay = [];
 
-    let numCal = 5  //the number of events on the screen
-    if (this.smallDev) {
+
+    let numCal = 6  //the number of events on the screen
+    if(this.smallDev){
       numCal = 3;
     }
     console.log("numCal: " + numCal);
 
-    let numGroup = Math.floor(this.monthlyEvents.length / numCal) + 1;  //the number of groups of events
+    var numGroup; //the number of groups of events
+    if(this.monthlyEvents.length % numCal != 0){
+      numGroup = Math.floor(this.monthlyEvents.length / numCal) + 1;  
+    }
+    else{
+      numGroup = this.monthlyEvents.length / numCal;
+    }
+
     console.log("numGroup: " + numGroup);
 
-    for (let i = 0; i < numGroup; i++) {
+    for(let i = 0; i < numGroup; i++){
       var templ = [];
-      for (let j = 0; j < numCal; j++) {
-        var index = i * numCal + j
-        if (index < this.monthlyEvents.length) {
+      for (let j = 0; j < numCal; j++){
+        var index = i * numCal +j
+        if (index < this.monthlyEvents.length){
           templ.push(this.monthlyEvents[index]);
         }
       }
       this.monthlyEventsDisplay.push(templ);
     }
-
-    console.log("this.monthlyEventsDisplay.length: " + this.monthlyEventsDisplay.length)
-    console.log("this.monthlyEventsDisplay[0].length: " + this.monthlyEventsDisplay[0].length)
+    
+    console.log("this.monthlyEventsDisplay.length: " + this.monthlyEventsDisplay.length);
+    console.log("this.monthlyEventsDisplay[0].length: " + this.monthlyEventsDisplay[0].length);
   }
-
+  
 }

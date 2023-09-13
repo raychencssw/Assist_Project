@@ -10,7 +10,7 @@
     </div>
 
     <!-- week  -->
-    <p class="fs-3 mt-3">Week</p>
+    <p class="fs-3 mt-3 text-center">Week</p>
     <ngb-carousel
     [interval]="0"
     [showNavigationArrows]="showNavigationArrows"
@@ -28,11 +28,14 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay-top">{{each.month}}</div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        <div class="circle"></div>
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -44,10 +47,13 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -57,7 +63,7 @@
     </ngb-carousel>
 
     <!-- month  -->
-    <p class="fs-3 mt-3">Month</p>
+    <p class="fs-3 mt-3 text-center">Month</p>
     <ngb-carousel
     [interval]="0"
     [showNavigationArrows]="showNavigationArrows"
@@ -74,11 +80,14 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay-top">{{each.month}}</div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        <div class="circle"></div>
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -90,10 +99,13 @@
                         <div class="calendar-container">
                             <div class="calendar"></div>
                             <div class="calendar-top"></div>
-                            <div class="calendar-overlay">
-                                <a [routerLink]="'/event-detail/' + each._id">
-                                    {{each.dOfmonth}}
-                                </a>
+                            <div class="calendar-overlay-top fs-5">{{each.month}}</div>
+                            <div class="calendar-overlay fs-4">
+                                <div class="circle">
+                                    <a [routerLink]="'/event-detail/' + each._id" class="calendar-overlay-date">
+                                        {{each.dOfmonth}}
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -102,10 +114,67 @@
         </ng-template>
     </ngb-carousel>
 
+    <!-- <mat-tab-group class="custom-tab-group"> -->
+
+        <!-- events in a week -->
+        <!-- <mat-tab label="Week">
+            <div class="events-wrap">
+                <table>
+                    <tbody>
+                        <tr *ngFor="let event of weeklyEvents">
+                            <div class="assist-blue">{{event.date}}</div>
+                                <div>
+                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
+                                <td class="vertical"></td>
+                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
+                                    {{event.location.city}}, {{event.location.state}}
+                                </td>                       
+                                <td class="text-end"> -->
+                                    <!-- only valid for static route -->
+                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
+
+                                    <!-- <a [routerLink]="'/event-detail/' + event._id">
+                                        <span class="material-icons">chevron_right</span>
+                                    </a>
+                                </td> 
+                            </div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </mat-tab> -->
+
+        <!-- events in a month -->
+        <!-- <mat-tab label="Month">
+            <div class="events-wrap">
+                <table>
+                    <tbody>
+                        <tr *ngFor="let event of monthlyEvents">
+                            <div class="assist-blue">{{event.date}}</div>
+                                <div>
+                                <td class="text-secondary" style="width:50px;">{{event.time.hour}}:{{event.time.minute}}</td>
+                                <td class="vertical"></td>
+                                <td class="text-secondary" style="padding-left:10px;">{{event.name}}<br>
+                                    {{event.location.city}}, {{event.location.state}}
+                                </td>
+                                <td class="text-end"> -->
+                                    <!-- only valid for static route -->
+                                    <!-- <a routerLink="/event-detail/{{event._id}}"> -->
+
+                                    <!-- <a [routerLink]="'/event-detail/' + event._id">
+                                        <span class="material-icons">chevron_right</span>
+                                    </a>
+                                </td> 
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+
+    </mat-tab-group> -->
+
     <!-- Create Event button -->
-    <div class="fs-5 text-center create-event" (click)="createEvent()">Create Event</div>
-
-
+    <div class="fs-5 text-center create-event mt-3 mb-3" style="margin-top: 50px !important" (click)="createEvent()">Create Event</div>
+    
     <div class="info-wrap">
         <p class="fs-5 fw-bold text-center assist-blue mb-1">Need More Points?</p>
         <p class="fs-6 text-center text-secondary">We are here to help.</p>
@@ -124,13 +193,17 @@
         <!-- instruction area(with backgound color: assist-blue) -->
         <div class="instruct">
 
-            <p class="fs-5 fw-bold mb-1 mt-3 text-center" style="color:white">Few tips before the event</p>
-            <p class="fs-6 fw-light mt-0 text-center" style="color:white">To help you get the points you need.</p>
+            <!-- <p class="fs-5 fw-bold mb-1 mt-3 text-center" style="color:white">Few tips before the event</p> -->
+            <!-- <p class="fs-6 fw-light mt-0 text-center" style="color:white">To help you get the points you need.</p> -->
+            <p class="fs-5 fw-bold mb-1 mt-3 text-center">Few tips before the event</p>
+            <p class="fs-6 fw-light mt-0 text-center">To help you get the points you need.</p>
 
             <!-- 1 -->
-            <p class="text-center fs-4 mt-5" style="color:white;"><i class="fa-solid fa-1"></i></p>
+            <!-- <p class="text-center fs-4 mt-5" style="color:white;"><i class="fa-solid fa-1"></i></p> -->
+            <p class="text-center fs-4 mt-5"><i class="fa-solid fa-1"></i></p>
             <div class="tips-wrap">
-                <i class="fa-solid fa-camera-retro" style="color:white;"></i>
+                <i class="fa-solid fa-camera-retro font-awesome"></i>
+                <!-- <i class="fa-solid fa-camera-retro" style="color:white;"></i> -->
                 <p class="fs-6 instruct-content">Scan In / Out to receive full credit for attendance</p>
                 <p class="fs-6 fw-light instruct-sub-content">
                     The staff working the event will have the scanner with them so make sure you scan using the Assist
@@ -139,9 +212,11 @@
             </div>
 
             <!-- 2 -->
-            <p class="text-center fs-4 mt-4" style="color:white;"><i class="fa-solid fa-2"></i></p>
+            <p class="text-center fs-4 mt-4"><i class="fa-solid fa-2"></i></p>
+            <!-- <p class="text-center fs-4 mt-4" style="color:white;"><i class="fa-solid fa-2"></i></p> -->
             <div class="tips-wrap">
-                <i class="fa-solid fa-print" style="color:white;"></i>
+                <!-- <i class="fa-solid fa-print" style="color:white;"></i> -->
+                <i class="fa-solid fa-print font-awesome"></i>
                 <p class="fs-6 instruct-content">Take a photo of the event or you participating</p>
                 <p class="fs-6 fw-light instruct-sub-content">
                     This helps keep track of the events you have attended over the course of the season.

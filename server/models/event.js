@@ -24,18 +24,18 @@ const eventSchema = new Schema({
         required: true
     },
     start_time: {
-        hour: {
-            type: Number,
+        hour:{
+            type:Number,
             required: true
         },
-        minute: {
-            type: Number,
+        minute:{
+            type:Number,
             required: true
         }
     },
     end_time: {
-        hour: {
-            type: Number,
+        hour:{
+            type:Number,
             required: true
         },
         minute: {

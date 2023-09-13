@@ -1,5 +1,6 @@
 .assist-blue{
-    color: rgb(55,88,227);
+    /* color: rgb(55,88,227); */
+    color: rgb(49,108,244);
 }
 
 .assist-oragne{
@@ -21,7 +22,9 @@
 
 
 .event-page-bottom{
-    background-color:rgb(246,248,254);
+    /* background-color:rgb(246,248,254); */
+    /* background-color: rgb(49,108,244); */
+    backdrop-filter: blur(5px);
     height:100%;
     width:100%;
     border-radius:20px;
@@ -43,18 +46,29 @@
 }
 
 .create-event{
-    background-color:rgb(238,129,80);
+    /* background-color:rgb(238,129,80); */
+    background-color:rgb(49,108,244);
     color:white;
     border-radius:25px;
+    border-style:solid;
+    border-width:1px;
+    border-color:black;
     width:95%;
     margin:10px auto 10px;
     padding:10px;
 }
 
+
+.create-event:hover{
+    cursor:pointer;
+    border-width:3px;
+    opacity:80%;
+}
+
 .info-wrap{
     border-top-left-radius:20px;
     border-top-right-radius:20px;
-    background-color: rgb(250,250,250);
+    /* background-color: rgb(250,250,250); */
     margin:auto;
 }
 
@@ -62,21 +76,20 @@
     display:inline-block;
 }
 
-.instruct{
+/* .instruct{
     background-color: rgb(55,88,227);
     padding:10px;
-}
+} */
 
 .instruct-content{
-    color:white;
+    /* color:white; */
     display:inline-block;
 }
 
 .instruct-sub-content{
-    color:white;
+    /* color:white; */
     padding-left:20px;
 }
-
 .calendar-container{
     position: relative;
     max-width:100px;
@@ -110,20 +123,51 @@
 
 .calendar-overlay-top{
     position: absolute;
-    top: 10%;
-    left: 30%;
+    top: 5%;
+    /* left: 25%; */
     z-index: 1;
 }
 
 .calendar-overlay{
     position: absolute;
-    top: 50%;
-    left: 25%;
+    top: 45%;
+    left: 30%;
     /* transform: translate(-50%, -50%); */
     /* background-color: rgba(255, 255, 255, 0.8); */
     /* padding: 20px; */
     padding: 10%;
     z-index: 1;
+}
+
+.circle {
+    position: absolute;
+    top: 0%;
+    left: -15%;
+    width: 50px;
+    height: 50px;
+    border: 2px solid transparent; /* Sets the initial border as transparent */
+    border-radius: 50%; /* Creates a circular shape */
+    transition: border-color 0.3s ease; /* Add a smooth transition effect */
+  }
+  
+  .circle:hover {
+    border-color: black; /* Change the border color to black on hover */
+  }
+
+.calendar-overlay-date{
+    text-decoration: none;
+    color:black;
+    position: absolute;
+    /* left: 30%; */
+    top: 13%;
+}
+
+.carousel-control-prev-icon{
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e") !important;
+}
+
+.carousel-control-next-icon{
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
 }
 
 /* for large screen */
@@ -134,7 +178,7 @@
     }
 
    .event-page-bottom{
-        width:800px
+        width:850px
     } 
 
     .create-event{
@@ -163,6 +207,16 @@
     .instruct-content{
         padding-left:5px;
     }
+    
+    .font-awesome{
+        color:rgb(49,108,244);
+    }
+    .calendar-overlay-date{
+        left:30%;
+    }
+    .calendar-overlay-top{
+        left:30%;
+    }
 }
 
 
@@ -183,6 +237,7 @@
 
     .info-wrap{
         width:100%;
+        background-color: rgb(250,250,250);
     }
 
     .points-wrap{
@@ -200,14 +255,31 @@
         width:90%; 
         margin:auto;
     }
+    
+    .instruct{
+        background-color: rgb(55,88,227);
+        padding:10px;
+        color:white !important;
+    }
 
     .instruct-content{
         padding-left:5px;
         font-size:13px !important;
+        color:white;
     }
 
     .instruct-sub-content{
         padding-left:5px;
         font-size:12px !important;
+        color:white;
+    }
+    .font-awesome{
+        color:white;
+    }
+    .calendar-overlay-date{
+        left:15%;
+    }
+    .calendar-overlay-top{
+        left:25%;
     }
 }

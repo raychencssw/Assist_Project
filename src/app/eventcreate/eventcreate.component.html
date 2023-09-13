@@ -20,6 +20,7 @@
             </small>
 
         </div>
+
         <!-- <label class="form-label mb-0 mt-3 fw-bold">Upload Photo</label>
         <input type="file" class="form-control" (change)="onFileSelected($event)" required="">
         <div *ngIf="isWrongExtension">
@@ -45,13 +46,55 @@
                 </small>
             </div>
 
+            <div *ngIf="date.invalid && (date.dirty || date.touched)" class="alert">
+                <small *ngIf="date.errors?.['required']">
+                    Date is required.
+                </small>
+            </div>
+
         </div>
 
         <!-- <label class="form-label mb-0 mt-3 fw-bold">Time</label>
         <input id="time" type="text" name="Time" class="form-control" [(ngModel)]="eventForm.time"> -->
 
-        <label class="form-label mb-0 mt-3 fw-bold">Time</label>
-        <ngb-timepicker [(ngModel)]="eventForm.time" name="time"></ngb-timepicker>
+        <!-- <div class="row">
+            <div class="col-6">
+                <label class="form-label mb-0 mt-3 fw-bold">Start Time</label>
+                <ngb-timepicker [(ngModel)]="eventForm.start_time" name="starttime"></ngb-timepicker>
+            </div>
+
+            <div class="col-6">
+                <label class="form-label mb-0 mt-3 fw-bold">End Time</label>
+                <ngb-timepicker [(ngModel)]="eventForm.end_time" name="endtime"></ngb-timepicker>
+            </div>
+        </div> -->
+
+        <label label class="form-label mb-0 mt-3 fw-bold"></label>Start Time<br>
+        <input id ="start_time_hour" type="text" name="start_time_hour" class="form-control" [(ngModel)]="eventForm.start_time.hour" required>
+        <div *ngIf=!eventForm.start_time.hour class="alert">
+            <small>Start time hour is required.</small>
+        </div>
+        <div *ngIf="eventForm.start_time.hour && (eventForm.start_time.hour < 0 || eventForm.start_time.hour > 24)" class="alert">
+            <small>Start time hour should be within 0 to 24.</small>
+        </div>
+        <input id ="start_time_minute" type="text" name="start_time_minute" class="form-control" [(ngModel)]="eventForm.start_time.minute">
+        <div *ngIf=!eventForm.start_time.minute class="alert">
+            <small>Start time hour is required.</small>
+        </div>
+        <div *ngIf="eventForm.start_time.minute && (eventForm.start_time.minute < 0 || eventForm.start_time.minute > 60)" class="alert">
+            <small>Start time minute should be within 0 to 60.</small>
+        </div>
+
+
+        <label label class="form-label mb-0 mt-3 fw-bold"></label>End Time<br>
+        <input id ="end_time_hour" type="text" name="end_time_hour" class="form-control" [(ngModel)]="eventForm.end_time.hour">
+        <div *ngIf="eventForm.end_time.hour && (eventForm.end_time.hour < 0 || eventForm.end_time.hour > 24)" class="alert">
+            <small>End time hour should be within 0 to 24.</small>
+        </div>
+        <input id ="end_time_minute" type="text" name="end_time_minute" class="form-control" [(ngModel)]="eventForm.end_time.minute">
+        <div *ngIf="eventForm.end_time.minute && (eventForm.end_time.minute < 0 || eventForm.end_time.minute > 60)" class="alert">
+            <small>End time minute should be within 0 to 60.</small>
+        </div>
 
         <label class="form-label mb-0 mt-3 fw-bold">Location</label><br>
         <label class="form-label mb-0 mt-1">Street Address</label>
@@ -78,6 +121,7 @@
             <small *ngIf="city.errors?.['pattern']"> City can only contain letters numbers and underscores.
             </small>
         </div>
+
         <label class="form-label mb-0 mt-0">State</label>
         <input id="location" type="text" name="Location" class="form-control" [(ngModel)]="eventForm.location.state"
             [pattern]="unamePattern" required maxlength=100 #state="ngModel">
@@ -87,8 +131,6 @@
             <small *ngIf="state.errors?.['pattern']"> State can only contain letters numbers and underscores.
             </small>
         </div>
-
-
 
         <label class="form-label mb-0 mt-3 fw-bold">Description</label>
         <input id="description" type="text" name="Description" class="form-control" [(ngModel)]="eventForm.description"
@@ -101,10 +143,10 @@
             </small>
         </div>
 
-
         <!-- Submit button -->
         <div class="text-end mt-3">
             <button type="button" class="btn btn-primary" (click)="submit()">Submit</button>
         </div>
     </form>
 </div>
+
