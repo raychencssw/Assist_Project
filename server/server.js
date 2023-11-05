@@ -74,7 +74,7 @@ const io = require("socket.io")(httpServer, {
 });
 
 let db_url =
-  "mongodb+srv://jitbaner:4r17oq9ZuznScSih@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
+  "mongodb+srv://jitbaner:4vunF96SQJvY7DnG@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
 
 mongoose
   .connect(db_url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -594,6 +594,45 @@ app.get("/event/:eventId", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+app.get("/supervisorCheck/:eventId", async (req, res) => {
+  const eventId = req.params.eventId;
+  console.log("eventID: " + eventId);
+
+  try {
+    // Find the event by eventId
+    // const event = await Event.findOne({ _id: eventId })
+    const event = await Event.findById(eventId);
+
+    if (event) {
+      let usernames = {}
+      let userIds = event.attendants
+      // get names and ids.
+      await User.find({ _id: { $in: userIds } }).then(users => {
+        for (let i = 0; i < users.length; i++) {
+          usernames[users[i]._id] = users[i].firstname + ' ' + users[i].lastname
+
+        }
+        // Handle the found users
+      }).catch(err => {
+        console.error('Error:', err);
+        // Handle the error as needed
+      });
+
+      //console.log(usernames)
+      res.send(usernames);
+
+    } else {
+      res.status(404).json({ message: "Event not found" });
+    }
+  } catch (error) {
+    console.error("Error retrieving event: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+
+});
+
 
 app.get("/following/:userid", verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid);

@@ -1,0 +1,26 @@
+<p>supervisorcheckin works!</p>
+<h1>Event Name</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+        </tr>
+    </thead>
+    <tbody>
+
+
+        <tr *ngFor="let student of studentsInfo">
+            <td>{{student.name}}</td>
+            <td>
+                <input type="checkbox" [(ngModel)]="student.checkin">
+            </td>
+            <td>
+                <input type="checkbox" [(ngModel)]="student.checkout">
+            </td>
+        </tr>
+    </tbody>
+    <button type="submit" (click)="onSubmit()">Submit Form</button>
+</table>
