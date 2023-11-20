@@ -595,43 +595,7 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-app.get("/supervisorCheck/:eventId", async (req, res) => {
-  const eventId = req.params.eventId;
-  console.log("eventID: " + eventId);
 
-  try {
-    // Find the event by eventId
-    // const event = await Event.findOne({ _id: eventId })
-    const event = await Event.findById(eventId);
-
-    if (event) {
-      let usernames = {}
-      let userIds = event.attendants
-      // get names and ids.
-      await User.find({ _id: { $in: userIds } }).then(users => {
-        for (let i = 0; i < users.length; i++) {
-          usernames[users[i]._id] = users[i].firstname + ' ' + users[i].lastname
-
-        }
-        // Handle the found users
-      }).catch(err => {
-        console.error('Error:', err);
-        // Handle the error as needed
-      });
-
-      //console.log(usernames)
-      res.send(usernames);
-
-    } else {
-      res.status(404).json({ message: "Event not found" });
-    }
-  } catch (error) {
-    console.error("Error retrieving event: ", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-
-
-});
 
 
 app.get("/following/:userid", verifyToken, async (req, res) => {
@@ -1245,11 +1209,9 @@ app.post("/supervisorlogin", passport.authenticate("local"), async function (req
   });
 });
 
-
 app.get('/supervisorcheck/:userid', async (req, res) => {
   const supervisorid = new mongoose.Types.ObjectId(req.params.userid);
-  const supervisor = await Supervisor.findOne({ _id: supervisorid })
-
+  const supervisor = await Supervisor.findOne({ _id: supervisorid });
   if (supervisor) {
     res.json({ exists: true }); // Supervisor exists
   } else {
@@ -1257,6 +1219,83 @@ app.get('/supervisorcheck/:userid', async (req, res) => {
   }
 }
 )
+
+app.get('/supervisorcheck/:eventid/:supervisorid', async (req, res) => {
+  //http://localhost:3080/supervisorcheck/653eeacc180c3ae1a2dcf019/64c6f576974de6f0d85a474f
+  //GET the JSON of id and Name of attandants
+  const supervisorid = new mongoose.Types.ObjectId(req.params.supervisorid);
+  const eventid = new mongoose.Types.ObjectId(req.params.eventid);
+
+  const supervisor = await Supervisor.findOne({ _id: supervisorid })
+  const event = await Event.findOne({ _id: eventid })
+  async function getEvent(eventId) {
+    try {
+      // Find the event by eventId
+      // const event = await Event.findOne({ _id: eventId })
+      const event = await Event.findById(eventId);
+
+      if (event) {
+        let usernames = {}
+        let userIds = event.attendants
+        // get names and ids.
+        await User.find({ _id: { $in: userIds } }).then(users => {
+          for (let i = 0; i < users.length; i++) {
+            usernames[users[i]._id] = users[i].firstname + ' ' + users[i].lastname
+
+          }
+          // Handle the found users
+        }).catch(err => {
+          console.error('Error:', err);
+          // Handle the error as needed
+        });
+
+        //console.log(usernames)
+        res.send(usernames);
+
+      } else {
+        res.status(404).json({ message: "Event not found" });
+      }
+    } catch (error) {
+      console.error("Error retrieving event: ", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  if (supervisor) {
+    if (supervisor.eventsupervise.includes(eventid)) {
+      getEvent(eventid)
+    } else {
+      res.json({ eventexists: false }); // Supervisor exists, event does not exist
+    }
+  } else {
+    res.json({ supervisorExists: false }); // Supervisor does not exist
+    return
+  }
+}
+)
+
+app.post('/supervisorcheck/attendances/:eventId', async (req, res) => {
+  try {
+    const eventid = req.params.eventId;
+    const { attendances } = req.body; // Make sure this matches the field name in your schema
+    console.log("attendances", attendances)
+    const updatedEvent = await Event.findByIdAndUpdate(
+      eventid,
+      { $set: { attendances } }, // Use 'attendances' here
+      { new: true, upsert: true }
+    );
+
+    if (!updatedEvent) {
+      return res.status(404).send('Event not found');
+    }
+
+    res.status(200).json(updatedEvent);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error updating event: ' + error.message);
+  }
+
+});
 
 app.post('/superviseevent/:eventid/:supervisorid/:state', async (req, res) => {
   const eventid = req.params.eventid;

@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+
+const attendancesSchema = new Schema({
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    name: { type: String, required: true },
+    checkin: { type: Boolean, required: true, default: false },
+    checkout: { type: Boolean, required: true, default: false }
+});
+
 const eventSchema = new Schema({
     id: {
         type: String,
@@ -24,18 +32,18 @@ const eventSchema = new Schema({
         required: true
     },
     start_time: {
-        hour:{
-            type:Number,
+        hour: {
+            type: Number,
             required: true
         },
-        minute:{
-            type:Number,
+        minute: {
+            type: Number,
             required: true
         }
     },
     end_time: {
-        hour:{
-            type:Number,
+        hour: {
+            type: Number,
             required: true
         },
         minute: {
@@ -82,7 +90,10 @@ const eventSchema = new Schema({
     supervisor: [{
         type: Schema.Types.ObjectId,
         ref: 'Supervisor'
-    }]
+    }],
+
+    attendances: [attendancesSchema],
+
 })
 
 module.exports = mongoose.model('Event', eventSchema);

@@ -1,4 +1,13 @@
-<p>supervisorcheckin works!</p>
+<!--Workflow:
+    1. Give supervisor a checkin link, generate a url query<br>
+    http://localhost:4200/supervisorcheck/:eventId/:supervisorId<br>
+    2. supervisor click the link, and need to log in with its supervisor account<br>
+    3. After verification, supervisor can see the checkin page<br>
+    4. supervisor can checkin/checkout students in the form<br>
+    5. submit the form, and update the database<br>
+
+-->
+
 <h1>Event Name</h1>
 
 <table>
@@ -10,7 +19,6 @@
         </tr>
     </thead>
     <tbody>
-
 
         <tr *ngFor="let student of studentsInfo">
             <td>{{student.name}}</td>

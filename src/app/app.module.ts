@@ -69,7 +69,7 @@ const appRoutes: Routes = [
   { path: 'supervisor', component: SupervisorComponent },
   { path: 'forgot-password', component: ResetPasswordComponent },
   { path: 'reset-password/:token', component: NewPasswordComponent },
-  { path: 'supervisorcheckin', component: SupervisorcheckinComponent },
+  { path: 'supervisorcheck/:eventId/:supervisorId', component: SupervisorcheckinComponent },
 
   { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard] },
