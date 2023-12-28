@@ -1,34 +1,36 @@
 <!--Workflow:
     1. Give supervisor a checkin link, generate a url query<br>
     http://localhost:4200/supervisorcheck/:eventId/:supervisorId<br>
-    2. supervisor click the link, and need to log in with its supervisor account<br>
+    2. **verification is not finished: supervisor click the link, and need to log in with its supervisor account<br> 
     3. After verification, supervisor can see the checkin page<br>
-    4. supervisor can checkin/checkout students in the form<br>
+    4. supervisor can checkin/checkout students in the form, users actions would be updated to localstorage<br>
     5. submit the form, and update the database<br>
 
 -->
+<h1 class="text-center my-4">Event Name: {{EventName}}</h1>
 
-<h1>Event Name</h1>
-
-<table>
-    <thead>
-        <tr>
-            <th>Student Name</th>
-            <th>Check-In</th>
-            <th>Check-Out</th>
-        </tr>
-    </thead>
-    <tbody>
-
-        <tr *ngFor="let student of studentsInfo">
-            <td>{{student.name}}</td>
-            <td>
-                <input type="checkbox" [(ngModel)]="student.checkin">
-            </td>
-            <td>
-                <input type="checkbox" [(ngModel)]="student.checkout">
-            </td>
-        </tr>
-    </tbody>
-    <button type="submit" (click)="onSubmit()">Submit Form</button>
-</table>
+<div class="container">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Student Name</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let student of studentsInfo">
+                <td>{{student.name}}</td>
+                <td>
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="student.checkin"
+                        (change)="updateStorage(student.id, 'checkin', student.checkin)">
+                </td>
+                <td>
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="student.checkout"
+                        (change)="updateStorage(student.id, 'checkout', student.checkout)">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-primary" (click)="onSubmit()">Submit Form</button>
+</div>
