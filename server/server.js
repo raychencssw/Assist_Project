@@ -26,8 +26,8 @@ const verifyToken = require("./verifyToken");
 const Joi = require("joi");
 const schemas = require("./schemas");
 const middleware = require("./middleware");
-const passwordResetRoute = require('./passwordreset');
-const superviseEventsRoute = require('./superviseevent');
+const passwordResetRoute = require("./passwordreset");
+const superviseEventsRoute = require("./superviseevent");
 const sendOTPRoute = require("./event-otp");
 
 const db = mongoose.connection;
@@ -86,30 +86,27 @@ mongoose
     console.log(e);
   });
 
-
-
-
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  const socketid = socket.id
-  socket.on('user', (user) => {
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  const socketid = socket.id;
+  socket.on("user", (user) => {
     userSocketMap[user] = socket.id;
-    console.log(userSocketMap)
-  })
-  socket.on('removeuser', (userid) => {
+    console.log(userSocketMap);
+  });
+  socket.on("removeuser", (userid) => {
     if (userSocketMap.hasOwnProperty(userid)) {
-      delete userSocketMap[userid]
-      console.log("THE NEW DICT IS", userSocketMap)
+      delete userSocketMap[userid];
+      console.log("THE NEW DICT IS", userSocketMap);
     }
-  })
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+  });
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
   });
 });
 // ROUTES
 
-app.use('/api', passwordResetRoute);
-app.use('/supervisorapi', superviseEventsRoute);
+app.use("/api", passwordResetRoute);
+app.use("/supervisorapi", superviseEventsRoute);
 io.on("connection", (socket) => {
   console.log("a user connected");
   const socketid = socket.id;
@@ -389,40 +386,44 @@ app.post(
   }
 );
 
-
-app.post("/login", passport.authenticate("local"), middleware(schemas.loginPost), async function (req, res) {
-  const token = jwt.sign({ id: req.user._id }, config.secretKey, {
-    expiresIn: config.expiresIn,
-  });
-  const tempUser = await User.findById(req.user._id).populate([
-    {
-      path: "school",
-      select: "name",
-    },
-    {
-      path: "notifications",
-      select: 'type date isRead',
-      populate: [
-        {
-          path: 'follower',
-          select: 'firstname lastname profilepicture',
-        },
-        {
-          path: 'event',
-          select: 'name'
-        },
-        {
-          path: 'from',
-          select: 'firstname lastname',
-        }
-      ]
-    }
-  ])
-  res.json({
-    token: token,
-    user: tempUser,
-  });
-});
+app.post(
+  "/login",
+  passport.authenticate("local"),
+  middleware(schemas.loginPost),
+  async function (req, res) {
+    const token = jwt.sign({ id: req.user._id }, config.secretKey, {
+      expiresIn: config.expiresIn,
+    });
+    const tempUser = await User.findById(req.user._id).populate([
+      {
+        path: "school",
+        select: "name",
+      },
+      {
+        path: "notifications",
+        select: "type date isRead",
+        populate: [
+          {
+            path: "follower",
+            select: "firstname lastname profilepicture",
+          },
+          {
+            path: "event",
+            select: "name",
+          },
+          {
+            path: "from",
+            select: "firstname lastname",
+          },
+        ],
+      },
+    ]);
+    res.json({
+      token: token,
+      user: tempUser,
+    });
+  }
+);
 app.get("/logout", (req, res) => {
   req.logout(function (err) {
     if (err) {
@@ -436,15 +437,14 @@ app.get("/qrscan", (req, res) => {
   res.send("HERE WE WILL HAVE QR SCANNER");
 });
 
-
-
-
-
-app.get('/profile/:userid', verifyToken, async (req, res) => {
-  console.log(req.params.userid)
-  const user = await User.findById(req.params.userid).populate('school', 'name')
-  res.send(user)
-})
+app.get("/profile/:userid", verifyToken, async (req, res) => {
+  console.log(req.params.userid);
+  const user = await User.findById(req.params.userid).populate(
+    "school",
+    "name"
+  );
+  res.send(user);
+});
 
 // app.get("/eventdetails/:eventid", (req, res) => {
 //   res.send("HERE WE HAVE EVENT DETAILS");
@@ -474,12 +474,10 @@ app.put(
     } catch (error) {
       res.status(401).json({ message: "Unauthorized" });
     }
-    await user.save()
+    await user.save();
     res.status(201).json({ message: "profile updated created" });
   }
-
-)
-
+);
 
 app.get("/eventsearch", async (req, res) => {
   const getEvents = Event.distinct("name"); //.toArray()//OBJECT
@@ -505,19 +503,9 @@ app.post("/createevent", middleware(schemas.eventPOST), async (req, res) => {
   const {
     name,
     date,
-    start_time: {
-      minute_start,
-      hour_start,
-    },
-    end_time: {
-      minute_end,
-      hour_end,
-    },
-    location: {
-      street,
-      city,
-      state,
-    },
+    start_time: { minute_start, hour_start },
+    end_time: { minute_end, hour_end },
+    location: { street, city, state },
     description,
   } = req.body;
 
@@ -595,9 +583,6 @@ app.get("/event/:eventId", async (req, res) => {
   }
 });
 
-
-
-
 app.get("/following/:userid", verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid);
   console.log(req.params.id);
@@ -618,8 +603,7 @@ app.get("/follower/:userid", verifyToken, async (req, res) => {
         path: "school",
         select: "name",
       },
-    }
-
+    },
   ]);
   console.log(follow);
   res.send({ followers: follow.followers });
@@ -651,11 +635,11 @@ app.post("/follow/:myid/:userid/:isfollowing", async (req, res) => {
     user.notifications.unshift(notification);
     await notification.save();
     // append userid to my following list
-    const myuser = await User.findById(myid)
-    myuser.following.push(userid)
-    await user.save()
-    await myuser.save()
-    console.log("THE USER IS", user)
+    const myuser = await User.findById(myid);
+    myuser.following.push(userid);
+    await user.save();
+    await myuser.save();
+    console.log("THE USER IS", user);
     if (socketid) {
       const newNotification = {
         type: "follow",
@@ -703,10 +687,10 @@ app.get("/searchuser/:username", async (req, res) => {
   }
 });
 
-app.get('/searchevent/:eventname', verifyToken, async (req, res) => {
-  const event = await Event.findOne({ name: req.params.eventname })
+app.get("/searchevent/:eventname", verifyToken, async (req, res) => {
+  const event = await Event.findOne({ name: req.params.eventname });
   if (event) {
-    res.json(event)
+    res.json(event);
   } else {
     res.status(500).json({ message: "no such event" });
   }
@@ -834,8 +818,8 @@ app.post("/api/guestcheckin", async (req, res) => {
 
 app.post("/api/checkin", async (req, res) => {
   try {
-    const { email, eventId } = req.body;
-    const user = await User.findOne({ email });
+    const { studentId, eventId } = req.body;
+    const user = await User.findById({ studentId });
     if (user) {
       const userId = user._id;
       const existingCheckIn = await Checkin.findOne({
@@ -866,8 +850,8 @@ app.post("/api/checkin", async (req, res) => {
 //Handles the checkout user logic
 app.post("/api/checkout", async (req, res) => {
   try {
-    const { email, eventId, mood } = req.body;
-    const user = await User.findOne({ email });
+    const { studentId, eventId, mood } = req.body;
+    const user = await User.findById({ studentId });
     if (user) {
       const userId = user._id;
       const existingCheckIn = await Checkin.findOne({
@@ -1001,91 +985,85 @@ app.get("/recommend/:userid", async (req, res) => {
     };
     userRes.push(tempUser);
   }
-  console.log(userRes)
-  res.json(userRes)
-})
-app.get('/supervisor/eventlist', async (req, res) => {
-  const event = await Event.find({})
+  console.log(userRes);
+  res.json(userRes);
+});
+app.get("/supervisor/eventlist", async (req, res) => {
+  const event = await Event.find({});
 
-  res.json(event)
-})
+  res.json(event);
+});
 
-app.post('/getUsernames', async (req, res) => {
+app.post("/getUsernames", async (req, res) => {
   const userIds = req.body.userIds; // Assuming the frontend sends an array of user IDs
-  const usernames = []
-  const users = {}
+  const usernames = [];
+  const users = {};
   for (const id of userIds) {
     const user = await User.findOne({ _id: id });
     if (user) {
-      usernames.push(user.username)
-      users[id] = user.username
+      usernames.push(user.username);
+      users[id] = user.username;
     }
-
   }
-  console.log(users)
+  console.log(users);
 
   // Send the list of usernames as the HTTP response
   res.json(users);
 });
 
-
-app.put('/notifications/readnotification', verifyToken, async (req, res) => {
+app.put("/notifications/readnotification", verifyToken, async (req, res) => {
   try {
-    const id = req.body.id
-    const notification = await Notification.findById(id)
-    notification.isRead = true
-    notification.save()
+    const id = req.body.id;
+    const notification = await Notification.findById(id);
+    notification.isRead = true;
+    notification.save();
     res.status(200).json({ success: true, message: "Notification read saved" });
   } catch (error) {
     res.status(500).json({ error: true, message: "Internal Server Error!!!" });
   }
-
-})
+});
 //post when user attend events
-app.post('/attendevent/:eventid/:userid/:state', async (req, res) => {
+app.post("/attendevent/:eventid/:userid/:state", async (req, res) => {
   const eventid = req.params.eventid;
   const userid = req.params.userid;
   const state = req.params.state;
   //console.log("state", state)
-  const user = await User.findOne({ _id: userid })
+  const user = await User.findOne({ _id: userid });
 
   //Convert eventid and userid to MongoDB ObjectIDs
   const eventObjectId = new mongoose.Types.ObjectId(eventid);
   const userObjectId = new mongoose.Types.ObjectId(userid);
   const event = await Event.findOne({ _id: eventObjectId });
   if (!event) {
-    return res.status(404).json({ error: 'Event not found' });
+    return res.status(404).json({ error: "Event not found" });
   }
-  if (state == 'true')//push the userid into registered and save
-  {
+  if (state == "true") {
+    //push the userid into registered and save
     if (!event.registered) {
       event.registered = [userObjectId];
-    }
-    else if (!user.eventsAttended) {
+    } else if (!user.eventsAttended) {
       user.eventsAttended = [eventObjectId];
     }
 
     event.registered.push(userObjectId);
-    user.eventsAttended.push(eventObjectId)
+    user.eventsAttended.push(eventObjectId);
     await event.save();
     await user.save();
-  }
-
-  else {
-    event.registered.pull(userObjectId)
-    user.eventsAttended.pull(eventObjectId)
+  } else {
+    event.registered.pull(userObjectId);
+    user.eventsAttended.pull(eventObjectId);
     await event.save();
     await user.save();
   }
 });
 
-app.post('/orgsignup', upload.single("profilePicture"), async (req, res) => {
+app.post("/orgsignup", upload.single("profilePicture"), async (req, res) => {
   console.log("receive signup notification");
   if (req.file) {
     var profilePicture = req.file.path;
-  }
-  else {
-    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
+  } else {
+    var profilePicture =
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
   }
 
   try {
@@ -1112,7 +1090,9 @@ app.post('/orgsignup', upload.single("profilePicture"), async (req, res) => {
     await newOrg.save();
     console.log("Org_db saved");
 
-    const schoolObjectId = new mongoose.Types.ObjectId("64a3b104c7380cc713d41020"); //set school to not above
+    const schoolObjectId = new mongoose.Types.ObjectId(
+      "64a3b104c7380cc713d41020"
+    ); //set school to not above
     //make a copy to user Database
     const newUser = new User({
       email: req.body.email,
@@ -1120,30 +1100,26 @@ app.post('/orgsignup', upload.single("profilePicture"), async (req, res) => {
       firstname: req.body.name,
       lastname: req.body.name,
       profilepicture: req.file.path,
-      school: schoolObjectId
+      school: schoolObjectId,
     });
     newUser.role = 1;
     newUser.password = newOrg.generateHash(req.body.password);
     await newUser.save();
     console.log("User_db saved");
     res.status(200).json({ message: "Signup successful" });
-
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error signing up: ", error);
     res.redirect("/orgsignup");
   }
-
 });
 
-
-app.post('/supsignup', upload.single("profilePicture"), async (req, res) => {
+app.post("/supsignup", upload.single("profilePicture"), async (req, res) => {
   console.log("receive signup notification");
   if (req.file) {
     var profilePicture = req.file.path;
-  }
-  else {
-    var profilePicture = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png';
+  } else {
+    var profilePicture =
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
   }
 
   try {
@@ -1171,7 +1147,9 @@ app.post('/supsignup', upload.single("profilePicture"), async (req, res) => {
     await newOrg.save();
     console.log("sup_db saved");
 
-    const schoolObjectId = new mongoose.Types.ObjectId("64a3b104c7380cc713d41020"); //set school to not above
+    const schoolObjectId = new mongoose.Types.ObjectId(
+      "64a3b104c7380cc713d41020"
+    ); //set school to not above
     //make a copy to user Database
     const newUser = new User({
       email: req.body.email,
@@ -1179,7 +1157,7 @@ app.post('/supsignup', upload.single("profilePicture"), async (req, res) => {
       firstname: req.body.firstname,
       lastname: req.body.lastname,
       profilepicture: req.file.path,
-      school: schoolObjectId
+      school: schoolObjectId,
     });
     newUser.role = 2;
     newUser.password = newOrg.generateHash(req.body.password);
@@ -1187,29 +1165,30 @@ app.post('/supsignup', upload.single("profilePicture"), async (req, res) => {
     console.log("supervisor saved");
     res.status(200).json({ message: "Signup successful" });
     res.redirect("/supervisorlogin");
-
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error signing up: ", error);
     res.redirect("/supsignup");
   }
-
 });
 //supervisor log in backend
-app.post("/supervisorlogin", passport.authenticate("local"), async function (req, res) {
-  const token = jwt.sign({ id: req.user._id }, config.secretKey, {
-    expiresIn: config.expiresIn,
-  });
+app.post(
+  "/supervisorlogin",
+  passport.authenticate("local"),
+  async function (req, res) {
+    const token = jwt.sign({ id: req.user._id }, config.secretKey, {
+      expiresIn: config.expiresIn,
+    });
 
-  const tempUser = await Supervisor.findById(req.user._id)
-  console.log("temsupervisor", tempUser)
-  res.json({
-    token: token,
-    user: tempUser,
-  });
-});
+    const tempUser = await Supervisor.findById(req.user._id);
+    console.log("temsupervisor", tempUser);
+    res.json({
+      token: token,
+      user: tempUser,
+    });
+  }
+);
 
-app.get('/supervisorcheck/:userid', async (req, res) => {
+app.get("/supervisorcheck/:userid", async (req, res) => {
   const supervisorid = new mongoose.Types.ObjectId(req.params.userid);
   const supervisor = await Supervisor.findOne({ _id: supervisorid });
   if (supervisor) {
@@ -1217,17 +1196,16 @@ app.get('/supervisorcheck/:userid', async (req, res) => {
   } else {
     res.json({ exists: false }); // Supervisor does not exist
   }
-}
-)
+});
 
-app.get('/supervisorcheck/:eventid/:supervisorid', async (req, res) => {
+app.get("/supervisorcheck/:eventid/:supervisorid", async (req, res) => {
   //http://localhost:3080/supervisorcheck/653eeacc180c3ae1a2dcf019/64c6f576974de6f0d85a474f
   //GET the JSON of id and Name of attandants
   const supervisorid = new mongoose.Types.ObjectId(req.params.supervisorid);
   const eventid = new mongoose.Types.ObjectId(req.params.eventid);
 
-  const supervisor = await Supervisor.findOne({ _id: supervisorid })
-  const event = await Event.findOne({ _id: eventid })
+  const supervisor = await Supervisor.findOne({ _id: supervisorid });
+  const event = await Event.findOne({ _id: eventid });
   async function getEvent(eventId) {
     try {
       // Find the event by eventId
@@ -1235,23 +1213,24 @@ app.get('/supervisorcheck/:eventid/:supervisorid', async (req, res) => {
       const event = await Event.findById(eventId);
 
       if (event) {
-        let usernames = {}
-        let userIds = event.attendants
+        let usernames = {};
+        let userIds = event.attendants;
         // get names and ids.
-        await User.find({ _id: { $in: userIds } }).then(users => {
-          for (let i = 0; i < users.length; i++) {
-            usernames[users[i]._id] = users[i].firstname + ' ' + users[i].lastname
-
-          }
-          // Handle the found users
-        }).catch(err => {
-          console.error('Error:', err);
-          // Handle the error as needed
-        });
+        await User.find({ _id: { $in: userIds } })
+          .then((users) => {
+            for (let i = 0; i < users.length; i++) {
+              usernames[users[i]._id] =
+                users[i].firstname + " " + users[i].lastname;
+            }
+            // Handle the found users
+          })
+          .catch((err) => {
+            console.error("Error:", err);
+            // Handle the error as needed
+          });
 
         //console.log(usernames)
         res.send(usernames);
-
       } else {
         res.status(404).json({ message: "Event not found" });
       }
@@ -1263,22 +1242,21 @@ app.get('/supervisorcheck/:eventid/:supervisorid', async (req, res) => {
 
   if (supervisor) {
     if (supervisor.eventsupervise.includes(eventid)) {
-      getEvent(eventid)
+      getEvent(eventid);
     } else {
       res.json({ eventexists: false }); // Supervisor exists, event does not exist
     }
   } else {
     res.json({ supervisorExists: false }); // Supervisor does not exist
-    return
+    return;
   }
-}
-)
+});
 
-app.post('/supervisorcheck/attendances/:eventId', async (req, res) => {
+app.post("/supervisorcheck/attendances/:eventId", async (req, res) => {
   try {
     const eventid = req.params.eventId;
     const { attendances } = req.body; // Make sure this matches the field name in your schema
-    console.log("attendances", attendances)
+    console.log("attendances", attendances);
     const updatedEvent = await Event.findByIdAndUpdate(
       eventid,
       { $set: { attendances } }, // Use 'attendances' here
@@ -1286,25 +1264,24 @@ app.post('/supervisorcheck/attendances/:eventId', async (req, res) => {
     );
 
     if (!updatedEvent) {
-      return res.status(404).send('Event not found');
+      return res.status(404).send("Event not found");
     }
 
     res.status(200).json(updatedEvent);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error updating event: ' + error.message);
+    res.status(500).send("Error updating event: " + error.message);
   }
-
 });
 
-app.post('/superviseevent/:eventid/:supervisorid/:state', async (req, res) => {
+app.post("/superviseevent/:eventid/:supervisorid/:state", async (req, res) => {
   const eventid = req.params.eventid;
   const supervisorid = req.params.supervisorid;
   const state = req.params.state;
-  const supervisor = await Supervisor.findOne({ _id: supervisorid })
+  const supervisor = await Supervisor.findOne({ _id: supervisorid });
 
   if (!supervisor) {
-    console.log("no supervisor error", supervisorid)
+    console.log("no supervisor error", supervisorid);
   }
 
   //Convert eventid and userid to MongoDB ObjectIDs
@@ -1312,49 +1289,41 @@ app.post('/superviseevent/:eventid/:supervisorid/:state', async (req, res) => {
   const supervisorObjectId = new mongoose.Types.ObjectId(supervisorid);
   const event = await Event.findOne({ _id: eventObjectId });
   if (!event) {
-    return res.status(404).json({ error: 'Event not found' });
+    return res.status(404).json({ error: "Event not found" });
   }
 
-  if (state == 'true')//push the supervisorid into events and save
-  {
+  if (state == "true") {
+    //push the supervisorid into events and save
     if (!event.supervisor) {
       event.supervisor = [supervisorObjectId];
-    }
-    else {
+    } else {
       event.supervisor.push(supervisorObjectId);
     }
 
     if (!supervisor.eventsupervise) {
       supervisor.eventsupervise = [eventObjectId];
+    } else {
+      supervisor.eventsupervise.push(eventObjectId);
     }
-    else {
-      supervisor.eventsupervise.push(eventObjectId)
-    }
-    await event.save()
+    await event.save();
     await supervisor.save();
-  }
-
-  else {
-    event.supervisor.pull(supervisorObjectId)
-    supervisor.eventsupervise.pull(eventObjectId)
+  } else {
+    event.supervisor.pull(supervisorObjectId);
+    supervisor.eventsupervise.pull(eventObjectId);
     await event.save();
     await supervisor.save();
   }
-}
-);
-app.get('/eventsupervised/:userid', async (req, res) => {
+});
+app.get("/eventsupervised/:userid", async (req, res) => {
   const supervisorid = new mongoose.Types.ObjectId(req.params.userid);
-  const supervisor = await Supervisor.findOne({ _id: supervisorid })
+  const supervisor = await Supervisor.findOne({ _id: supervisorid });
 
   if (supervisor && supervisor.eventsupervise) {
-    res.json(supervisor.eventsupervise)
-  }
-  else {
+    res.json(supervisor.eventsupervise);
+  } else {
     res.json({ message: "no supervisor.eventsupervise" });
   }
-
-}
-)
+});
 
 app.put("/notifications/readnotification", verifyToken, async (req, res) => {
   try {
