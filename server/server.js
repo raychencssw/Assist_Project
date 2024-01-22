@@ -500,14 +500,15 @@ app.post("/createevent", middleware(schemas.eventPOST), async (req, res) => {
   //extract every property from req.body and store them to the variable defined inside const{ }
   //these variables can later be used directly. Warning: these variables have to be exactly the same
   //as in the eventForm, or it'll become undefined.
-  const {
+  var {
     name,
     date,
-    start_time: { minute_start, hour_start },
-    end_time: { minute_end, hour_end },
+    start_time: { hour, minute},
+    end_time: { hour, minute },
     location: { street, city, state },
     description,
   } = req.body;
+  console.log('backend has received the data from event-service.service:', req.body)
 
   /*console.log("name: " + name);
   console.log("date: " + date);
@@ -530,19 +531,20 @@ app.post("/createevent", middleware(schemas.eventPOST), async (req, res) => {
     const randomIndex = Math.floor(Math.random() * characters.length);
     id += characters.charAt(randomIndex);
   }
+  console.log('a new random is created: ', id)
 
   const newEvent = new Event({
     id,
     name,
     // imageurl,
     date,
-    time: {
-      minute,
+    start_time: {
       hour,
+      minute,
     },
     end_time: {
-      minute,
       hour,
+      minute,
     },
     location: {
       street,
