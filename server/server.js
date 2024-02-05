@@ -130,6 +130,7 @@ app.use("/api", passwordResetRoute);
 app.use("/api", sendOTPRoute);
 
 app.get("/home/:page", verifyToken, async (req, res) => {
+  // console.log("req from verifyToken: ", req);
   page = req.params.page;
   const limit = 5;
   const allPosts = await Post.find({})
@@ -263,7 +264,7 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
       imageurl: post.imageurl,
     };
   });
-  console.log(postObjects);
+  // console.log(postObjects);
   res.send({ posts: postObjects });
 });
 
@@ -286,7 +287,7 @@ app.post("/posts/togglelike", verifyToken, async (req, res) => {
   }
   await user.save();
   await post.save();
-  console.log(user, post);
+  // console.log(user, post);
   return res.status(201).json({ message: "Like toggled" });
 });
 app.post(
@@ -438,7 +439,7 @@ app.get("/qrscan", (req, res) => {
 });
 
 app.get("/profile/:userid", verifyToken, async (req, res) => {
-  console.log(req.params.userid);
+  // console.log(req.params.userid);
   const user = await User.findById(req.params.userid).populate(
     "school",
     "name"
@@ -587,11 +588,11 @@ app.get("/event/:eventId", async (req, res) => {
 
 app.get("/following/:userid", verifyToken, async (req, res) => {
   const user = await User.findById(req.params.userid);
-  console.log(req.params.id);
+  // console.log(req.params.id);
   const follow = await user.populate([
     { path: "following", select: "username firstname lastname profilepicture" },
   ]);
-  console.log(follow);
+  // console.log(follow);
   res.send({ following: follow.following });
 });
 
@@ -607,7 +608,7 @@ app.get("/follower/:userid", verifyToken, async (req, res) => {
       },
     },
   ]);
-  console.log(follow);
+  // console.log(follow);
   res.send({ followers: follow.followers });
 });
 
@@ -755,6 +756,35 @@ app.post("/api/deleteAllGuestCheckin", async (req, res) => {
       .json({ error: "An error occured while deleting checkin data" });
   }
 });
+
+
+//an api to add points to specified user by userid
+app.post("/api/student/addpoints", async (req, res) => {
+
+  console.log("adding points to the student....");
+  console.log("req.body: ", req.body)
+  const user = await User.findById(req.body.userid);
+  console.log("user is found: \n", user)
+  console.log("req.body.points: ", req.body.points)
+  user.points += req.body.points
+  console.log("user.points: ", user.points)
+  await user.save();
+  return res.status(200)
+            .json({message: `${req.body.points} points added for user: ${user.username}`});
+
+});
+
+//an api to get all students' points
+app.get("/api/student/points", async (req, res) => {
+  console.log("get all students' points!")
+  const usersWithPoints = await User.find({}, 'username points');
+  console.log(usersWithPoints);
+  res.status(200).json({
+    message: "Success",
+    usersWithPoints: usersWithPoints
+  });
+});
+
 
 app.get("/ranking/student", verifyToken, async (req, res) => {
   try {
