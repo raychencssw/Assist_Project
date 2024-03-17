@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, throwError } from 'rxjs';
+import { AuthService } from './services/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,19 @@ import { catchError, throwError } from 'rxjs';
 export class RankingService {
   private topStudents: any = []
   private topSchools: any = []
-  constructor(private http: HttpClient) {
+  token: any;
+  constructor(private http: HttpClient, private auth:AuthService) {
     this.fetchStudentData();
     this.fetchSchoolData();
   }
 
   fetchStudentData(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3080/ranking/student').pipe(
+    this.token = this.auth.getAuthToken()
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = { headers: headers };
+    return this.http.get<any[]>('http://localhost:3080/ranking/student', requestOptions).pipe(
       catchError((error: any) => {
         console.error(error);
         // Handle the error as needed, e.g., show an error message
@@ -25,7 +32,12 @@ export class RankingService {
   }
 
   fetchSchoolData(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3080/ranking/school').pipe(
+    this.token = this.auth.getAuthToken()
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    const requestOptions = { headers: headers };
+    return this.http.get<any[]>('http://localhost:3080/ranking/school', requestOptions).pipe(
       catchError((error: any) => {
         console.error(error);
         // Handle the error as needed, e.g., show an error message

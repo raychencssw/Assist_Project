@@ -3,6 +3,7 @@ const config = require('./config');
 
 function verifyToken(req, res, next) {
     const authHeader = req.headers['authorization'];
+    console.log("authHeader in verifyToken: ", authHeader);
     const token = authHeader && authHeader.split(' ')[1];
         
     if (!token) {

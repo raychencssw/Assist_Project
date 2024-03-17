@@ -223,7 +223,7 @@ export class EventsComponent implements OnInit {
       if (period <= WEEK && period >= 0) {
         // console.log("event with name " + this.events[i].name + " and period " + period + " is within one week!" );
         let date = this.events[i].date.split("/");
-        console.log("date[0]: " + date[0]);
+        // console.log("date[0]: " + date[0]);
         switch(date[0]){
           case '1':
             this.events[i].month = 'Jan';
@@ -292,7 +292,7 @@ export class EventsComponent implements OnInit {
       if (period >= 0 && eventYear == todayYear && eventMonth == todayMonth) {
         // console.log("event with name " + this.events[i].name + " and period " + period + " is within this month!" );
         let date = this.events[i].date.split("/");
-        console.log("date[0]: " + date[0]);
+        // console.log("date[0]: " + date[0]);
         switch(date[0]){
           case '1':
             this.events[i].month = 'Jan';
@@ -331,7 +331,7 @@ export class EventsComponent implements OnInit {
             this.events[i].month = 'Dec';
             break;
         }
-        console.log("this.events[" + i + "].month: " + this.events[i].month);
+        // console.log("this.events[" + i + "].month: " + this.events[i].month);
         this.events[i].dOfmonth = date[1];
         this.monthlyEvents.push(this.events[i]);
       }
@@ -353,7 +353,7 @@ export class EventsComponent implements OnInit {
     if(this.smallDev){
       numCal = 3;
     }
-    console.log("numCal: " + numCal);
+    // console.log("numCal: " + numCal);
 
     var numGroup; //the number of groups of events
     if(this.weeklyEvents.length % numCal != 0){
@@ -363,7 +363,7 @@ export class EventsComponent implements OnInit {
       numGroup = this.weeklyEvents.length / numCal;
     }
     
-    console.log("numGroup: " + numGroup);
+    // console.log("numGroup: " + numGroup);
 
     for(let i = 0; i < numGroup; i++){
       var templ = [];
@@ -371,7 +371,7 @@ export class EventsComponent implements OnInit {
         var index = i * numCal +j
         if (index < this.weeklyEvents.length){
           templ.push(this.weeklyEvents[index]);
-          console.log("temp[0].month: " + templ[0].month)
+          // console.log("temp[0].month: " + templ[0].month)
         }
       }
       this.weeklyEventsDisplay.push(templ);
@@ -397,7 +397,7 @@ export class EventsComponent implements OnInit {
     if(this.smallDev){
       numCal = 3;
     }
-    console.log("numCal: " + numCal);
+    // console.log("numCal: " + numCal);
 
     var numGroup; //the number of groups of events
     if(this.monthlyEvents.length % numCal != 0){
@@ -407,7 +407,7 @@ export class EventsComponent implements OnInit {
       numGroup = this.monthlyEvents.length / numCal;
     }
 
-    console.log("numGroup: " + numGroup);
+    // console.log("numGroup: " + numGroup);
 
     for(let i = 0; i < numGroup; i++){
       var templ = [];

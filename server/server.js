@@ -91,7 +91,7 @@ io.on("connection", (socket) => {
   const socketid = socket.id;
   socket.on("user", (user) => {
     userSocketMap[user] = socket.id;
-    console.log(userSocketMap);
+    // console.log(userSocketMap);
   });
   socket.on("removeuser", (userid) => {
     if (userSocketMap.hasOwnProperty(userid)) {
@@ -112,7 +112,7 @@ io.on("connection", (socket) => {
   const socketid = socket.id;
   socket.on("user", (user) => {
     userSocketMap[user] = socket.id;
-    console.log(userSocketMap);
+    // console.log(userSocketMap);
   });
   socket.on("removeuser", (userid) => {
     if (userSocketMap.hasOwnProperty(userid)) {
@@ -563,7 +563,7 @@ app.post("/createevent", middleware(schemas.eventPOST), async (req, res) => {
 app.get("/events", async (req, res) => {
   //await Event.deleteMany({});   //uncomment this line of code only when you want to delete all the document in the DB
   const events = await Event.find();
-  console.log("events: " + events);
+  // console.log("events: " + events);
   res.send(events);
 });
 
@@ -778,12 +778,28 @@ app.post("/api/student/addpoints", async (req, res) => {
 app.get("/api/student/points", async (req, res) => {
   console.log("get all students' points!")
   const usersWithPoints = await User.find({}, 'username points');
-  console.log(usersWithPoints);
+  // console.log(usersWithPoints);
   res.status(200).json({
     message: "Success",
     usersWithPoints: usersWithPoints
   });
 });
+
+//an api to get rankings
+app.get("/api/rankings", async (req, res) => {
+  try {
+    // Retrieve the top 10 users with the most points
+    const topUsers = await User.find().sort({ points: -1 }).limit(10);
+    // Send the top users as a JSON response
+    res.json(topUsers);
+  } catch (error) {
+    console.log("Error retrieving top users", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the top users" });
+  }
+});
+
 
 
 app.get("/ranking/student", verifyToken, async (req, res) => {
@@ -791,6 +807,7 @@ app.get("/ranking/student", verifyToken, async (req, res) => {
     // Retrieve the top 10 users with the most points
     const topUsers = await User.find().sort({ points: -1 }).limit(10);
     // Send the top users as a JSON response
+    console.log("Fetched top students data from server!");
     res.json(topUsers);
   } catch (error) {
     console.log("Error retrieving top users", error);
@@ -805,6 +822,7 @@ app.get("/ranking/school", verifyToken, async (req, res) => {
     // Retrieve the top 10 users with the most points
     const topSchools = await School.find().sort({ points: -1 }).limit(10);
     // Send the top users as a JSON response
+    console.log("Fetched top schools data from server!", );
     res.json(topSchools).toString;
   } catch (error) {
     console.log("Error retrieving top schools", error);

@@ -1,5 +1,6 @@
 import { Component, OnInit} from '@angular/core';
 import { RankingService } from '../ranking.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-rankings',
@@ -15,6 +16,7 @@ export class RankingsComponent implements OnInit {
   ngOnInit() {
     this.rankingService.fetchStudentData().subscribe(students => {
       this.topStudents = students;
+      console.log("fetched top Students onInit!");
     });
 
     this.rankingService.fetchSchoolData().subscribe(schools => {
