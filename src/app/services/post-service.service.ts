@@ -44,6 +44,7 @@ export class PostServiceService implements OnInit{
     const requestOptions = { headers: headers };
     let url = `http://localhost:3080/home/${pageNumber}`;
     this.http.get(url, requestOptions).subscribe((response)=>{
+      console.log('posts loaded from server...')
       console.log(response)
       this.postsResponse.next(response)
     })

@@ -134,6 +134,7 @@ app.get("/home/:page", verifyToken, async (req, res) => {
   page = req.params.page;
   const limit = 5;
   const allPosts = await Post.find({})
+    .sort({ date: -1 })
     .populate([
       {
         path: "author",
