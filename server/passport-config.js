@@ -24,9 +24,9 @@ function initialize(passport) {
       return done(e);
     }
   };
-  passport.use(new LocalStrategy({ usernameField: "email" }, authenticateUser));
-  passport.serializeUser((user, done) => done(null, user));
-  passport.deserializeUser((user, done) => done(null, user));
+  passport.use(new LocalStrategy({ usernameField: "email" }, authenticateUser)); //register the authentication strategy that the passport is going to use
+  passport.serializeUser((user, done) => done(null, user));   //passport calls this function and store it(here, the whole user object) in the session when a user log in
+  passport.deserializeUser((user, done) => done(null, user)); //passport calls this function to get the data stored in the session
 }
 
 module.exports = initialize;

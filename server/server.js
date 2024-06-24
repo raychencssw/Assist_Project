@@ -13,28 +13,29 @@ const Supervisor_tem = require("./models/supervisor_tem");
 const Organization = require("./models/organization");
 const School = require("./models/school");
 const Notification = require("./models/notification");
+
+
+
 const passport = require("passport");
+const session = require("express-session");
 const bcrypt = require("bcrypt");
 const initializePassport = require("./passport-config");
 //const flash = require("express-flash");
-const session = require("express-session");
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const config = require("./config");
 const verifyToken = require("./verifyToken");
 // const ngeohash = require('ngeohash')
 const Joi = require("joi");
-const schemas = require("./schemas");
+const schemas = require("./schemas");  //joi
 const middleware = require("./middleware");
+
+
 const passwordResetRoute = require("./passwordreset");
 const superviseEventsRoute = require("./superviseevent");
 const sendOTPRoute = require("./event-otp");
 
 const db = mongoose.connection;
-//const passport = require("passport");
-//const initializePassport = require("./passport-config");
-//initializePassport(passport);
-// const ngeohash = require('ngeohash')
 
 const multer = require("multer");
 const { storage } = require("../cloudinary");
@@ -45,12 +46,12 @@ const { verify } = require("crypto");
 const characters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 let randomId = "";
-let posts = [];
+let posts = [];  //an array used to store 5 posts on each page for a user
 const userSocketMap = {};
 
 const upload = multer({ storage: storage });
 
-initializePassport(passport);
+initializePassport(passport); 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -66,6 +67,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
 const httpServer = require("http").createServer(app);
 const io = require("socket.io")(httpServer, {
   cors: {
@@ -86,27 +88,10 @@ mongoose
     console.log(e);
   });
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
-  const socketid = socket.id;
-  socket.on("user", (user) => {
-    userSocketMap[user] = socket.id;
-    // console.log(userSocketMap);
-  });
-  socket.on("removeuser", (userid) => {
-    if (userSocketMap.hasOwnProperty(userid)) {
-      delete userSocketMap[userid];
-      console.log("THE NEW DICT IS", userSocketMap);
-    }
-  });
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-});
-// ROUTES
 
 app.use("/api", passwordResetRoute);
 app.use("/supervisorapi", superviseEventsRoute);
+
 io.on("connection", (socket) => {
   console.log("a user connected");
   const socketid = socket.id;
@@ -131,8 +116,12 @@ app.use("/api", sendOTPRoute);
 
 app.get("/home/:page", verifyToken, async (req, res) => {
   // console.log("req from verifyToken: ", req);
+  console.log("req from verifyToken!");
   page = req.params.page;
+  console.log("page: ", page);
   const limit = 5;
+
+  //find 5 documents of current page with Post combining with User 
   const allPosts = await Post.find({})
     .sort({ date: -1 })
     .populate([
@@ -143,6 +132,8 @@ app.get("/home/:page", verifyToken, async (req, res) => {
     ])
     .skip((page - 1) * limit)
     .limit(limit);
+
+  //javascrip array function, map, extract the field that we need from the union of User and Post
   const postObjects = allPosts.map((post) => {
     return {
       id: post._id,
@@ -156,8 +147,11 @@ app.get("/home/:page", verifyToken, async (req, res) => {
       description: post.description,
       likes: post.likes,
       imageurl: post.imageurl,
+      likedBy: post.likedBy
     };
   });
+  console.log('Got posts!');
+  console.log(postObjects);
   res.send({ posts: postObjects });
 });
 
@@ -215,7 +209,7 @@ app.post(
         .json({ error: validationResult.error.details[0].message });
     }
 
-    console.log(req.body);
+    // console.log(req.body);
     foundUser = await User.findById(req.params.userid);
 
     // generating id
@@ -277,14 +271,22 @@ app.post("/posts/togglelike", verifyToken, async (req, res) => {
     user.likedposts.push(post._id);
     const like = post.likes + 1;
     post.likes = like;
+    post.likedBy.push(user);
+    console.log('a user liked a post');
   } else {
-    user.likedposts = user.likedposts.filter((postId) => {
+      //use filter to ceate a new array filled with element that passed the condition "postId != req.body.postid"
+      user.likedposts = user.likedposts.filter((postId) => {
       postId != req.body.postid;
-    });
-    if (post.likes > 0) {
-      const like = post.likes - 1;
-      post.likes = like;
-    }
+      });
+      if (post.likes > 0) {
+        //update the number of likes to this post
+        const like = post.likes - 1;
+        post.likes = like;
+        //update the users that like this post
+        const likedArray = post.likedBy.filter((likedUser)=>{likedUser.id !== user.id});
+        post.likedBy = likedArray;
+      }
+      console.log('a user unliked a post');
   }
   await user.save();
   await post.save();
@@ -324,17 +326,17 @@ app.post(
       }
 
       //Find school id from school name
-      const foundSchool = await School.findOne({ name: school });
+      const foundSchool = await School.findOne({ name: school });  //no need to find school from DB?? school is hard-coded in signup.component.ts??
       const newUser = new User({
         email: req.body.email,
         username: req.body.username,
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         profilepicture: req.file.path,
-        school: foundSchool,
+        school: foundSchool, //no need to find school from DB?? school is hard-coded in signup.component.ts??
       });
 
-      if (req.body.password == null) {
+      if (req.body.password == null) {   //passwod is already validated in schema.js by Joi(#14)??
         console.log("No password");
       }
       newUser.password = newUser.generateHash(req.body.password);
@@ -349,44 +351,44 @@ app.post(
   }
 );
 
-app.post(
-  "/login",
-  passport.authenticate("local"),
-  middleware(schemas.loginPost),
-  async function (req, res) {
-    const token = jwt.sign({ id: req.user._id }, config.secretKey, {
-      expiresIn: config.expiresIn,
-    });
-    const tempUser = await User.findById(req.user._id).populate([
-      {
-        path: "school",
-        select: "name",
-      },
-      {
-        path: "notifications",
-        select: "type date isRead",
-        populate: [
-          {
-            path: "follower",
-            select: "firstname lastname profilepicture",
-          },
-          {
-            path: "event",
-            select: "name",
-          },
-          {
-            path: "from",
-            select: "firstname lastname",
-          },
-        ],
-      },
-    ]);
-    res.json({
-      token: token,
-      user: tempUser,
-    });
-  }
-);
+// app.post(
+//   "/login",
+//   passport.authenticate("local"),
+//   middleware(schemas.loginPost),
+//   async function (req, res) {
+//     const token = jwt.sign({ id: req.user._id }, config.secretKey, {
+//       expiresIn: config.expiresIn,
+//     });
+//     const tempUser = await User.findById(req.user._id).populate([
+//       {
+//         path: "school",
+//         select: "name",
+//       },
+//       {
+//         path: "notifications",
+//         select: "type date isRead",
+//         populate: [
+//           {
+//             path: "follower",
+//             select: "firstname lastname profilepicture",
+//           },
+//           {
+//             path: "event",
+//             select: "name",
+//           },
+//           {
+//             path: "from",
+//             select: "firstname lastname",
+//           },
+//         ],
+//       },
+//     ]);
+//     res.json({
+//       token: token,
+//       user: tempUser,
+//     });
+//   }
+// );
 
 app.post(
   "/login",
@@ -426,6 +428,7 @@ app.post(
     });
   }
 );
+
 app.get("/logout", (req, res) => {
   req.logout(function (err) {
     if (err) {
@@ -510,7 +513,8 @@ app.post("/createevent", middleware(schemas.eventPOST), async (req, res) => {
     location: { street, city, state },
     description,
   } = req.body;
-  console.log('backend has received the data from event-service.service:', req.body)
+  console.log('backend has received the data from event-service.service');
+  // console.log('backend has received the data from event-service.service:', req.body)
 
   /*console.log("name: " + name);
   console.log("date: " + date);
@@ -763,7 +767,7 @@ app.post("/api/deleteAllGuestCheckin", async (req, res) => {
 app.post("/api/student/addpoints", async (req, res) => {
 
   console.log("adding points to the student....");
-  console.log("req.body: ", req.body)
+  // console.log("req.body: ", req.body)
   const user = await User.findById(req.body.userid);
   console.log("user is found: \n", user)
   console.log("req.body.points: ", req.body.points)
@@ -1036,7 +1040,7 @@ app.get("/recommend/:userid", async (req, res) => {
     };
     userRes.push(tempUser);
   }
-  console.log(userRes);
+  // console.log(userRes);
   res.json(userRes);
 });
 app.get("/supervisor/eventlist", async (req, res) => {
@@ -1056,7 +1060,7 @@ app.post("/getUsernames", async (req, res) => {
       users[id] = user.username;
     }
   }
-  console.log(users);
+  // console.log(users);
 
   // Send the list of usernames as the HTTP response
   res.json(users);

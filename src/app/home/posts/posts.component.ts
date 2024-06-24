@@ -8,20 +8,23 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./posts.component.css']
 })
 export class PostsComponent implements OnInit{
-  posts: any = []
+  posts: any = []       //used to store 5 most recent posts
   times = []
-  userLikedPosts: any
+  userLikedPosts: any   //a json used to store the posts that the current user liked
   pageNumber: any = 1
 
   constructor(private postservice: PostServiceService, private auth: AuthService){
   
   }
   ngOnInit(): void {
-    this.userLikedPosts = this.auth.getLikedPosts()
+    this.userLikedPosts = this.auth.getLikedPosts()       //should I leave this auth call here or move it to elsewhere?
+    console.log('getLikedPosts(from local storage) is done!')
     console.log(this.userLikedPosts)
     this.postservice.postsResponse.subscribe(postResponse=>{
       this.posts.push(...postResponse.posts)
+      console.log("getting posts from post-service........")
       console.log(this.posts)
+      console.log("got posts from post-service!")
       for (let i = 0; i < this.posts.length; i++) {
         const tempDate = this.posts[i]['date']
         const uploadDate = new Date(tempDate)
@@ -78,19 +81,25 @@ export class PostsComponent implements OnInit{
     return this.userLikedPosts.includes(id)
   }
   toggleLike(postId: any){
-    if(this.userLikedPosts.includes(postId)){
+    if(this.userLikedPosts.includes(postId)){ //solid heart, already liked
       const filteredLikes = this.userLikedPosts.filter((id: any)=>{
         return id != postId
       })
-      this.userLikedPosts = filteredLikes
-      const user = this.auth.findUser()
-      this.postservice.addRemoveLike(user['id'], postId, false)
-      this.auth.setLikedPosts(this.userLikedPosts)
-    }else{
-      this.userLikedPosts.push(postId)
-      const user = this.auth.findUser()
-      this.postservice.addRemoveLike(user['id'], postId, true)
-      this.auth.setLikedPosts(this.userLikedPosts)
+      this.userLikedPosts = filteredLikes;
+      //6/22 move auth call to post-service
+      // const user = this.auth.findUser()
+      // this.postservice.addRemoveLike(user['id'], postId, false)
+      this.postservice.addRemoveLike(this.userLikedPosts, postId, false);
+      // this.auth.setLikedPosts(this.userLikedPosts);
+    }else{ //hollow heart, not liked yet
+      this.userLikedPosts.push(postId);
+      //6/22 move auth call to post-service
+      // const user = this.auth.findUser()
+      // this.postservice.addRemoveLike(user['id'], postId, true)
+      this.postservice.addRemoveLike(this.userLikedPosts, postId, true);
+      // this.auth.setLikedPosts(this.userLikedPosts);
     }
+    this.auth.setLikedPosts(this.userLikedPosts);
+    console.log("setLikedPosts done!");
   }
 }

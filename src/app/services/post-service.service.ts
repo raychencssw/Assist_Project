@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 })
 export class PostServiceService implements OnInit{
   posts: any = []
-  postsResponse = new Subject<any>()
+  postsResponse = new Subject<any>() //loadPosts() updates this Subject
   oneUserPostsResponse = new Subject<any>()
   token: any
 
@@ -44,21 +44,45 @@ export class PostServiceService implements OnInit{
     const requestOptions = { headers: headers };
     let url = `http://localhost:3080/home/${pageNumber}`;
     this.http.get(url, requestOptions).subscribe((response)=>{
-      console.log('posts loaded from server...')
+      console.log('started to load posts from server')
       console.log(response)
-      this.postsResponse.next(response)
+      console.log('posts loaded from server!')
+      this.postsResponse.next(response) //pass response from the server directly to front end
     })
   }
 
-  addRemoveLike(userid: string, postid: string, addtoLike: boolean){
-    console.log(userid, postid, addtoLike)
+  //6/22 move auth call to post-service
+  // addRemoveLike(userid: string, postid: string, addtoLike: boolean){
+  //   console.log(userid, postid, addtoLike)
+  //   this.token = this.auth.getAuthToken()
+  //   const headers = new HttpHeaders({
+  //     'Authorization': `Bearer ${this.token }`
+  //   });
+  //   const requestOptions = { headers: headers };
+  //   const data = {
+  //     userid: userid,
+  //     postid: postid,
+  //     addtoLike: addtoLike
+  //   }
+  //   this.http.post(`http://localhost:3080/posts/togglelike`, data, requestOptions).subscribe(response=>{
+  //     console.log(response)
+  //   })
+  // }
+
+  addRemoveLike(likedPosts: string, postid: string, addtoLike: boolean){
+    const user = this.auth.findUser();
+    console.log('addRemoveLike....');
+    console.log('user.id: ', user.id);
+    console.log('postid: ', postid);
+    console.log('likedPosts: ', likedPosts);
+    console.log('addtoLike: ', addtoLike);
     this.token = this.auth.getAuthToken()
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token }`
     });
     const requestOptions = { headers: headers };
     const data = {
-      userid: userid,
+      userid: user.id,
       postid: postid,
       addtoLike: addtoLike
     }
@@ -66,6 +90,8 @@ export class PostServiceService implements OnInit{
       console.log(response)
     })
   }
+
+
   //load posts for one user
   loadOneUserPosts(pageNumber: Number, userId: string){
     this.token = this.auth.getAuthToken()

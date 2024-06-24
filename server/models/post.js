@@ -29,7 +29,11 @@ const postSchema = new Schema({
     imageurl: {
         type: String,
         required: true
-    }
+    },
+    likedBy: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 })
 
 module.exports= mongoose.model('Post', postSchema);

@@ -42,7 +42,7 @@ export class AuthService implements OnInit {
       setTimeout(() => {
         // Send the POST request
         this.http.post(url, userDetails).subscribe({
-          next: (response) => {
+          next: (response) => {  //      {token: token, user: tempUser}
             // Stores the user object in auth service
             this.user = response;
             console.log(this.user)
