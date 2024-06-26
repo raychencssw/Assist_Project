@@ -30,9 +30,19 @@ const postSchema = new Schema({
         type: String,
         required: true
     },
-    likedBy: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+    // likedBy: [{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'User'
+    // }]
+    likedBy:[{
+        id: {
+            type: String,
+            required: true
+        },
+        username: {
+            type: String,
+            required: true
+        }
     }]
 })
 

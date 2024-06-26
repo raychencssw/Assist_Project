@@ -264,14 +264,17 @@ app.get("/home/:page/:userId?", verifyToken, async (req, res) => {
 });
 
 app.post("/posts/togglelike", verifyToken, async (req, res) => {
+  console.log('use toggled like button!');
   const user = await User.findById(req.body.userid);
   const post = await Post.findById(req.body.postid);
-  // console.log(user, post)
+  console.log('user as was: ', user);
+  console.log('post as was: ', post);
   if (req.body.addtoLike) {
     user.likedposts.push(post._id);
     const like = post.likes + 1;
     post.likes = like;
-    post.likedBy.push(user);
+    // post.likedBy.push(user);
+    post.likedBy.push({ id: user._id, username: user.username });
     console.log('a user liked a post');
   } else {
       //use filter to ceate a new array filled with element that passed the condition "postId != req.body.postid"
@@ -290,9 +293,11 @@ app.post("/posts/togglelike", verifyToken, async (req, res) => {
   }
   await user.save();
   await post.save();
-  // console.log(user, post);
+  console.log('user as is: ', user);
+  console.log('post as is: ', post);
   return res.status(201).json({ message: "Like toggled" });
 });
+
 app.post(
   "/signup",
   upload.single("profilePicture"),
