@@ -10,16 +10,19 @@ import { AuthService } from 'src/app/services/auth.service';
 export class PostsComponent implements OnInit{
   posts: any = []       //used to store 5 most recent posts
   times = []
-  userLikedPosts: any   //a json used to store the posts that the current user liked
+  userLikedPosts: any   //a json used to store the posts the current user liked, got from local storage
   pageNumber: any = 1
 
   constructor(private postservice: PostServiceService, private auth: AuthService){
   
   }
   ngOnInit(): void {
-    this.userLikedPosts = this.auth.getLikedPosts()       //should I leave this auth call here or move it to elsewhere?
-    console.log('getLikedPosts(from local storage) is done!')
-    console.log(this.userLikedPosts)
+    
+    // this.clearLikedPosts(); //Call the function to reset the likedPosts field, only used when developing
+    // this.userLikedPosts = this.auth.getLikedPosts()       //should I leave this auth call here or move it to elsewhere?
+    // console.log('getLikedPosts(from local storage) is done!')
+    // console.log(this.userLikedPosts)
+    this.getUserLikedPosts();
     this.postservice.postsResponse.subscribe(postResponse=>{
       this.posts.push(...postResponse.posts)
       console.log("getting posts from post-service........")
@@ -80,6 +83,7 @@ export class PostsComponent implements OnInit{
     // console.log(this.userLikedPosts.includes(id))
     return this.userLikedPosts.includes(id)
   }
+
   toggleLike(postId: any){
     if(this.userLikedPosts.includes(postId)){ //solid heart, already liked
       const filteredLikes = this.userLikedPosts.filter((id: any)=>{
@@ -101,5 +105,28 @@ export class PostsComponent implements OnInit{
     }
     this.auth.setLikedPosts(this.userLikedPosts);
     console.log("setLikedPosts done!");
+
+    //6/26 23:17 how do I make the "likedBy...." refresh automatically?
+    this.getUserLikedPosts();
+    this.postservice.loadPosts(this.pageNumber++);
   }
+
+  getUserLikedPosts(){
+    this.userLikedPosts = this.auth.getLikedPosts();       //should I leave this auth call here or move it to elsewhere?
+    console.log('getLikedPosts(from local storage) is done!');
+    console.log(this.userLikedPosts);
+  }
+
+  // Function to clear the likedPosts field from local storage
+  clearLikedPosts() {
+    // Check if likedPosts exists in local storage
+    if (localStorage.getItem('likedposts')) {
+      // Remove the likedPosts field from local storage
+      localStorage.setItem('likedposts',JSON.stringify(''));
+      console.log('likedPosts field has been reset from local storage.');
+    } else {
+      console.log('No likedPosts field found in local storage.');
+    }
+  }
+
 }

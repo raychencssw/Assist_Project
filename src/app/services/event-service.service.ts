@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from "rxjs";
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
@@ -40,7 +40,12 @@ export class EventServiceService {
     //http.get returns Observable, yet it returns subscription after .subscribe
     console.log("addEvents!")
 
-    return this.http.post(`http://localhost:3080/createevent`, event);
+    return this.http.post(`http://localhost:3080/createevent`, event, requestOptions)
+      .pipe(
+        catchError(err => {
+          throw 'error catched!';
+        })
+      );
   }
 
   loadEvent() {

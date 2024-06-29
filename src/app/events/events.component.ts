@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EventcreateComponent } from '../eventcreate/eventcreate.component';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { EventServiceService } from '../event-service.service';
+import { EventServiceService } from 'src/app/services/event-service.service';
 import { Router } from '@angular/router';
 import {  FormGroup, FormControl, Validators  } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
@@ -55,14 +55,14 @@ export class EventsComponent implements OnInit {
       if(this.screenWidth < 700){
         this.smallDev = true;
       }
-      console.log("smallDev: " + this.smallDev);
+      // console.log("smallDev: " + this.smallDev);
 
       this.weeklyEvents = [];   
       this.monthlyEvents = [];  
 
       //store the events from the MongoDB to this.events(not sorted yet)
       this.events = events;
-      //console.log("this.events: " + JSON.stringify(this.events));
+      console.log("this.events: " + JSON.stringify(this.events));
 
       //sort the events according to the date
       this.sortEvent();

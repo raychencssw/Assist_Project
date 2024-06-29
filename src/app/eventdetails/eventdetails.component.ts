@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EventServiceService } from '../event-service.service';
+import { EventServiceService } from 'src/app/services/event-service.service';
 import { HostListener, ElementRef } from '@angular/core';
 
 import { Routes, RouterModule } from '@angular/router';

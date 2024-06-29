@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { EventServiceService } from '../event-service.service';
+import { EventServiceService } from 'src/app/services/event-service.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -56,10 +57,21 @@ export class EventcreateComponent implements OnInit{
     console.log("eventForm: " + JSON.stringify(this.eventForm));
 
     //call eventService and then store the event info to the MongoDB
-    this.eventService.addtoEvents(this.eventForm).subscribe(() => {
-      // Close the modal
-      this.activeModal.close();
-    })
+    this.eventService.addtoEvents(this.eventForm).subscribe( {
+
+      next: () => {
+        // Close the modal
+        this.activeModal.close();
+      },
+      error: (error: HttpErrorResponse) => {
+        if (error.status === 409) {
+          console.error('Error 409 when occured when creating event');
+        } 
+        else {
+          console.error('An error occurred while creating the event');
+        }
+      }
+    });
 
   }
 

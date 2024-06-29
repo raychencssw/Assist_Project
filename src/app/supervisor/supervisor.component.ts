@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ResetpasswordService } from '../services/resetpassword.service';
 import { DomainValidationService } from '../services/domain-validation.service';
 import { ToastrService } from 'ngx-toastr';
-import { EventServiceService } from '../event-service.service';
+import { EventServiceService } from 'src/app/services/event-service.service';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-supervisor',

@@ -31,7 +31,6 @@ export class AuthService implements OnInit {
     if (!this.token) {
       this.token = localStorage.getItem('token')
     }
-
   }
 
 

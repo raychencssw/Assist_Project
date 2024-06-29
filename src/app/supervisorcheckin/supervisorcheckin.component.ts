@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { EventServiceService } from '../event-service.service';
+import { EventServiceService } from 'src/app/services/event-service.service';
 
 @Component({
   selector: 'app-supervisorcheckin',

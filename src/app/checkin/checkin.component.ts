@@ -2,7 +2,7 @@ import { Component, OnInit} from '@angular/core';
 import { OtpService } from '../services/otp.service';
 import { CheckinService } from '../services/checkin.service';
 import { ActivatedRoute } from '@angular/router';
-import { EventServiceService } from '../event-service.service';
+import { EventServiceService } from 'src/app/services/event-service.service';
 import { response } from 'express';
 import { error } from 'console';
 

@@ -298,6 +298,22 @@ app.post("/posts/togglelike", verifyToken, async (req, res) => {
   return res.status(201).json({ message: "Like toggled" });
 });
 
+
+// Clear the likedBy field for all posts
+async function clearLikedByField() {
+  try {
+    const result = await Post.updateMany({}, { $set: { likedBy: [], likes: 0 } });
+    console.log('LikedBy fields cleared:', result);
+  } catch (err) {
+    console.error('Error clearing likedBy fields:', err);
+  }
+}
+
+// clearLikedByField(); //Call this to reset likedBy and likes field, only used when developing
+
+
+
+
 app.post(
   "/signup",
   upload.single("profilePicture"),
