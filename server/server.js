@@ -279,15 +279,15 @@ app.post("/posts/togglelike", verifyToken, async (req, res) => {
   } else {
       //use filter to ceate a new array filled with element that passed the condition "postId != req.body.postid"
       user.likedposts = user.likedposts.filter((postId) => {
-      postId != req.body.postid;
+      postId !== req.body.postid;
       });
       if (post.likes > 0) {
         //update the number of likes to this post
         const like = post.likes - 1;
         post.likes = like;
         //update the users that like this post
-        const likedArray = post.likedBy.filter((likedUser)=>{likedUser.id !== user.id});
-        post.likedBy = likedArray;
+        const likedByArray = post.likedBy.filter((likedUser)=>{likedUser.id !== user.id});
+        post.likedBy = likedByArray;
       }
       console.log('a user unliked a post');
   }

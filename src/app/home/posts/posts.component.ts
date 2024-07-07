@@ -19,58 +19,105 @@ export class PostsComponent implements OnInit{
   ngOnInit(): void {
     
     // this.clearLikedPosts(); //Call the function to reset the likedPosts field, only used when developing
-    // this.userLikedPosts = this.auth.getLikedPosts()       //should I leave this auth call here or move it to elsewhere?
     // console.log('getLikedPosts(from local storage) is done!')
     // console.log(this.userLikedPosts)
     this.getUserLikedPosts();
-    this.postservice.postsResponse.subscribe(postResponse=>{
+    this.loadPosts();
+
+  }
+  loadPosts(){
+    this.postservice.postsResponse.subscribe( (postResponse) => {
       this.posts.push(...postResponse.posts)
       console.log("getting posts from post-service........")
       console.log(this.posts)
       console.log("got posts from post-service!")
-      for (let i = 0; i < this.posts.length; i++) {
-        const tempDate = this.posts[i]['date']
-        const uploadDate = new Date(tempDate)
-        const currentDate = new Date()
-        const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
-        const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
-        console.log(this.posts[i]['date'], uploadDate)
+      this.formatPostDates();
+      // for (let i = 0; i < this.posts.length; i++) {
+      //   const tempDate = this.posts[i]['date']
+      //   const uploadDate = new Date(tempDate)
+      //   const currentDate = new Date()
+      //   const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
+      //   const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+      //   console.log(this.posts[i]['date'], uploadDate)
 
-        if(elapsedSeconds < 60){
-          this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
-        }else if(elapsedSeconds < 3600){
-          const minutes = Math.floor(elapsedSeconds / 60);
-          if(minutes <= 1){
-            this.posts[i]['date'] = `${minutes} minute ago`
-          }else{
-            this.posts[i]['date'] = `${minutes} minutes ago`
-          }
-        }else if(elapsedSeconds < 86400){
-          const hours = Math.floor(elapsedSeconds / 3600);
-          if(hours <= 1){
-            this.posts[i]['date'] = `${hours} hour ago`
-          }else{
-            this.posts[i]['date'] = `${hours} hours ago`
-          }
-        }else if (elapsedSeconds < 604800) {
-          const days = Math.floor(elapsedSeconds / 86400);
-          if(days <= 1){
-            this.posts[i]['date'] = `${days} day ago`;
-          }else{
-            this.posts[i]['date'] = `${days} days ago`;
-          }
-        }else if(elapsedSeconds > 604800){
-          const formattedDate = uploadDate.toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-          });
-          this.posts[i]['date'] = formattedDate;
-        }
+      //   if(elapsedSeconds < 60){
+      //     this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
+      //   }else if(elapsedSeconds < 3600){
+      //     const minutes = Math.floor(elapsedSeconds / 60);
+      //     if(minutes <= 1){
+      //       this.posts[i]['date'] = `${minutes} minute ago`
+      //     }else{
+      //       this.posts[i]['date'] = `${minutes} minutes ago`
+      //     }
+      //   }else if(elapsedSeconds < 86400){
+      //     const hours = Math.floor(elapsedSeconds / 3600);
+      //     if(hours <= 1){
+      //       this.posts[i]['date'] = `${hours} hour ago`
+      //     }else{
+      //       this.posts[i]['date'] = `${hours} hours ago`
+      //     }
+      //   }else if (elapsedSeconds < 604800) {
+      //     const days = Math.floor(elapsedSeconds / 86400);
+      //     if(days <= 1){
+      //       this.posts[i]['date'] = `${days} day ago`;
+      //     }else{
+      //       this.posts[i]['date'] = `${days} days ago`;
+      //     }
+      //   }else if(elapsedSeconds > 604800){
+      //     const formattedDate = uploadDate.toLocaleDateString('en-US', {
+      //       day: 'numeric',
+      //       month: 'long',
+      //       year: 'numeric'
+      //     });
+      //     this.posts[i]['date'] = formattedDate;
+      //   }
 
-      }
+      // }
     })
     this.postservice.loadPosts(this.pageNumber++)
+  }
+
+  formatPostDates() {
+    for (let i = 0; i < this.posts.length; i++) {
+      const tempDate = this.posts[i]['date']
+      const uploadDate = new Date(tempDate)
+      const currentDate = new Date()
+      const elapsedMilliseconds = currentDate.getTime() - uploadDate.getTime();
+      const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+      console.log(this.posts[i]['date'], uploadDate)
+
+      if(elapsedSeconds < 60){
+        this.posts[i]['date'] = `${elapsedSeconds} seconds ago`
+      }else if(elapsedSeconds < 3600){
+        const minutes = Math.floor(elapsedSeconds / 60);
+        if(minutes <= 1){
+          this.posts[i]['date'] = `${minutes} minute ago`
+        }else{
+          this.posts[i]['date'] = `${minutes} minutes ago`
+        }
+      }else if(elapsedSeconds < 86400){
+        const hours = Math.floor(elapsedSeconds / 3600);
+        if(hours <= 1){
+          this.posts[i]['date'] = `${hours} hour ago`
+        }else{
+          this.posts[i]['date'] = `${hours} hours ago`
+        }
+      }else if (elapsedSeconds < 604800) {
+        const days = Math.floor(elapsedSeconds / 86400);
+        if(days <= 1){
+          this.posts[i]['date'] = `${days} day ago`;
+        }else{
+          this.posts[i]['date'] = `${days} days ago`;
+        }
+      }else if(elapsedSeconds > 604800){
+        const formattedDate = uploadDate.toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        this.posts[i]['date'] = formattedDate;
+      }
+    }
   }
 
   onScroll(){
@@ -103,17 +150,33 @@ export class PostsComponent implements OnInit{
       this.postservice.addRemoveLike(this.userLikedPosts, postId, true);
       // this.auth.setLikedPosts(this.userLikedPosts);
     }
-    this.auth.setLikedPosts(this.userLikedPosts);
+    this.setUserLikedPosts(this.userLikedPosts);
     console.log("setLikedPosts done!");
 
     //6/26 23:17 how do I make the "likedBy...." refresh automatically?
+    //see line 132 of events.component.ts
+    //6/29 23:12 wait rewrite to updatePostLikes & new toggleLike
     this.getUserLikedPosts();
-    this.postservice.loadPosts(this.pageNumber++);
+    this.updatePosts();
+
+  }
+
+  updatePosts(){
+    this.posts = [];
+    for(let i = 1; i < this.pageNumber+1 ; i++){
+      this.postservice.loadPosts(i);
+    }
   }
 
   getUserLikedPosts(){
     this.userLikedPosts = this.auth.getLikedPosts();       //should I leave this auth call here or move it to elsewhere?
     console.log('getLikedPosts(from local storage) is done!');
+    console.log(this.userLikedPosts);
+  }
+
+  setUserLikedPosts(userLikedPosts:any){
+    this.userLikedPosts = this.auth.setLikedPosts(userLikedPosts);       //should I leave this auth call here or move it to elsewhere?
+    console.log('setLikedPosts(from local storage) is done!');
     console.log(this.userLikedPosts);
   }
 
