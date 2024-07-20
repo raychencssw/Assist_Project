@@ -1,7 +1,7 @@
 <div class="modal-body">
     <ul style="list-style-type: none">
       <!-- <li *ngFor="let user of post['likedBy']"> -->
-      <li *ngFor="let user of likedByInfo">
+      <li *ngFor="let user of likedByInfo"  (click)="viewProfile(user._id)" style="cursor: pointer;">
         <img [src]="user.profilepicture" alt="Profile Picture" class="small-pic">
         <span>{{user.username}}</span>
       </li>

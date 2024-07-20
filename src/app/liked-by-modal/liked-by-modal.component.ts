@@ -1,5 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ProfileService } from '../services/profile.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { Router } from '@angular/router';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-liked-by-modal',
@@ -15,7 +18,11 @@ export class LikedByModalComponent implements OnInit{
   likedByUsers: any = [];
   likedByInfo: any = [];
 
-  constructor(private profileService: ProfileService){}
+  constructor(private profileService: ProfileService,
+              private auth: AuthService,
+              private router: Router,
+              public activeModal: NgbActiveModal
+  ){}
 
   ngOnInit(){
     this.getProfilePicture();
@@ -23,7 +30,10 @@ export class LikedByModalComponent implements OnInit{
 
   getProfilePicture(){
     console.log(this.post);
-    this.likedByUsers = this.post.likedBy.slice(1);
+    const currentUser = this.auth.findUser();
+    this.likedByUsers = this.post.likedBy.filter( (user:User) =>{ 
+      return user.id != currentUser.id
+    });
     console.log(this.likedByUsers);
 
     this.profileService.profileResponse.subscribe( user => {
@@ -37,6 +47,11 @@ export class LikedByModalComponent implements OnInit{
     }
     
     console.log(this.likedByInfo);
+  }
+
+  viewProfile(userId: string) {
+    this.activeModal.close();
+    this.router.navigate(['/profile', userId]);
   }
 }
 
