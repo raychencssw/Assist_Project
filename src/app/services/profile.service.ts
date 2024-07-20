@@ -38,10 +38,12 @@ export class ProfileService {
       'Authorization': `Bearer ${this.token}`
     });
     const requestOptions = { headers: headers };
+    // 7/19 comment out for likedBy feature
     this.http.get(backendUrl, requestOptions).subscribe((response) => {
       console.log("get user profile", response)
       this.profileResponse.next(response)
     })
+    // return this.http.get<any>(backendUrl, requestOptions);
   }
 
   getSchool(id: string) {

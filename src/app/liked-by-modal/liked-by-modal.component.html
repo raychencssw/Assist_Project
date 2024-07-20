@@ -1,0 +1,12 @@
+<div class="modal-body">
+    <ul style="list-style-type: none">
+      <!-- <li *ngFor="let user of post['likedBy']"> -->
+      <li *ngFor="let user of likedByInfo">
+        <img [src]="user.profilepicture" alt="Profile Picture" class="small-pic">
+        <span>{{user.username}}</span>
+      </li>
+    </ul>
+  </div>
+    
+    
+

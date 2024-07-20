@@ -1,21 +1,28 @@
 import { Component, OnInit} from '@angular/core';
 import { PostServiceService } from 'src/app/services/post-service.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { LikedByModalComponent } from '../../liked-by-modal/liked-by-modal.component'
 
 @Component({
   selector: 'app-posts',
   templateUrl: './posts.component.html',
   styleUrls: ['./posts.component.css']
 })
+
 export class PostsComponent implements OnInit{
+
   posts: any = []       //used to store 5 most recent posts
   times = []
   userLikedPosts: any   //a json used to store the posts the current user liked, got from local storage
   pageNumber: any = 1
 
-  constructor(private postservice: PostServiceService, private auth: AuthService){
+  constructor(private modalService: NgbModal, 
+              private postservice: PostServiceService, 
+              private auth: AuthService){
   
   }
+
   ngOnInit(): void {
     
     // this.clearLikedPosts(); //Call the function to reset the likedPosts field, only used when developing
@@ -25,7 +32,9 @@ export class PostsComponent implements OnInit{
     this.loadPosts();
 
   }
+
   loadPosts(){
+
     this.postservice.postsResponse.subscribe( (postResponse) => {
       this.posts.push(...postResponse.posts)
       console.log("getting posts from post-service........")
@@ -70,6 +79,7 @@ export class PostsComponent implements OnInit{
     this.getUserLikedPosts();
 
   }
+
   updateLocalPostLikeStatus(post: any, addToLike: boolean) {
     const currentUser = this.auth.findUser();
     console.log('user ' + currentUser.id + '/' + currentUser.userName + ' is toggling post ' + post.id)
@@ -143,6 +153,28 @@ export class PostsComponent implements OnInit{
     }
   }
 
+  // openLikedByModal(likedBy:[]){
+    
+  //       // console.log(likedBy);
+  //       let likedByUser = likedBy.slice(1);  //make a shallow copy of the array
+  //       // console.log(likedBy);
+  //       console.log(likedByUser);
+  //       //open the modal window and the content inside is EventcreateComponent
+  //       //modalRef os a reference to the newly opened modal returned by the NgbModal.open() method.
+  //       const modalRef = this.modalService.open(LikedByModalComponent);
+  //       modalRef.componentInstance.likedBy = likedByUser;
+  // }
+
+  openLikedByModal(post:any){
+    
+
+    console.log(post);
+    //open the modal window and the content inside is EventcreateComponent
+    //modalRef os a reference to the newly opened modal returned by the NgbModal.open() method.
+    const modalRef = this.modalService.open(LikedByModalComponent);
+    modalRef.componentInstance.post = post;
+}
+
   // Function to clear the likedPosts field from local storage
   clearLikedPosts() {
     // Check if likedPosts exists in local storage
@@ -154,5 +186,6 @@ export class PostsComponent implements OnInit{
       console.log('No likedPosts field found in local storage.');
     }
   }
+
 
 }

@@ -20,7 +20,7 @@
               <span (click)="toggleLike(post['id'])" style="cursor: pointer;" *ngIf="!isLiked(post['id'])"><i class="fa-regular fa-heart" style="color: #f70808; height: 50px;"></i></span>
               <span (click)="toggleLike(post['id'])" style="cursor: pointer;" *ngIf="isLiked(post['id'])"><i class="fa-solid fa-heart" style="color: #ec1354; height: 50px;"></i></span>
               <span *ngIf="post['likedBy'] && post['likedBy'].length > 0" class="mt-5">Liked by <h5 routerLink="/profile/{{post['likedBy'][0].id}}" style="cursor: pointer;">{{post['likedBy'][0].username}}</h5> 
-                <span *ngIf="post['likedBy'].length > 1"> and <button>{{post['likedBy'].length-1}} others</button></span>
+                <span *ngIf="post['likedBy'].length > 1"> and <button (click)="openLikedByModal(post)">{{post['likedBy'].length-1}} others</button></span>
               </span>
             </div>
             <p style="margin-left: auto; padding-right: 10px; font-family: Arial, Helvetica, sans-serif; font-size: 20px;">{{post['location']}}</p>

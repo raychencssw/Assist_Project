@@ -53,6 +53,7 @@ import { SupvisosignupComponent } from './signup/supvisosignup/supvisosignup.com
 import { SupervisorComponent } from './supervisor/supervisor.component';
 import { CheckinComponent } from './checkin/checkin.component';
 import { SupervisorcheckinComponent } from './supervisorcheckin/supervisorcheckin.component';
+import { LikedByModalComponent } from './liked-by-modal/liked-by-modal.component';
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'events', component: EventsComponent, canActivate: [AuthGuard] },
@@ -111,6 +112,7 @@ const appRoutes: Routes = [
     SupervisorComponent,
     CheckinComponent,
     SupervisorcheckinComponent,
+    LikedByModalComponent,
   ],
   imports: [
     BrowserModule,

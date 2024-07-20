@@ -309,7 +309,18 @@ async function clearLikedByField() {
   }
 }
 
+// Clear the likedPosts field for all users
+async function clearLikedPostsField() {
+  try {
+    const result = await User.updateMany({}, { $set: { likedposts: [] } });
+    console.log('likedposts fields cleared:', result);
+  } catch (err) {
+    console.error('Error clearing likedposts fields:', err);
+  }
+}
+
 // clearLikedByField(); //Call this to reset likedBy and likes field, only used when developing
+// clearLikedPostsField(); //Call this to reset likepostsfield, only used when developing
 
 
 
