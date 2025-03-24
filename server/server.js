@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
+require("dotenv").config();
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const Event = require("./models/event");
@@ -13,6 +14,7 @@ const Supervisor_tem = require("./models/supervisor_tem");
 const Organization = require("./models/organization");
 const School = require("./models/school");
 const Notification = require("./models/notification");
+
 
 
 
@@ -75,18 +77,13 @@ const io = require("socket.io")(httpServer, {
   },
 });
 
-let db_url =
-  "mongodb+srv://jitbaner:4vunF96SQJvY7DnG@cluster0.znvt1pl.mongodb.net/AssistProject?retryWrites=true&w=majority";
-
 mongoose
-  .connect(db_url, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log("CONNECTION OPEN");
+  .connect(process.env.MONGO_URI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
   })
-  .catch((e) => {
-    console.log("Error!");
-    console.log(e);
-  });
+  .then(() => {console.log("MongoDB Connected Successfully");})
+  .catch((err) => console.error("MongoDB Connection Failed:", err));
 
 
 app.use("/api", passwordResetRoute);
